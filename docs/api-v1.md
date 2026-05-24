@@ -59,6 +59,7 @@ Liefert:
 - `POST /api/v1/sitzungen/:id/versionen`
 - `PATCH /api/v1/sitzungen/:id/freigeben`
 - `GET /api/v1/sitzungen/:id/pdf`
+- `GET /api/v1/sitzungen/export.csv`
 - `GET /api/v1/protokolle`
 - `GET /api/v1/protokolle/:id`
 
@@ -68,12 +69,14 @@ Liefert:
 - `GET /api/v1/ansitze/live`
 - `POST /api/v1/ansitze`
 - `PATCH /api/v1/ansitze/:id/beenden`
+- `GET /api/v1/ansitze/export.csv`
 
 ### Reviereinrichtungen
 
 - `GET /api/v1/reviereinrichtungen`
 - `GET /api/v1/reviereinrichtungen/:id`
 - `POST /api/v1/reviereinrichtungen/:id/kontrollen`
+- `GET /api/v1/reviereinrichtungen/export.csv`
 
 ### Fallwild
 
@@ -224,6 +227,7 @@ Reviermeldungen und Aufgaben bilden den ersten fachlichen Arbeitsblock nach Fall
 - `POST /api/v1/reviermeldungen`
 - `GET /api/v1/reviermeldungen/:id`
 - `PATCH /api/v1/reviermeldungen/:id`
+- `GET /api/v1/reviermeldungen/export.csv`
 - `GET /api/v1/aufgaben`
 - `POST /api/v1/aufgaben`
 - `GET /api/v1/aufgaben/:id`
@@ -240,12 +244,69 @@ Rollen für v1:
 
 Normale Mitglieder sehen eigene oder ihnen zugewiesene Aufgaben. Revier-Admins und Schriftführer sehen die Revierliste.
 
+### Mitglieder und Einladungen
+
+Die Mitgliederverwaltung umfasst aktive Revierzugehörigkeiten und E-Mail-basierte Einladungen.
+
+- `GET /api/v1/memberships`
+- `GET /api/v1/memberships/:id`
+- `PATCH /api/v1/memberships/:id`
+- `DELETE /api/v1/memberships/:id`
+- `POST /api/v1/memberships/invitations`
+- `GET /api/v1/memberships/invitations`
+- `DELETE /api/v1/memberships/invitations/:token`
+
+`POST /api/v1/memberships/invitations` sendet eine Einladungs-E-Mail mit einem Token-Link. Einladungen laufen nach 7 Tagen ab. Der eingeladene Nutzer registriert sich über `POST /api/v1/public/register` mit dem Token und nimmt die Einladung damit gleichzeitig an.
+
+`DELETE /api/v1/memberships/invitations/:token` widerruft eine ausstehende Einladung vor deren Annahme.
+
+Rollen:
+
+- Verwalten (Einladen, Entfernen, Rollen ändern): `revier-admin`, `platform-admin`
+- Lesen: alle authentifizierten Revierrollen
+
+### Öffentliche Registrierung
+
+- `POST /api/v1/public/register`
+
+Erstellt einen neuen Benutzer und nimmt gleichzeitig eine ausstehende Mitgliedseinladung an, wenn ein gültiger `invitationToken` übergeben wird. Die Route ist nicht authentifiziert.
+
+Request:
+
+- `email`
+- `password`
+- `name`
+- `invitationToken` optional; wenn angegeben, wird die Einladung angenommen und die Mitgliedschaft sofort aktiviert
+
+Antwort:
+
+- `201` mit `{ user, membership }` wenn Token vorhanden und gültig
+- `201` mit `{ user }` ohne Token (Mitgliedschaft muss separat hinzugefügt werden)
+- `409` wenn E-Mail bereits registriert
+- `422` wenn Token abgelaufen oder ungültig
+
+### Revier-Setup und aktives Revier
+
+- `GET /api/v1/reviere/active`
+- `PATCH /api/v1/reviere/active`
+- `PATCH /api/v1/reviere/active/setup`
+
+`GET /api/v1/reviere/active` liefert das aktive Revier des eingeloggten Benutzers inklusive Mitgliedschaft und Rollenzuweisung.
+
+`PATCH /api/v1/reviere/active` aktualisiert Basis-Metadaten des aktiven Reviers (Name, Beschreibung, Kontaktdaten).
+
+`PATCH /api/v1/reviere/active/setup` führt den initialen Setup-Schritt eines neu erstellten Reviers durch: setzt Reviername, Kontaktdaten und initiale Mitgliederrollen. Wird beim Onboarding neuer Revier-Admins verwendet.
+
+Rollen:
+
+- `GET`: alle authentifizierten Revierrollen
+- `PATCH /active` und `PATCH /active/setup`: `revier-admin`, `platform-admin`
+
 ### Rollen, Nachrichten und Veranstaltungen
 
 Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fachlich bereits mitgedacht.
 
 - `GET /api/v1/roles`
-- `GET /api/v1/memberships`
 - `GET /api/v1/messages`
 - `POST /api/v1/messages`
 
@@ -296,15 +357,16 @@ Die API muss mindestens diese Faelle sauber zurueckgeben:
 
 ## Datenmodell v1
 
-Kernressourcen:
+### Tatsächlich vorhandene Drizzle-Tabellen
 
 - `users`
 - `reviere`
 - `memberships`
-- `devices`
+- `member_invitations`
 - `ansitz_sessions`
 - `reviereinrichtungen`
 - `reviereinrichtung_kontrollen`
+- `reviereinrichtung_wartungen`
 - `fallwild_vorgaenge`
 - `media_assets`
 - `sitzungen`
@@ -313,14 +375,25 @@ Kernressourcen:
 - `beschluesse`
 - `dokumente`
 - `notifications`
+- `aufgabe_assignees`
+- `contact_lists`
+- `contact_entries`
+
+### Geplant, noch nicht umgesetzt
+
+- `devices`
 - `audit_logs`
 
 ## Aktueller Stand im Repository
 
 Bereits produktiv ueber `apps/web` vorhanden:
 
-- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
-- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
+- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `reviermeldungen`, `aufgaben` und `contact-lists`
+- Einladungsbasierte Mitgliederverwaltung unter `memberships/invitations` mit E-Mail-Token-Flow und 7-Tage-Ablauf
+- Öffentliche Registrierungsroute (`public/register`) mit optionaler Einladungsannahme
+- Revier-Setup-Route für das Onboarding neuer Revier-Admins
+- CSV-Export für Sitzungen, Ansitze, Reviereinrichtungen und Reviermeldungen
+- Drizzle-Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications, Mitgliedseinladungen, Reviereinrichtungswartungen, Aufgaben-Zuweisungen und Kontaktlisten
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 
 `apps/api` bleibt als Referenz und Uebergangspfad im Repository, ist aber nicht die produktive Zielarchitektur.
