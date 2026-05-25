@@ -221,7 +221,7 @@
 
 - `pnpm test:e2e -- apps/web/e2e/ansitze.spec.ts apps/web/e2e/fallwild.spec.ts` ausfuehren
 - Erwartung: Desktop- und Mobile-Viewport stimmen mit den Snapshots ueberein
-- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
+- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
 
 ### TC-AUTO-WEB-04: Playwright fuer Leitstand, Reviereinrichtungen und Protokolle
 
@@ -570,3 +570,112 @@
 - `node apps/mobile/scripts/create-test-image.mjs` ausfuehren
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
 - Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
+
+## API Reviermeldungen und Aufgaben
+
+### TC-API-MELD-01: Reviermeldungen auflisten
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/reviermeldungen` aufrufen
+- Erwartung: die Reviermeldungen des aktiven Reviers werden als JSON zurückgegeben
+- Erwartung: jeder Eintrag enthält Typ, Beschreibung, Erfassungszeitpunkt und Ersteller
+
+### TC-API-MELD-02: Reviermeldung anlegen
+
+- Web-App lokal mit aktiver DB starten
+- `POST /api/v1/reviermeldungen` mit gültigem JSON-Body senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die neue Meldung erscheint anschließend in `GET /api/v1/reviermeldungen`
+
+### TC-API-MELD-03: Reviermeldung aktualisieren
+
+- Web-App lokal mit aktiver DB starten
+- `PATCH /api/v1/reviermeldungen/:id` mit geänderten Feldern senden
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: die Änderung ist in einem nachfolgenden `GET /api/v1/reviermeldungen/:id` sichtbar
+
+### TC-API-AUFG-01: Aufgaben auflisten
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/aufgaben` aufrufen
+- Erwartung: eigene und offene Aufgaben des aktiven Reviers werden zurückgegeben
+- Erwartung: Rollenprüfung greift: Jäger sehen nur ihnen zugewiesene Aufgaben
+
+### TC-API-AUFG-02: Aufgabe anlegen
+
+- Web-App mit `revier-admin`- oder `schriftfuehrer`-Session starten
+- `POST /api/v1/aufgaben` mit Titel, Beschreibung und optionaler Fälligkeit senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die Aufgabe erscheint in `GET /api/v1/aufgaben` für berechtigte Nutzer
+
+### TC-API-AUFG-03: Aufgabenstatus ändern
+
+- Web-App lokal mit authentifizierter Session starten
+- `PATCH /api/v1/aufgaben/:id` mit geändertem `status`-Feld senden
+- Erwartung: gültige Statusübergänge (z. B. offen → in Arbeit) werden akzeptiert
+- Erwartung: der Endpunkt antwortet mit `200`
+
+## API Kontaktlisten
+
+### TC-API-KONTAKT-01: Kontaktlisten auflisten
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/contact-lists` aufrufen
+- Erwartung: Mitgliederliste und freie externe Listen des Reviers werden zurückgegeben
+- Erwartung: verknüpfte registrierte Mitglieder liefern Live-Name und Live-Telefon aus `users`
+- Erwartung: Rollenprüfung greift: Pflege-Aktionen nur für Schriftführung/Admin sichtbar
+
+### TC-API-KONTAKT-02: Kontaktliste anlegen
+
+- Web-App mit `revier-admin`- oder `schriftfuehrer`-Session starten
+- `POST /api/v1/contact-lists` mit Name und optionalen Einträgen senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die neue Liste erscheint in `GET /api/v1/contact-lists`
+
+### TC-API-KONTAKT-03: Kontakteintrag aktualisieren
+
+- Web-App mit berechtigter Session starten
+- `PATCH /api/v1/contact-lists/:id` mit geänderten Feldern senden
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: die Änderung ist sofort in einem nachfolgenden `GET /api/v1/contact-lists` sichtbar
+
+### TC-API-KONTAKT-04: Kontaktliste löschen
+
+- Web-App mit `revier-admin`-Session starten
+- `DELETE /api/v1/contact-lists/:id` senden
+- Erwartung: der Endpunkt antwortet mit `200` oder `204`
+- Erwartung: die Liste erscheint nicht mehr in `GET /api/v1/contact-lists`
+
+## API Geo
+
+### TC-API-GEO-01: Fallwild-Standort auflösen
+
+- Web-App lokal mit aktiver DB starten
+- `POST /api/v1/geo/fallwild-location` mit `lat`, `lng` und optionalem `roadName` senden
+- Erwartung: bei gesetztem `GOOGLE_MAPS_SERVER_API_KEY` werden Adresse und Straße aus Google Reverse Geocoding zurückgegeben
+- Erwartung: bei gesetztem GIP-Index wird der Straßenkilometer zurückgegeben
+- Erwartung: ohne externe Keys antwortet der Endpunkt mit manuellem Fallback-Hinweis und keinem `500`
+
+### TC-API-GEO-02: Geo-Provider-Modi
+
+- `HEGE_GEO_PROVIDER=mock` setzen
+- `POST /api/v1/geo/fallwild-location` aufrufen
+- Erwartung: lokale Gänserndorf-Testdaten werden zurückgegeben
+- `HEGE_GEO_PROVIDER=disabled` setzen und `POST /api/v1/geo/fallwild-location` aufrufen
+- Erwartung: der Endpunkt gibt einen Hinweis auf manuelle Standortergänzung zurück
+
+### TC-MOB-KONTAKT-01: Kontakte im Mobile-Tab laden
+
+- App öffnen
+- Tab `Kontakte` oder `Mehr → Kontakte` öffnen
+- Erwartung: Mitgliederliste, freie Listen und Notrufnummern werden geladen
+- Erwartung: die Anrufen-Aktion öffnet den nativen Dialer
+- Erwartung: Pflege-Aktionen sind nur für Schriftführung/Admin sichtbar
+
+### TC-MOB-MELD-01: Reviermeldungen im Mobile-Tab `Meldungen`
+
+- App öffnen
+- Tab `Meldungen` öffnen
+- Erwartung: eigene und offene Reviermeldungen/Aufgaben werden über `GET /api/v1/reviermeldungen` und `GET /api/v1/aufgaben` geladen
+- Erwartung: Aufgabenstatus kann geändert werden (z. B. auf `In Arbeit`)
+- Erwartung: neue Reviermeldung kann erfasst und per `POST /api/v1/reviermeldungen` gespeichert werden
