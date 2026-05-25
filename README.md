@@ -6,6 +6,8 @@ Reviermanagement-Plattform für Jagdgesellschaften in Österreich. Das Repositor
 - `apps/web`: Next.js-Backoffice für Admins und Schriftführung
 - `apps/mobile`: Expo-Mobile-App für Jäger im Feld
 - `packages/domain`: gemeinsames Domain-Modell, Demo-Daten und Fachregeln
+- `packages/tokens`: gemeinsame Design-Tokens für Web und Mobile
+- `packages/icons`: domainspezifische Ikonografie (Hochstand, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied)
 
 ## Stand
 
@@ -36,6 +38,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
 - Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
 - lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
+- Kontaktlisten v1 umgesetzt: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads
 - dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
@@ -145,6 +148,7 @@ Wichtige Testwege:
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
+- Kontaktlisten im nativen iPhone-Smoke prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Rollenrechte für Schriftführung/Admin
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
 
 ## Dokumentation
