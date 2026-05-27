@@ -243,7 +243,7 @@ export default function KontakteScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte werden geladen.">
+      <ScreenShell compactHero topSafeArea={false} eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte werden geladen.">
         <StateView mode="loading" title="Kontakte werden geladen" />
       </ScreenShell>
     );
@@ -251,7 +251,7 @@ export default function KontakteScreen() {
 
   if (!directory) {
     return (
-      <ScreenShell eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte im Revier.">
+      <ScreenShell compactHero topSafeArea={false} eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte im Revier.">
         <StateView
           mode="error"
           title="Kontakte nicht verfügbar"
@@ -276,9 +276,11 @@ export default function KontakteScreen() {
 
   return (
     <ScreenShell
+      compactHero
       eyebrow="Kontakte"
+      topSafeArea={false}
       title="Telefonlisten"
-      subtitle="Mitglieder, Reviernachbarn und Notrufnummern sind hier griffbereit."
+      subtitle="Mitglieder, Reviernachbarn und Notrufnummern griffbereit."
       refresh={{
         refreshing: isRefreshing,
         onRefresh: () => {
@@ -521,7 +523,7 @@ function ContactCard({
         </View>
       </View>
       <View style={styles.contactActions}>
-        <SecondaryButton icon="call-outline" label="Anrufen" onPress={() => void Linking.openURL(toTelHref(contact.phone))} />
+        <IconButton accent icon="call-outline" label={`Anrufen: ${contact.name}`} onPress={() => void Linking.openURL(toTelHref(contact.phone))} />
         {actions}
       </View>
     </View>
@@ -617,12 +619,14 @@ function IconButton({
   label,
   icon,
   onPress,
-  danger
+  danger,
+  accent
 }: {
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
   onPress: () => void;
   danger?: boolean;
+  accent?: boolean;
 }) {
   const styles = useThemedStyles(createStyles);
 
@@ -632,9 +636,14 @@ function IconButton({
       accessibilityLabel={label}
       hitSlop={10}
       onPress={onPress}
-      style={({ pressed }) => [styles.iconButton, danger ? styles.iconButtonDanger : null, pressed ? styles.pressed : null]}
+      style={({ pressed }) => [
+        styles.iconButton,
+        accent ? styles.iconButtonAccent : null,
+        danger ? styles.iconButtonDanger : null,
+        pressed ? styles.pressed : null
+      ]}
     >
-      <Ionicons color={danger ? "#9d4a3f" : "#19392c"} name={icon} size={18} />
+      <Ionicons color={accent ? "#fff8ec" : danger ? "#9d4a3f" : "#19392c"} name={icon} size={18} />
     </Pressable>
   );
 }
@@ -714,9 +723,9 @@ function formatRoleLabel(role: RegisteredContact["role"]) {
 const createStyles = (theme: ThemeColors) =>
   ({
     sectionCard: {
-      gap: 14,
-      padding: 16,
-      borderRadius: 22,
+      gap: 12,
+      padding: 14,
+      borderRadius: 18,
       backgroundColor: theme.card
     },
     sectionHeader: {
@@ -733,7 +742,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     sectionTitle: {
       marginTop: 3,
-      fontSize: 18,
+      fontSize: 17,
       fontWeight: "700",
       color: theme.ink
     },
@@ -766,15 +775,16 @@ const createStyles = (theme: ThemeColors) =>
       color: theme.ink
     },
     contactCard: {
-      gap: 12,
-      padding: 14,
-      borderRadius: 18,
+      gap: 10,
+      padding: 12,
+      borderRadius: 16,
       backgroundColor: theme.surface,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: "rgba(25, 57, 44, 0.1)"
     },
     contactMain: {
       flexDirection: "row",
+      alignItems: "flex-start",
       gap: 12
     },
     contactIcon: {
@@ -810,9 +820,9 @@ const createStyles = (theme: ThemeColors) =>
     },
     contactActions: {
       flexDirection: "row",
-      flexWrap: "wrap",
-      gap: 8,
-      alignItems: "center"
+      gap: 6,
+      alignItems: "center",
+      alignSelf: "flex-start"
     },
     iconActions: {
       flexDirection: "row",
@@ -888,6 +898,9 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: "#e3dccd"
+    },
+    iconButtonAccent: {
+      backgroundColor: theme.accent
     },
     iconButtonDanger: {
       backgroundColor: "rgba(157, 74, 63, 0.12)"

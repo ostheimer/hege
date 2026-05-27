@@ -19,6 +19,8 @@ interface ScreenShellProps extends PropsWithChildren {
   title: string;
   subtitle: string;
   aside?: ReactNode;
+  compactHero?: boolean;
+  topSafeArea?: boolean;
   /**
    * Pull-to-Refresh aktivieren. Wenn gesetzt, rendert ScreenShell automatisch
    * einen nativen RefreshControl mit Brand-Farbe.
@@ -29,15 +31,26 @@ interface ScreenShellProps extends PropsWithChildren {
   };
 }
 
-export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh }: ScreenShellProps) {
+export function ScreenShell({
+  eyebrow,
+  title,
+  subtitle,
+  aside,
+  children,
+  refresh,
+  compactHero = false,
+  topSafeArea = true
+}: ScreenShellProps) {
   const insets = useSafeAreaInsets();
   const bottomPadding = TAB_BAR_VISUAL_HEIGHT + insets.bottom;
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const safeAreaEdges = topSafeArea ? (["top", "left", "right"] as const) : (["left", "right"] as const);
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.safeArea}>
+    <SafeAreaView edges={safeAreaEdges} style={styles.safeArea}>
       <ScrollView
+        contentInsetAdjustmentBehavior="never"
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -51,17 +64,19 @@ export function ScreenShell({ eyebrow, title, subtitle, aside, children, refresh
           ) : undefined
         }
       >
-        <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.hero}>
+        <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={[styles.hero, compactHero ? styles.heroCompact : null]}>
           <View style={styles.heroHeaderRow}>
             <Text style={styles.eyebrow} numberOfLines={1}>
               {eyebrow}
             </Text>
             {aside ? <View style={styles.asideSlot}>{aside}</View> : null}
           </View>
-          <Text adjustsFontSizeToFit minimumFontScale={0.8} numberOfLines={2} style={styles.title}>
+          <Text adjustsFontSizeToFit minimumFontScale={0.8} numberOfLines={2} style={[styles.title, compactHero ? styles.titleCompact : null]}>
             {title}
           </Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text numberOfLines={compactHero ? 2 : undefined} style={[styles.subtitle, compactHero ? styles.subtitleCompact : null]}>
+            {subtitle}
+          </Text>
         </LinearGradient>
         <View style={styles.children}>{children}</View>
       </ScrollView>
@@ -83,6 +98,11 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: 24,
       padding: 18,
       gap: 6
+    },
+    heroCompact: {
+      borderRadius: 18,
+      padding: 14,
+      gap: 4
     },
     heroHeaderRow: {
       flexDirection: "row",
@@ -107,10 +127,19 @@ const createStyles = (theme: ThemeColors) =>
       fontWeight: "700",
       marginTop: 4
     },
+    titleCompact: {
+      fontSize: 20,
+      lineHeight: 24,
+      marginTop: 2
+    },
     subtitle: {
       fontSize: 14,
       lineHeight: 20,
       color: theme.muted
+    },
+    subtitleCompact: {
+      fontSize: 13,
+      lineHeight: 18
     },
     children: {
       gap: 16

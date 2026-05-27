@@ -1,10 +1,14 @@
 import { useEffect } from "react";
-import { Stack } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { Pressable } from "react-native";
 
 import { AppLoader } from "../components/app-loader";
 import { hydrateOfflineQueue, syncOfflineQueue } from "../lib/offline-queue";
 import { restoreSession, useSessionSnapshot } from "../lib/session";
+
+const BACK_HIT_SLOP = { top: 12, right: 12, bottom: 12, left: 12 };
 
 export default function RootLayout() {
   const session = useSessionSnapshot();
@@ -32,17 +36,25 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ title: "hege" }} />
         <Stack.Screen
           name="ueber-hege"
-          options={{ headerShown: true, title: "Über hege", headerBackTitle: "" }}
+          options={{ headerShown: true, title: "Über hege", headerBackVisible: false, headerLeft: HeaderBackButton }}
         />
         <Stack.Screen
           name="benachrichtigungen"
-          options={{ headerShown: true, title: "Benachrichtigungen", headerBackTitle: "" }}
+          options={{ headerShown: true, title: "Benachrichtigungen", headerBackVisible: false, headerLeft: HeaderBackButton }}
         />
         <Stack.Screen
           name="kontakte"
-          options={{ headerShown: true, title: "Kontakte", headerBackTitle: "" }}
+          options={{ headerShown: true, title: "Kontakte", headerBackVisible: false, headerLeft: HeaderBackButton }}
         />
       </Stack>
     </>
+  );
+}
+
+function HeaderBackButton() {
+  return (
+    <Pressable accessibilityLabel="Zurück" accessibilityRole="button" hitSlop={BACK_HIT_SLOP} onPress={() => router.back()}>
+      <Ionicons color="#111" name="chevron-back" size={32} />
+    </Pressable>
   );
 }
