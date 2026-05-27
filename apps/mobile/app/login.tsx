@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
+import * as Updates from "expo-updates";
 
 import { AppLoader } from "../components/app-loader";
 import { loginWithCredentials, MobileApiError } from "../lib/api";
@@ -131,6 +132,13 @@ export default function LoginScreen() {
   const unlockLabel = deviceUnlock?.label ?? "Face ID";
   const canUseDeviceUnlock = session.status === "locked" && deviceUnlock?.available && deviceUnlock.enabled;
 
+  const versionLabel = useMemo(() => {
+    const runtime = Updates.runtimeVersion ?? "dev";
+    const channel = Updates.channel ?? "lokal";
+    const updateId = Updates.updateId?.slice(0, 8) ?? "embedded";
+    return `${runtime} · ${channel} · ${updateId}`;
+  }, []);
+
   return (
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
@@ -219,6 +227,9 @@ export default function LoginScreen() {
           </View>
 
           <Text style={styles.footer}>Nach erfolgreichem Login werden Dashboard und Tabs automatisch freigeschaltet.</Text>
+          <Text accessibilityLabel={`App-Version ${versionLabel}`} style={styles.versionLabel}>
+            {versionLabel}
+          </Text>
         </View>
       </KeyboardAvoidingView>
     </LinearGradient>
@@ -353,5 +364,14 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 13,
     lineHeight: 19,
     color: theme.muted
+  },
+  versionLabel: {
+    fontSize: 10,
+    lineHeight: 14,
+    color: theme.muted,
+    textAlign: "center",
+    opacity: 0.6,
+    marginTop: 2,
+    fontVariant: ["tabular-nums"]
   }
 }) as const;
