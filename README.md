@@ -156,6 +156,7 @@ Wichtige Testwege:
 - [Mobile App v1 für Jäger](./docs/mobile-jaeger-v1.md)
 - [API v1](./docs/api-v1.md)
 - [Roadmap und Sprints](./docs/roadmap-v1.md)
+- [Autonomer Umsetzungsplan 2026-05](./docs/autonomer-umsetzungsplan-2026-05.md)
 - [iOS-Smoke-Runbook](./docs/mobile-smoke-ios.md)
 - [Android-Smoke-Runbook](./docs/mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./docs/maps-google-v1.md)
