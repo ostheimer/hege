@@ -254,7 +254,7 @@ export default function HeuteScreen() {
               } else if (item.kind === "fallwild") {
                 router.push("/(tabs)/fallwild");
               } else {
-                router.push("/benachrichtigungen" as Parameters<typeof router.push>[0]);
+                router.push("/(tabs)/benachrichtigungen" as Parameters<typeof router.push>[0]);
               }
             }}
           />

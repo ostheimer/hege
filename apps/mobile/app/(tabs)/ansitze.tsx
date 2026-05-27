@@ -665,22 +665,26 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.muted
   },
   queueCard: {
-    gap: 8
+    gap: 6,
+    padding: 12,
+    borderRadius: 14,
+    backgroundColor: theme.accent
   },
   queueTitle: {
-    fontSize: 12,
+    fontSize: 11,
     textTransform: "uppercase",
     letterSpacing: 1.1,
+    fontWeight: "700",
     color: "#f7f2e5"
   },
   queueValue: {
-    fontSize: 34,
+    fontSize: 26,
     fontWeight: "700",
     color: "#fff9ef"
   },
   queueCopy: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 16,
     color: "#f7f2e5"
   },
   card: {

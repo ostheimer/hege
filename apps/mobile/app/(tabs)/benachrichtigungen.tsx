@@ -4,20 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import type { DashboardResponse, NotificationItem } from "@hege/domain";
 
-import { FilterChipRow } from "../components/filter-chip-row";
-import { ScreenShell } from "../components/screen-shell";
-import { StateView } from "../components/state-view";
-import { fetchDashboardSnapshot } from "../lib/api";
-import { formatApiErrorDescription } from "../lib/format";
+import { FilterChipRow } from "../../components/filter-chip-row";
+import { ScreenShell } from "../../components/screen-shell";
+import { StateView } from "../../components/state-view";
+import { fetchDashboardSnapshot } from "../../lib/api";
+import { formatApiErrorDescription } from "../../lib/format";
 import {
   countUnread,
   markAllNotificationsRead,
   markNotificationRead,
   useReadNotificationIds
-} from "../lib/notifications-read-state";
-import type { ThemeColors } from "../lib/theme";
-import { useThemeColors } from "../lib/theme";
-import { useThemedStyles } from "../lib/use-themed-styles";
+} from "../../lib/notifications-read-state";
+import type { ThemeColors } from "../../lib/theme";
+import { useThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 type NotificationFilter = "alle" | "ungelesen";
 
