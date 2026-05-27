@@ -14,10 +14,10 @@ import {
 } from "react-native";
 import type { ContactDirectoryResponse, ContactEntry, ContactList, RegisteredContact } from "@hege/domain";
 
-import { ScreenShell } from "../components/screen-shell";
-import { SearchInput } from "../components/search-input";
-import { SelectField } from "../components/select-field";
-import { StateView } from "../components/state-view";
+import { ScreenShell } from "../../components/screen-shell";
+import { SearchInput } from "../../components/search-input";
+import { SelectField } from "../../components/select-field";
+import { StateView } from "../../components/state-view";
 import {
   createContactEntry,
   createContactList,
@@ -26,9 +26,9 @@ import {
   fetchContactDirectory,
   updateContactEntry,
   updateContactList
-} from "../lib/api";
-import { useThemeColors, type ThemeColors } from "../lib/theme";
-import { useThemedStyles } from "../lib/use-themed-styles";
+} from "../../lib/api";
+import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { useThemedStyles } from "../../lib/use-themed-styles";
 
 type EntryMode = "member" | "external";
 
@@ -243,7 +243,7 @@ export default function KontakteScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell compactHero topSafeArea={false} eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte werden geladen.">
+      <ScreenShell eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte werden geladen.">
         <StateView mode="loading" title="Kontakte werden geladen" />
       </ScreenShell>
     );
@@ -251,7 +251,7 @@ export default function KontakteScreen() {
 
   if (!directory) {
     return (
-      <ScreenShell compactHero topSafeArea={false} eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte im Revier.">
+      <ScreenShell eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte im Revier.">
         <StateView
           mode="error"
           title="Kontakte nicht verfügbar"
@@ -276,9 +276,7 @@ export default function KontakteScreen() {
 
   return (
     <ScreenShell
-      compactHero
       eyebrow="Kontakte"
-      topSafeArea={false}
       title="Telefonlisten"
       subtitle="Mitglieder, Reviernachbarn und Notrufnummern griffbereit."
       refresh={{

@@ -71,7 +71,7 @@ export function ScreenShell({
             </Text>
             {aside ? <View style={styles.asideSlot}>{aside}</View> : null}
           </View>
-          <Text adjustsFontSizeToFit minimumFontScale={0.8} numberOfLines={2} style={[styles.title, compactHero ? styles.titleCompact : null]}>
+          <Text numberOfLines={3} style={[styles.title, compactHero ? styles.titleCompact : null]}>
             {title}
           </Text>
           <Text numberOfLines={compactHero ? 2 : undefined} style={[styles.subtitle, compactHero ? styles.subtitleCompact : null]}>
@@ -118,7 +118,8 @@ const createStyles = (theme: ThemeColors) =>
       color: theme.muted
     },
     asideSlot: {
-      flexShrink: 0
+      flexShrink: 0,
+      maxWidth: 140
     },
     title: {
       fontSize: 26,

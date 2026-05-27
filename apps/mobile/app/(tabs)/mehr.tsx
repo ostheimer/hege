@@ -21,7 +21,7 @@ interface MehrLink {
 
 const MEHR_LINKS: ReadonlyArray<MehrLink> = [
   {
-    href: "/benachrichtigungen",
+    href: "/(tabs)/benachrichtigungen",
     label: "Benachrichtigungen",
     description: "Push- und In-App-Meldungen mit Gelesen-Status.",
     icon: "notifications-outline"
@@ -39,7 +39,7 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
     icon: "checkbox-outline"
   },
   {
-    href: "/kontakte",
+    href: "/(tabs)/kontakte",
     label: "Kontakte",
     description: "Mitglieder, Reviernachbarn und Notrufnummern.",
     icon: "call-outline"
@@ -159,7 +159,7 @@ export default function MehrScreen() {
           // Wir koennten das ueber ein generisches `badge`-Feld in
           // MehrLink loesen, aber bislang ist es nur eine Stelle —
           // direkter Check ist kuerzer + leichter zu lesen.
-          const showUnreadBadge = entry.href === "/benachrichtigungen" && unreadCount > 0;
+          const showUnreadBadge = entry.href === "/(tabs)/benachrichtigungen" && unreadCount > 0;
           const badgeLabel = unreadCount > 9 ? "9+" : `${unreadCount}`;
           const a11yLabel = showUnreadBadge
             ? `${entry.label}, ${unreadCount} ungelesen`
