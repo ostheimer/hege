@@ -24,6 +24,9 @@
     "production": {
       "channel": "production",
       "autoIncrement": true,
+      "ios": {
+        "image": "macos-sequoia-15.6-xcode-26.2"
+      },
       "env": {
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_API_BASE_URL": "https://hege.app/api/v1"
