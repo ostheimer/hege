@@ -22,7 +22,7 @@ const logoMark = require("../assets/logo-mark.png");
 // Release/Update manuell hochzaehlen. Bewusst eine statische Konstante
 // statt eines expo-updates-Zugriffs: das Lesen von Updates.channel im
 // OTA-Kontext hat einen nativen Crash ausgeloest.
-const BUILD_TAG = "0.1.0 · 2026-05-28.1";
+const BUILD_TAG = "0.1.0 · 2026-05-28.2";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -371,6 +371,6 @@ const createStyles = (theme: ThemeColors) =>
     textAlign: "center",
     opacity: 0.6,
     marginTop: 2,
-    fontVariant: ["tabular-nums"]
+    fontVariant: ["tabular-nums"] as ("tabular-nums")[]
   }
 }) as const;

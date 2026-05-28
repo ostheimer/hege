@@ -15,6 +15,7 @@ import type { AnsitzSession } from "@hege/domain";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
+import { QueueStatusPill } from "../../components/queue-status-pill";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
 import { ViewToggle } from "../../components/view-toggle";
@@ -184,19 +185,16 @@ export default function AnsitzeScreen() {
   }
 
   const queueEntries = queue.entries.filter((entry) => entry.kind === "ansitz-create");
+  const failedQueueCount = queueEntries.filter(
+    (entry) => entry.status === "failed" || entry.status === "conflict"
+  ).length;
 
   return (
     <ScreenShell
       eyebrow="Ansitz"
       title="Ansitz mobil erfassen."
       subtitle="Standort, Koordinaten und Notiz werden online direkt an die API gesendet oder offline vorgemerkt."
-      aside={
-        <View style={styles.queueCard}>
-          <Text style={styles.queueTitle}>Vorgemerkte Ansitze</Text>
-          <Text style={styles.queueValue}>{queueEntries.length}</Text>
-          <Text style={styles.queueCopy}>Wartende und fehlgeschlagene Einträge werden bei bestehender Verbindung erneut gesendet.</Text>
-        </View>
-      }
+      aside={<QueueStatusPill count={queueEntries.length} failedCount={failedQueueCount} />}
     >
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neuer Ansitz</Text>
@@ -663,29 +661,6 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 14,
     lineHeight: 20,
     color: theme.muted
-  },
-  queueCard: {
-    gap: 6,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: theme.accent
-  },
-  queueTitle: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    fontWeight: "700",
-    color: "#f7f2e5"
-  },
-  queueValue: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#fff9ef"
-  },
-  queueCopy: {
-    fontSize: 12,
-    lineHeight: 16,
-    color: "#f7f2e5"
   },
   card: {
     gap: 10,
