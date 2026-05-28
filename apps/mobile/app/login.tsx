@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
+import type { TextStyle } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 import * as Updates from "expo-updates";
@@ -132,12 +133,10 @@ export default function LoginScreen() {
   const unlockLabel = deviceUnlock?.label ?? "Face ID";
   const canUseDeviceUnlock = session.status === "locked" && deviceUnlock?.available && deviceUnlock.enabled;
 
-  const versionLabel = useMemo(() => {
-    const runtime = Updates.runtimeVersion ?? "dev";
-    const channel = Updates.channel ?? "lokal";
-    const updateId = Updates.updateId?.slice(0, 8) ?? "embedded";
-    return `${runtime} · ${channel} · ${updateId}`;
-  }, []);
+  const runtime = Updates.runtimeVersion ?? "dev";
+  const channel = Updates.channel ?? "lokal";
+  const updateId = Updates.updateId?.slice(0, 8) ?? "embedded";
+  const versionLabel = `${runtime} · ${channel} · ${updateId}`;
 
   return (
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
@@ -372,6 +371,6 @@ const createStyles = (theme: ThemeColors) =>
     textAlign: "center",
     opacity: 0.6,
     marginTop: 2,
-    fontVariant: ["tabular-nums"]
+    fontVariant: ["tabular-nums"] as NonNullable<TextStyle["fontVariant"]>
   }
 }) as const;
