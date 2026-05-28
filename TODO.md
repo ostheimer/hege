@@ -32,7 +32,7 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 - [hoch] Mobile-Tabs von 6 auf 4 + „Mehr"-Sheet reduzieren, Logout in Profil verlegen — siehe Audit F-12 und F-15.
 - [hoch] Mobile-Login-Wortmarke „hege" durch ein einzelnes Logo-Asset ersetzen — siehe Audit F-13.
 - ~~[hoch] Member-Invite-Flow planen, damit andere Rollen ohne Seed-/SQL-Eingriff angelegt werden können — siehe Audit F-20.~~ Erledigt 2026-05-07 als Hybrid mit Code als sichtbarem Default und optionaler Mail-Versand.
-- [hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21.
+- ~~[hoch] Geteilte Design-Tokens (`@hege/tokens`) für Web und Mobile einführen — siehe Audit F-21. Erledigt: `packages/tokens` existiert.~~
 
 #### Mittel
 
@@ -62,7 +62,7 @@ Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zue
 - [ ] P1.2 — Wortmarken-Logo als SVG-Asset-Satz (Mark+Wortmarke kombiniert + monochrome Varianten) für Header, Favicon, OG-Image, Mobile-Login, Mobile-Splash.
 - [ ] P1.3 — Mobile Heute-Tab Layout-Fixes: Bottom-Padding für Tab-Bar (Tiles werden nicht mehr abgeschnitten), Aside-Card kollabiert auf 0-Wert, Slash-Trennung der Personenzeile durch Punkt-Trennung ersetzt, Hero-Title mit Auto-Shrink, Toolbar-Buttons in Header-Aside oder Pull-to-Refresh.
 - [ ] P1.4 — Vereinheitlichte `<StateView>`-Komponente für Empty/Loading/Error in Web und Mobile, ad-hoc-Cards migrieren.
-- [ ] P1.5 — Custom Domain-Iconographie als neues `packages/icons`-Workspace-Package (Hochstand, Fütterung, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied), Web + Mobile.
+- [x] P1.5 — Custom Domain-Iconographie als neues `packages/icons`-Workspace-Package (Hochstand, Fütterung, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied), Web + Mobile. `packages/icons` existiert.
 - [ ] P1.6 — Mikrointeraktionen: Web View Transitions, Hover/Press-Feedback; Mobile Sheet-Slides + Reanimated Pressable-Skalierung + Haptik bei Save/Send/Discard.
 - [ ] P1.7 — Hero-Visuals auf Public-Landing: Backoffice-Mockup mit echter Karte und iPhone-Mock mit Fallwild-Form als statische Assets in `apps/web/public/landing/`.
 - [ ] P1.8 — Dark Mode Mobile durchziehen: Components von `colors.x` auf `useThemeColors()` migrieren, sodass `userInterfaceStyle: automatic` wirklich greift.
