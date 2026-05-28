@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
-import * as Updates from "expo-updates";
 
 import { AppLoader } from "../components/app-loader";
 import { loginWithCredentials, MobileApiError } from "../lib/api";
@@ -17,6 +16,13 @@ import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
 const logoMark = require("../assets/logo-mark.png");
+
+// Sichtbarer Build-Marker auf dem Login-Screen, damit man am Geraet
+// erkennt, welche Version/welcher OTA-Push gerade laeuft. Bei jedem
+// Release/Update manuell hochzaehlen. Bewusst eine statische Konstante
+// statt eines expo-updates-Zugriffs: das Lesen von Updates.channel im
+// OTA-Kontext hat einen nativen Crash ausgeloest.
+const BUILD_TAG = "0.1.0 · 2026-05-28.1";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -132,13 +138,6 @@ export default function LoginScreen() {
   const unlockLabel = deviceUnlock?.label ?? "Face ID";
   const canUseDeviceUnlock = session.status === "locked" && deviceUnlock?.available && deviceUnlock.enabled;
 
-  const versionLabel = useMemo(() => {
-    const runtime = Updates.runtimeVersion ?? "dev";
-    const channel = Updates.channel ?? "lokal";
-    const updateId = Updates.updateId?.slice(0, 8) ?? "embedded";
-    return `${runtime} · ${channel} · ${updateId}`;
-  }, []);
-
   return (
     <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
@@ -227,8 +226,8 @@ export default function LoginScreen() {
           </View>
 
           <Text style={styles.footer}>Nach erfolgreichem Login werden Dashboard und Tabs automatisch freigeschaltet.</Text>
-          <Text accessibilityLabel={`App-Version ${versionLabel}`} style={styles.versionLabel}>
-            {versionLabel}
+          <Text accessibilityLabel={`App-Version ${BUILD_TAG}`} style={styles.versionLabel}>
+            {BUILD_TAG}
           </Text>
         </View>
       </KeyboardAvoidingView>
