@@ -20,7 +20,7 @@ Die erste produktive Ausbaustufe liefert jetzt gemeinsame Typen, persistente Rou
 Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive Linie läuft aber in `apps/web` über Vercel-native Route Handler und Drizzle:
 
 - Drizzle-Konfiguration und Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications und Fallwild-Standortmetadaten
-- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
+- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `geo`, `aufgaben`, `reviermeldungen`, `contact-lists` und `memberships`
 - Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
@@ -44,7 +44,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
 
-Rollen, Aufgaben und Nachrichten werden als nächste fachliche Erweiterung geplant, mit späterer Anbindung an Messenger-Kanäle wie WhatsApp und Telegram.
+Reviermeldungen und Aufgaben v1 sind produktiv umgesetzt. Das tiefere Rollen- und Empfängergruppenmodell (zielgerichtete Sichtbarkeit, Messenger-Anbindung an WhatsApp/Telegram) ist als nächste fachliche Erweiterung geplant.
 
 ## Zielbetrieb
 
@@ -128,6 +128,7 @@ pnpm typecheck
 Wichtige Testwege:
 
 - `pnpm test` führt die bestehenden Unit- und Integrationstests für `@hege/domain` und `@hege/web` aus.
+- `pnpm --filter @hege/mobile test` führt die Vitest-Suite für die Mobile-App aus (24 Testdateien in `apps/mobile/lib/`, u. a. Offline-Queue, Fallwild-Fotos, FSRS-Logik, Filter-Helfer).
 - `pnpm test:e2e` startet Playwright gegen eine isolierte lokale E2E-Datenbank und prüft Kernflüsse in der Web-App browserbasiert.
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines für die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` prüft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
@@ -145,7 +146,7 @@ Wichtige Testwege:
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
-- Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+- Rollen- und Empfängergruppenmodell für zielgerichtete Sichtbarkeit von Nachrichten und Aufgaben ausarbeiten (Reviermeldungen/Aufgaben v1 sind produktiv)
 
 ## Dokumentation
 
