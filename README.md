@@ -6,6 +6,8 @@ Reviermanagement-Plattform für Jagdgesellschaften in Österreich. Das Repositor
 - `apps/web`: Next.js-Backoffice für Admins und Schriftführung
 - `apps/mobile`: Expo-Mobile-App für Jäger im Feld
 - `packages/domain`: gemeinsames Domain-Modell, Demo-Daten und Fachregeln
+- `packages/tokens`: Shared Design-Tokens (@hege/tokens: Farben, Spacing, Radius, Typo)
+- `packages/icons`: Shared Domain-Icons (@hege/icons)
 
 ## Stand
 
