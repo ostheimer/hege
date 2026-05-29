@@ -16,6 +16,7 @@ import * as Location from "expo-location";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
+import { QueueStatusPill } from "../../components/queue-status-pill";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
 import { SelectField } from "../../components/select-field";
@@ -506,19 +507,7 @@ export default function FallwildScreen() {
       eyebrow="Fallwild"
       title="Fallwild mobil erfassen."
       subtitle="Zeitpunkt, GPS, Wildart und bis zu drei Bibliotheksfotos werden direkt oder offline erfasst."
-      aside={
-        <View style={styles.queueCard}>
-          <Text style={styles.queueTitle}>Ausstehende Synchronisierung</Text>
-          <Text style={styles.queueValue}>{queueSummary.totalCount}</Text>
-          <Text style={styles.queueCopy}>
-            {queueSummary.failedCount > 0
-              ? `${queueSummary.failedCount} Einträge brauchen Aufmerksamkeit.`
-              : queue.isSyncing
-                ? "Warteschlange wird gerade gesendet."
-                : "Erfasste Vorgänge werden automatisch nachgereicht."}
-          </Text>
-        </View>
-      }
+      aside={<QueueStatusPill count={queueSummary.totalCount} failedCount={queueSummary.failedCount} />}
     >
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neuer Fallwild-Vorgang</Text>
@@ -1463,29 +1452,6 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 14,
     lineHeight: 20,
     color: theme.muted
-  },
-  queueCard: {
-    gap: 6,
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: theme.accent
-  },
-  queueTitle: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    fontWeight: "700",
-    color: "#f7f2e5"
-  },
-  queueValue: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#fff9ef"
-  },
-  queueCopy: {
-    fontSize: 12,
-    lineHeight: 16,
-    color: "#f7f2e5"
   },
   card: {
     gap: 6,
