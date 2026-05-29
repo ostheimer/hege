@@ -1,6 +1,6 @@
-import { Linking, Platform, Pressable, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Linking, Platform, Pressable, Text, View } from "react-native";
 
+import { ScreenShell } from "../components/screen-shell";
 import type { ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
@@ -53,16 +53,12 @@ export default function UeberHegeScreen() {
   }
 
   return (
-    <SafeAreaView edges={["top", "left", "right"]} style={styles.root}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.heroCard}>
-          <Text style={styles.eyebrow}>Über</Text>
-          <Text style={styles.title}>hege</Text>
-          <Text style={styles.subtitle}>
-            Reviermanagement für Jagdgesellschaften in Österreich — Backoffice im Web, Erfassung in der App.
-          </Text>
-        </View>
-
+    <ScreenShell
+      eyebrow="Über"
+      title="hege"
+      subtitle="Reviermanagement für Jagdgesellschaften in Österreich — Backoffice im Web, Erfassung in der App."
+      topSafeArea={false}
+    >
         <View style={styles.card}>
           <Text style={styles.sectionEyebrow}>Build-Information</Text>
           <DetailRow label="App-Version" value={APP_VERSION} styles={styles} />
@@ -119,8 +115,7 @@ export default function UeberHegeScreen() {
           © {new Date().getFullYear()} hege · Aufgebaut mit React Native, Expo und nachhaltiger
           Liebe zum Revier.
         </Text>
-      </ScrollView>
-    </SafeAreaView>
+    </ScreenShell>
   );
 }
 
@@ -141,39 +136,6 @@ function DetailRow({ label, value, styles }: DetailRowProps) {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-    root: {
-      flex: 1,
-      backgroundColor: theme.background
-    },
-    content: {
-      padding: 16,
-      gap: 14,
-      paddingBottom: 48
-    },
-    heroCard: {
-      padding: 20,
-      borderRadius: 22,
-      backgroundColor: theme.card,
-      gap: 8
-    },
-    eyebrow: {
-      fontSize: 11,
-      textTransform: "uppercase",
-      letterSpacing: 1.2,
-      color: theme.muted,
-      fontWeight: "700"
-    },
-    title: {
-      fontSize: 36,
-      fontWeight: "700",
-      color: theme.ink,
-      letterSpacing: -0.5
-    },
-    subtitle: {
-      fontSize: 14,
-      lineHeight: 20,
-      color: theme.muted
-    },
     card: {
       padding: 16,
       borderRadius: 18,
