@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -312,11 +313,25 @@ export default function RevierarbeitScreen() {
       title="Meldungen und Aufgaben dort festhalten, wo sie entstehen."
       subtitle="Reviermeldungen gehen direkt an die API. Aufgaben zeigen, was für dich oder das Revier offen ist."
       aside={
-        <View style={styles.asideCard}>
-          <Text style={styles.asideLabel}>Offene Aufgaben</Text>
-          <Text style={styles.asideValue}>{openTaskCount}</Text>
-          <Text style={styles.asideCopy}>{meldungen.length} Reviermeldungen im aktuellen Revier.</Text>
-        </View>
+        openTaskCount > 0 ? (
+          <View
+            accessibilityRole="text"
+            accessibilityLabel={`${openTaskCount} offene Aufgaben`}
+            style={[styles.statPill, styles.statPillActive]}
+          >
+            <Ionicons color="#fff9ef" name="list-circle" size={14} />
+            <Text style={[styles.statPillLabel, styles.statPillLabelOnAccent]}>{openTaskCount} offen</Text>
+          </View>
+        ) : (
+          <View
+            accessibilityRole="text"
+            accessibilityLabel="Alle Aufgaben erledigt"
+            style={[styles.statPill, styles.statPillIdle]}
+          >
+            <Ionicons color={theme.accent} name="checkmark-circle" size={14} />
+            <Text style={[styles.statPillLabel, styles.statPillLabelMuted]}>Alle erledigt</Text>
+          </View>
+        )
       }
     >
       <View style={styles.formCard}>
@@ -837,28 +852,32 @@ const createStyles = (theme: ThemeColors) =>
     fontWeight: "700",
     color: "#fff9ef"
   },
-  asideCard: {
-    gap: 6,
-    padding: 12,
-    borderRadius: 14,
+  statPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 999
+  },
+  statPillActive: {
     backgroundColor: theme.accent
   },
-  asideLabel: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    fontWeight: "700",
-    color: "#f7f2e5"
+  statPillIdle: {
+    backgroundColor: theme.card,
+    borderWidth: 1,
+    borderColor: theme.accent
   },
-  asideValue: {
-    fontSize: 26,
+  statPillLabel: {
+    fontSize: 11,
     fontWeight: "700",
+    letterSpacing: 0.4
+  },
+  statPillLabelOnAccent: {
     color: "#fff9ef"
   },
-  asideCopy: {
-    fontSize: 12,
-    lineHeight: 16,
-    color: "#f7f2e5"
+  statPillLabelMuted: {
+    color: theme.accent
   },
   toolbar: {
     flexDirection: "row",
