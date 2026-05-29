@@ -319,7 +319,7 @@ Kernressourcen:
 
 Bereits produktiv ueber `apps/web` vorhanden:
 
-- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
+- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `contact-lists`, `reviermeldungen` und `aufgaben`
 - Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 
@@ -328,5 +328,5 @@ Bereits produktiv ueber `apps/web` vorhanden:
 ## Naechste API-Themen
 
 1. gehaerteten Medien-/Queue-v2-Pfad per iPhone-/iOS-Simulator-Smoke mit Testkonto und Test-Revier erneut abnehmen
-2. Reviermeldungen und Aufgaben v1 auf dieselbe API-Linie heben
-3. Rollen-, Nachrichten- und Veranstaltungsressourcen danach auf denselben Rechte- und Fehlervertrag setzen
+2. Rollen-, Nachrichten- und Veranstaltungsressourcen auf denselben Rechte- und Fehlervertrag setzen
+3. echte Kartenintegration (Google Maps JS API / react-native-maps) planen
