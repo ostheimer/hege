@@ -5,6 +5,7 @@ import type { ProtokollDetail, ProtokollListItem } from "@hege/domain";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
+import { StateView } from "../../components/state-view";
 import { formatDateTime } from "../../lib/format";
 import { fetchProtokollDetail, fetchProtokolleList } from "../../lib/api";
 import {
@@ -81,15 +82,13 @@ export default function ProtokolleScreen() {
       subtitle="Freigegebene Protokolle bleiben mobil lesbar, Entwürfe sind fürs Backoffice reserviert."
     >
       {isLoading ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Protokolle werden geladen</Text>
-          <Text style={styles.stateCopy}>Die freigegebenen Sitzungen werden über die API geladen.</Text>
-        </View>
+        <StateView
+          mode="loading"
+          title="Protokolle werden geladen"
+          description="Die freigegebenen Sitzungen werden über die API geladen."
+        />
       ) : error ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>API nicht erreichbar</Text>
-          <Text style={styles.stateCopy}>{error}</Text>
-        </View>
+        <StateView mode="error" title="API nicht erreichbar" description={error} />
       ) : null}
 
       {!isLoading && !error && protokolle.length > 0 ? (
@@ -143,16 +142,15 @@ export default function ProtokolleScreen() {
       ) : null}
 
       {!isLoading && !error && visibleProtokolle.length === 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>
-            {protokolle.length === 0 ? "Noch keine Protokolle" : "Keine Treffer"}
-          </Text>
-          <Text style={styles.stateCopy}>
-            {protokolle.length === 0
+        <StateView
+          mode="empty"
+          title={protokolle.length === 0 ? "Noch keine Protokolle" : "Keine Treffer"}
+          description={
+            protokolle.length === 0
               ? "Sobald die Schriftführung Sitzungen anlegt und freigibt, erscheinen sie hier."
-              : "Mit den aktuellen Filtern findet sich kein Eintrag. Filter zurücksetzen oder Suchbegriff anpassen."}
-          </Text>
-        </View>
+              : "Mit den aktuellen Filtern findet sich kein Eintrag. Filter zurücksetzen oder Suchbegriff anpassen."
+          }
+        />
       ) : null}
 
       <View style={styles.list}>
@@ -248,22 +246,6 @@ const createStyles = (theme: ThemeColors) =>
     height: 1,
     backgroundColor: "#e5dfd1",
     marginVertical: 4
-  },
-  stateCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
-  stateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: theme.ink
-  },
-  stateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: theme.muted
   },
   filterSection: {
     gap: 10,
