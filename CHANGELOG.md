@@ -40,6 +40,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Die Mobile-Offline-Queue verarbeitet Fallwild jetzt als Create-zu-Upload-Kette mit `pending`, `syncing`, `uploading`, `failed` und `conflict`.
 - Das Mobile-Dashboard zeigt Queue-Typ, Status, Fehlermeldung und Verwerf-Aktion fuer fehlgeschlagene Eintraege.
 - Der lokale Schnellstart fuer Web/API umfasst jetzt auch ein wiederholbares Storage-Setup fuer MinIO.
+- Protokollversionen verlangen keine Pflicht-Zusammenfassung mehr; eine Version muss nur noch eine Zusammenfassung, einen Agenda-Punkt oder einen Beschluss enthalten, damit die Schriftfuehrung Zwischenstaende speichern kann.
 
 ### Fixed
 
@@ -47,3 +48,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.
 - Production-Fallback fuer Legacy-Schema eingebaut, damit Login ohne `users.username` und Fallwild-Reads ohne `media_assets` nicht mehr mit `500` scheitern.
 - Fallwild-Reads brechen ohne konfigurierte Storage-Public-URL nicht mehr mit `500`, sondern liefern `photos: []`.
+- Protokoll-Erstellung (Schriftfuehrung): Validierungsfehler nennen jetzt verstaendliche deutsche Feldbezeichnungen statt interner Feldnamen (z. B. `„Titel" darf nicht leer sein.`).
+- Ein Beschluss mit Titel, aber ohne Beschlusstext, wird beim Speichern nicht mehr stillschweigend verworfen, sondern klar zurueckgemeldet.
+- Erfolgs- und Fehlermeldungen im Sitzungsdetail erscheinen nur noch beim ausloesenden Formular (Stammdaten, Protokollversion und Freigabe getrennt) statt doppelt.
+- Die Sitzungs-Historie zeigt „Version N" statt der internen Versions-ID.
+- Die Detail-Navigation der Sitzungen nutzt kanonische `/app/sitzungen`-Pfade ohne 307-Redirect.
+- Beschluesse lassen sich im Protokollformular wieder entfernen; sichtbare Plurale („Beschluesse", „Anhaenge", „Version(en)") wurden durch korrektes Deutsch ersetzt.
