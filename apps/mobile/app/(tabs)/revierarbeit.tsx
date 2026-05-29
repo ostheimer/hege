@@ -18,6 +18,7 @@ import type {
   ReviermeldungStatus
 } from "@hege/domain";
 
+import { Badge, type BadgeTone } from "../../components/badge";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
@@ -595,11 +596,7 @@ export default function RevierarbeitScreen() {
                 <Text style={styles.badgeText}>{`${formatPriorityLabel(entry.priority)} / ${formatTaskStatusLabel(entry.status)}`}</Text>
                 <Text style={styles.title}>{entry.title}</Text>
               </View>
-              <View style={getTaskBadgeStyle(styles, entry.status)}>
-                <Text style={getTaskBadgeTextStyle(styles, entry.status)}>
-                  {formatTaskStatusLabel(entry.status)}
-                </Text>
-              </View>
+              <Badge tone={taskTone(entry.status)}>{formatTaskStatusLabel(entry.status)}</Badge>
             </View>
             {entry.description ? <Text style={styles.copy}>{entry.description}</Text> : null}
             {entry.dueAt ? <Text style={styles.copy}>Fällig: {formatDateTime(entry.dueAt)}</Text> : null}
@@ -768,36 +765,20 @@ function formatTaskStatusLabel(value: AufgabeStatus) {
   }
 }
 
-function getTaskBadgeStyle(styles: ReturnType<typeof createStyles>, status: AufgabeStatus) {
+function taskTone(status: AufgabeStatus): BadgeTone {
   if (status === "erledigt") {
-    return styles.okBadge;
+    return "success";
   }
 
   if (status === "in_arbeit" || status === "angenommen") {
-    return styles.infoBadge;
+    return "info";
   }
 
   if (status === "blockiert" || status === "abgelehnt") {
-    return styles.errorBadge;
+    return "danger";
   }
 
-  return styles.warningBadge;
-}
-
-function getTaskBadgeTextStyle(styles: ReturnType<typeof createStyles>, status: AufgabeStatus) {
-  if (status === "erledigt") {
-    return styles.okText;
-  }
-
-  if (status === "in_arbeit" || status === "angenommen") {
-    return styles.infoText;
-  }
-
-  if (status === "blockiert" || status === "abgelehnt") {
-    return styles.errorText;
-  }
-
-  return styles.warningText;
+  return "warning";
 }
 
 function formatPriorityLabel(value: AufgabeListItem["priority"]) {
@@ -1053,44 +1034,4 @@ const createStyles = (theme: ThemeColors) =>
     flexWrap: "wrap",
     gap: 10
   },
-  okBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#dde7cf"
-  },
-  infoBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#dce6df"
-  },
-  warningBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#efe3d1"
-  },
-  errorBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#f0d9d4"
-  },
-  okText: {
-    color: theme.accent,
-    fontWeight: "700"
-  },
-  infoText: {
-    color: theme.ink,
-    fontWeight: "700"
-  },
-  warningText: {
-    color: theme.warning,
-    fontWeight: "700"
-  },
-  errorText: {
-    color: theme.danger,
-    fontWeight: "700"
-  }
 }) as const;
