@@ -19,6 +19,7 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
 - [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md)
 - [UI-Audit 2026-05-07](./ui-audit-2026-05-07.md)
+- [Mobile UI-Audit](./mobile-ui-audit.md)
 - [Design-System v1](./design-system-v1.md)
 - [UX-Roadmap v2](./ux-roadmap-v2.md)
 - [Test-Accounts und Rollen-Übersicht](./test-accounts.md)
@@ -27,6 +28,10 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Sprint 1 Backlog](./sprint-1-backlog.md)
 - [Agent-Workstreams Sprint 0](./agent-workstreams-sprint-0.md)
 - [Agent-Workstreams Sprint 1](./agent-workstreams-sprint-1.md)
+- [Vercel-native Slice 1 Plan](./vercel-native-slice-1-plan.md)
+- [Lighthouse-Baseline 2026-05-08](./lighthouse-baseline-2026-05-08.md)
+- [Post-Pfad-2-Polish](./post-pfad-2-polish.md)
+- [Pfad-2-Autonome Features](./path-2-autonomous-features.md)
 
 ## Lesereihenfolge
 
