@@ -126,7 +126,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
     const sitzung = (await response.json()) as Sitzung;
     setSuccess("Sitzung wurde angelegt.");
     startTransition(() => {
-      router.push(`/sitzungen/${sitzung.id}`);
+      router.push(`/app/sitzungen/${sitzung.id}`);
       router.refresh();
     });
   }
@@ -244,7 +244,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
                     <span>{entry.participants.length} Teilnehmer im Entwurf</span>
                   </div>
                 </div>
-                <Link className="button-link" href={`/sitzungen/${entry.id}`}>
+                <Link className="button-link" href={`/app/sitzungen/${entry.id}`}>
                   Detail öffnen
                 </Link>
               </article>

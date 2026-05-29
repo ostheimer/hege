@@ -28,12 +28,12 @@ export interface CreateSitzungVersionInput {
 }
 
 export function parseCreateSitzungInput(body: unknown): CreateSitzungInput {
-  const data = ensureRecord(body, "Der Request-Body muss ein Objekt sein.");
+  const data = ensureRecord(body, "Die Eingaben konnten nicht gelesen werden.");
 
   return {
-    title: parseRequiredString(data.title, "title"),
-    scheduledAt: parseRequiredDateString(data.scheduledAt, "scheduledAt"),
-    locationLabel: parseRequiredString(data.locationLabel, "locationLabel"),
+    title: parseRequiredString(data.title, "Titel"),
+    scheduledAt: parseRequiredDateString(data.scheduledAt, "Termin"),
+    locationLabel: parseRequiredString(data.locationLabel, "Ort"),
     participants: parseParticipants(data.participants)
   };
 }
@@ -43,29 +43,42 @@ export function parseUpdateSitzungInput(body: unknown): UpdateSitzungInput {
 }
 
 export function parseCreateSitzungVersionInput(body: unknown): CreateSitzungVersionInput {
-  const data = ensureRecord(body, "Der Request-Body muss ein Objekt sein.");
+  const data = ensureRecord(body, "Die Eingaben konnten nicht gelesen werden.");
+
+  const summary = parseOptionalString(data.summary, "Zusammenfassung") ?? "";
+  const agenda = parseStringArray(data.agenda, "Agenda-Punkt");
+  const beschluesse = parseBeschluesse(data.beschluesse);
+
+  // Eine leere Version hat keinen Inhalt zum Festhalten. Statt einen leeren
+  // Stand zu speichern (und Schriftfuehrer:innen im Unklaren zu lassen),
+  // verlangen wir mindestens einen befuellten Bereich.
+  if (summary.length === 0 && agenda.length === 0 && beschluesse.length === 0) {
+    throw validationError(
+      "Eine Protokollversion braucht zumindest eine Zusammenfassung, einen Agenda-Punkt oder einen Beschluss."
+    );
+  }
 
   return {
-    summary: parseRequiredString(data.summary, "summary"),
-    agenda: parseStringArray(data.agenda, "agenda"),
-    beschluesse: parseBeschluesse(data.beschluesse)
+    summary,
+    agenda,
+    beschluesse
   };
 }
 
 function parseParticipants(value: unknown): SitzungParticipantInput[] {
   if (!Array.isArray(value)) {
-    throw validationError("participants muss ein Array sein.");
+    throw validationError("Die Teilnehmerliste hat ein ungültiges Format.");
   }
 
   return value.map((entry, index) => {
-    const data = ensureRecord(entry, `participants[${index}] muss ein Objekt sein.`);
+    const data = ensureRecord(entry, `Teilnehmer ${index + 1} hat ein ungültiges Format.`);
 
     if (typeof data.anwesend !== "boolean") {
-      throw validationError(`participants[${index}].anwesend muss boolean sein.`);
+      throw validationError(`Die Anwesenheit von Teilnehmer ${index + 1} ist ungültig.`);
     }
 
     return {
-      membershipId: parseRequiredString(data.membershipId, `participants[${index}].membershipId`),
+      membershipId: parseRequiredString(data.membershipId, `Teilnehmer ${index + 1}`),
       anwesend: data.anwesend
     };
   });
@@ -73,27 +86,28 @@ function parseParticipants(value: unknown): SitzungParticipantInput[] {
 
 function parseBeschluesse(value: unknown): BeschlussInput[] {
   if (!Array.isArray(value)) {
-    throw validationError("beschluesse muss ein Array sein.");
+    throw validationError("Die Beschlussliste hat ein ungültiges Format.");
   }
 
   return value.map((entry, index) => {
-    const data = ensureRecord(entry, `beschluesse[${index}] muss ein Objekt sein.`);
+    const data = ensureRecord(entry, `Beschluss ${index + 1} hat ein ungültiges Format.`);
+    const position = `Beschluss ${index + 1}`;
 
     return {
-      title: parseRequiredString(data.title, `beschluesse[${index}].title`),
-      decision: parseRequiredString(data.decision, `beschluesse[${index}].decision`),
-      owner: parseOptionalString(data.owner, `beschluesse[${index}].owner`),
-      dueAt: parseOptionalDateString(data.dueAt, `beschluesse[${index}].dueAt`)
+      title: parseRequiredString(data.title, `Beschlusstitel (${position})`),
+      decision: parseRequiredString(data.decision, `Beschlusstext (${position})`),
+      owner: parseOptionalString(data.owner, `Verantwortlich (${position})`),
+      dueAt: parseOptionalDateString(data.dueAt, `Fälligkeit (${position})`)
     };
   });
 }
 
-function parseStringArray(value: unknown, field: string) {
+function parseStringArray(value: unknown, label: string) {
   if (!Array.isArray(value)) {
-    throw validationError(`${field} muss ein Array sein.`);
+    throw validationError(`Die Liste „${label}" hat ein ungültiges Format.`);
   }
 
-  return value.map((entry, index) => parseRequiredString(entry, `${field}[${index}]`));
+  return value.map((entry, index) => parseRequiredString(entry, `${label} ${index + 1}`));
 }
 
 function ensureRecord(value: unknown, message: string): Record<string, unknown> {
@@ -104,45 +118,51 @@ function ensureRecord(value: unknown, message: string): Record<string, unknown> 
   return value as Record<string, unknown>;
 }
 
-function parseRequiredString(value: unknown, field: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    throw validationError(`${field} muss ein nicht-leerer String sein.`);
+function parseRequiredString(value: unknown, label: string): string {
+  if (typeof value !== "string") {
+    throw validationError(`„${label}" hat ein ungültiges Format.`);
   }
 
-  return value.trim();
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    throw validationError(`„${label}" darf nicht leer sein.`);
+  }
+
+  return trimmed;
 }
 
-function parseOptionalString(value: unknown, field: string): string | undefined {
+function parseOptionalString(value: unknown, label: string): string | undefined {
   if (value == null || value === "") {
     return undefined;
   }
 
   if (typeof value !== "string") {
-    throw validationError(`${field} muss ein String sein.`);
+    throw validationError(`„${label}" hat ein ungültiges Format.`);
   }
 
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
 }
 
-function parseRequiredDateString(value: unknown, field: string): string {
+function parseRequiredDateString(value: unknown, label: string): string {
   if (typeof value !== "string") {
-    throw validationError(`${field} muss ein ISO-Datum als String sein.`);
+    throw validationError(`„${label}" hat ein ungültiges Format.`);
   }
 
   const parsed = new Date(value);
 
   if (Number.isNaN(parsed.valueOf())) {
-    throw validationError(`${field} muss ein gültiges Datum sein.`);
+    throw validationError(`„${label}" ist kein gültiges Datum.`);
   }
 
   return parsed.toISOString();
 }
 
-function parseOptionalDateString(value: unknown, field: string): string | undefined {
+function parseOptionalDateString(value: unknown, label: string): string | undefined {
   if (value == null || value === "") {
     return undefined;
   }
 
-  return parseRequiredDateString(value, field);
+  return parseRequiredDateString(value, label);
 }
