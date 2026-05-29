@@ -21,6 +21,8 @@ apps/
   api/
 packages/
   domain/
+  tokens/
+  icons/
 docs/
 ```
 
@@ -143,8 +145,8 @@ docs/
 
 ### Aktueller Stand
 
-- `apps/api` verwendet derzeit einen In-Memory-Demo-Store
-- `apps/web` besitzt bereits eine Drizzle-/Neon-Grundlage fuer `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
+- `apps/web` nutzt Drizzle ORM mit Neon PostgreSQL
+- `apps/api` (NestJS) ist eine Übergangslösung, nicht der Zielpfad
 - lokale Migrationen und Seed-Skripte liegen unter `apps/web/drizzle*` und `apps/web/src/server/db`
 - lokale Infrastruktur fuer PostgreSQL/PostGIS und MinIO ist vorbereitet
 
@@ -220,18 +222,12 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 ## Aktueller Repository-Stand
 
-- gemeinsames Domain-Modell vorhanden
-- API-Endpunkte fuer die Kernmodule in `apps/api` vorhanden
-- erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
-- Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
-- Domain- und Env-Grundlage fuer `hege.app` vorhanden
-- produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
+- Authentifizierung, Persistenz (Drizzle), Rollenprüfung und Seeds sind vollständig implementiert (Sprint 0–4 abgeschlossen). Offene Schritte: echte Kartenintegration (Google Maps/react-native-maps), WebAuthn/Passkeys, Messaging-Kanäle, Veranstaltungsmodul.
 
 ## Naechste technische Ausbaustufe
 
-1. Dashboard-Slice auf echte API und Persistenz erweitern
-2. Datenbank-Slice auf weitere Module erweitern
-3. Authentifizierung und Rollenmodell serverseitig aktivieren
-4. Demo-Store durch persistente Services ersetzen
-5. Uploads, PDFs und Benachrichtigungen produktionsreif machen
-6. Google-Maps-Integration in Web und Mobile konkretisieren
+1. echte Kartenintegration in Web (Google Maps JS API) und Mobile (react-native-maps) konkretisieren
+2. WebAuthn/Passkeys serverseitig planen und umsetzen
+3. Messaging-Kanaele (WhatsApp, Telegram) als ausgehende Adapter anbauen
+4. Veranstaltungsmodul mit Ankuendigung, Treffpunkt, Erinnerungen und Empfaengerlisten aufbauen
+5. Offline-Synchronisierung fuer Mobile haerten
