@@ -13,6 +13,7 @@ import type { Dispatch, SetStateAction } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 
+import { Badge } from "../../components/badge";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
@@ -987,9 +988,7 @@ export default function FallwildScreen() {
                     {formatGeschlechtLabel(entry.geschlecht)}, {formatAltersklasseLabel(entry.altersklasse)}
                   </Text>
                 </View>
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{formatBergungsStatusLabel(entry.bergungsStatus)}</Text>
-                </View>
+                <Badge tone="warning">{formatBergungsStatusLabel(entry.bergungsStatus)}</Badge>
               </View>
 
               <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
@@ -1474,16 +1473,6 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 14,
     lineHeight: 20,
     color: theme.muted
-  },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#efe3d1"
-  },
-  badgeText: {
-    color: theme.warning,
-    fontWeight: "600"
   },
   queueRow: {
     gap: 4

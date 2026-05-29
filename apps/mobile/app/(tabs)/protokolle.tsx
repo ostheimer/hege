@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ProtokollDetail, ProtokollListItem } from "@hege/domain";
 
+import { Badge } from "../../components/badge";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
@@ -168,9 +169,7 @@ export default function ProtokolleScreen() {
                 <Text style={styles.title}>{entry.title}</Text>
                 <Text style={styles.copy}>{entry.locationLabel}</Text>
               </View>
-              <View style={entry.status === "freigegeben" ? styles.okBadge : styles.warnBadge}>
-                <Text style={entry.status === "freigegeben" ? styles.okText : styles.warnText}>{entry.status}</Text>
-              </View>
+              <Badge tone={entry.status === "freigegeben" ? "success" : "warning"}>{entry.status}</Badge>
             </View>
             <Text style={styles.copy}>{formatDateTime(entry.scheduledAt)}</Text>
             {entry.summaryPreview ? <Text style={styles.copy}>{entry.summaryPreview}</Text> : null}
@@ -274,26 +273,6 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 12,
     fontWeight: "700",
     color: "#fff9ef"
-  },
-  okBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: "#dde7cf"
-  },
-  warnBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 999,
-    backgroundColor: "#efe3d1"
-  },
-  okText: {
-    color: theme.accent,
-    fontWeight: "700"
-  },
-  warnText: {
-    color: theme.warning,
-    fontWeight: "700"
   },
   detailCard: {
     gap: 10,
