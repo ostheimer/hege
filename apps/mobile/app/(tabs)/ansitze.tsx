@@ -12,6 +12,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import type { AnsitzSession } from "@hege/domain";
 
+import { Badge } from "../../components/badge";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
@@ -446,11 +447,7 @@ export default function AnsitzeScreen() {
                   <Text style={styles.title}>{entry.standortName}</Text>
                   <Text style={styles.copy}>{entry.location.label ?? "Ohne Standort"}</Text>
                 </View>
-                <View style={entry.conflict ? styles.dangerBadge : styles.okBadge}>
-                  <Text style={entry.conflict ? styles.dangerText : styles.okText}>
-                    {entry.conflict ? "Warnung" : "Aktiv"}
-                  </Text>
-                </View>
+                <Badge tone={entry.conflict ? "danger" : "success"}>{entry.conflict ? "Warnung" : "Aktiv"}</Badge>
               </View>
 
               <Text style={styles.copy}>Beginn: {formatDateTime(entry.startedAt)}</Text>
@@ -683,26 +680,6 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 14,
     lineHeight: 20,
     color: theme.muted
-  },
-  okBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#dde7cf"
-  },
-  dangerBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
-    backgroundColor: "#f0d9d4"
-  },
-  okText: {
-    color: theme.accent,
-    fontWeight: "600"
-  },
-  dangerText: {
-    color: theme.danger,
-    fontWeight: "600"
   },
   queueRow: {
     gap: 2
