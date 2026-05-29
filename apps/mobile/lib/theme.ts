@@ -1,6 +1,9 @@
 import {
   darkColors as tokensDarkColors,
+  darkSemantic as tokensDarkSemantic,
   lightColors as tokensLightColors,
+  lightSemantic as tokensLightSemantic,
+  type SemanticColors,
   type ThemeColors as TokensThemeColors
 } from "@hege/tokens";
 import { useColorScheme } from "react-native";
@@ -19,7 +22,7 @@ import { useColorScheme } from "react-native";
  *   - die uebrigen Felder werden 1:1 uebernommen.
  */
 
-export interface ThemeColors {
+export interface ThemeColors extends SemanticColors {
   background: string;
   surface: string;
   card: string;
@@ -31,7 +34,7 @@ export interface ThemeColors {
   danger: string;
 }
 
-function projectTokens(theme: TokensThemeColors): ThemeColors {
+function projectTokens(theme: TokensThemeColors, semantic: SemanticColors): ThemeColors {
   return {
     background: theme.background,
     surface: theme.surfaceSoft,
@@ -41,12 +44,13 @@ function projectTokens(theme: TokensThemeColors): ThemeColors {
     accent: theme.accent,
     accentSoft: theme.accentSoft,
     warning: theme.warning,
-    danger: theme.danger
+    danger: theme.danger,
+    ...semantic
   };
 }
 
-export const lightColors: ThemeColors = projectTokens(tokensLightColors);
-export const darkColors: ThemeColors = projectTokens(tokensDarkColors);
+export const lightColors: ThemeColors = projectTokens(tokensLightColors, tokensLightSemantic);
+export const darkColors: ThemeColors = projectTokens(tokensDarkColors, tokensDarkSemantic);
 
 /**
  * Default token-Set, mit dem die meisten Screens heute statisch arbeiten.

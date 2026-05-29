@@ -79,6 +79,54 @@ export const darkColors: ThemeColors = {
   danger: "#d68a7d"
 };
 
+/**
+ * Semantische Farb-Rollen (F-21 / UI-Audit §10.1). Bewusst getrennt von
+ * {@link ThemeColors}: das sind keine Basis-Tinten, sondern abgeleitete
+ * Rollen (Status-Flaechen, Text-auf-Akzent, Input-Rahmen). Die Werte sind
+ * aus den bisher verstreuten Hardcodings der Mobile-App kanonisiert, damit
+ * die Adoption rein werterhaltend ist.
+ */
+export interface SemanticColors {
+  /** Textfarbe auf Akzent-Flaechen (Primary-Buttons, Pills). */
+  onAccent: string;
+  /** Gedaempfte Creme-Flaeche (Sekundaer-Buttons, Panels, Chips). */
+  surfaceMuted: string;
+  /** Kraeftigere gedaempfte Flaeche. */
+  surfaceMutedStrong: string;
+  /** Rahmenfarbe fuer Text-Inputs. */
+  inputBorder: string;
+  /** Status-Flaechen fuer Badges, Icon-Wraps und State-Anzeigen. */
+  successSurface: string;
+  warningSurface: string;
+  dangerSurface: string;
+  infoSurface: string;
+  conflictSurface: string;
+}
+
+export const lightSemantic: SemanticColors = {
+  onAccent: "#fff9ef",
+  surfaceMuted: "#e3dccd",
+  surfaceMutedStrong: "#ddcfb7",
+  inputBorder: "#d9d2c4",
+  successSurface: "rgba(157, 179, 111, 0.18)",
+  warningSurface: "rgba(134, 99, 35, 0.14)",
+  dangerSurface: "rgba(157, 74, 63, 0.12)",
+  infoSurface: "rgba(36, 73, 58, 0.08)",
+  conflictSurface: "rgba(134, 99, 35, 0.2)"
+};
+
+export const darkSemantic: SemanticColors = {
+  onAccent: "#10231d",
+  surfaceMuted: "#243f33",
+  surfaceMutedStrong: "#2c4a3b",
+  inputBorder: "rgba(157, 179, 111, 0.28)",
+  successSurface: "rgba(157, 179, 111, 0.18)",
+  warningSurface: "rgba(205, 176, 105, 0.2)",
+  dangerSurface: "rgba(214, 138, 125, 0.2)",
+  infoSurface: "rgba(157, 179, 111, 0.1)",
+  conflictSurface: "rgba(205, 176, 105, 0.24)"
+};
+
 export interface Spacing {
   xs: number;
   sm: number;

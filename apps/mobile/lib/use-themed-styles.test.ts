@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { darkSemantic, lightSemantic } from "@hege/tokens";
+
 import type { ThemeColors } from "./theme";
 
 /**
@@ -15,6 +17,7 @@ import type { ThemeColors } from "./theme";
  */
 
 const lightColors: ThemeColors = {
+  ...lightSemantic,
   background: "#f3efe3",
   surface: "rgba(255, 252, 244, 0.8)",
   card: "rgba(252, 248, 238, 0.88)",
@@ -27,6 +30,7 @@ const lightColors: ThemeColors = {
 };
 
 const darkColors: ThemeColors = {
+  ...darkSemantic,
   background: "#0e1c16",
   surface: "rgba(21, 41, 33, 0.8)",
   card: "rgba(28, 53, 43, 0.88)",

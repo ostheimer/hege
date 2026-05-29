@@ -57,7 +57,7 @@ export function StateView({ mode, title, description, icon, action, bare, footer
 
   return (
     <View accessibilityLiveRegion={mode === "error" ? "assertive" : "polite"} style={containerStyle}>
-      <View style={[styles.iconWrap, iconWrapStyle(mode)]}>
+      <View style={[styles.iconWrap, iconWrapStyle(mode, theme)]}>
         {mode === "loading" ? (
           <ActivityIndicator color={theme.accent} />
         ) : (
@@ -101,14 +101,14 @@ function iconColor(mode: StateViewMode, theme: ThemeColors): string {
   return theme.accent;
 }
 
-function iconWrapStyle(mode: StateViewMode) {
+function iconWrapStyle(mode: StateViewMode, theme: ThemeColors) {
   if (mode === "error") {
-    return { backgroundColor: "rgba(157, 74, 63, 0.12)" };
+    return { backgroundColor: theme.dangerSurface };
   }
   if (mode === "loading") {
-    return { backgroundColor: "rgba(157, 179, 111, 0.18)" };
+    return { backgroundColor: theme.successSurface };
   }
-  return { backgroundColor: "rgba(36, 73, 58, 0.08)" };
+  return { backgroundColor: theme.infoSurface };
 }
 
 const createStyles = (theme: ThemeColors) =>
@@ -148,7 +148,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingVertical: 10,
       paddingHorizontal: 14,
       borderRadius: 999,
-      backgroundColor: "#e3dccd"
+      backgroundColor: theme.surfaceMuted
     },
     actionPressed: {
       opacity: 0.8
