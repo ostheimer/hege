@@ -18,6 +18,7 @@ import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sh
 import { QueueStatusPill } from "../../components/queue-status-pill";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
+import { StateView } from "../../components/state-view";
 import { ViewToggle } from "../../components/view-toggle";
 import {
   applyAnsitzFilter,
@@ -378,10 +379,11 @@ export default function AnsitzeScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Ansitze werden geladen</Text>
-          <Text style={styles.stateCopy}>Die aktuelle Liste wird von der API abgefragt.</Text>
-        </View>
+        <StateView
+          mode="loading"
+          title="Ansitze werden geladen"
+          description="Die aktuelle Liste wird von der API abgefragt."
+        />
       ) : null}
 
       {queueEntries.length > 0 ? (
@@ -426,16 +428,15 @@ export default function AnsitzeScreen() {
           style={styles.listScroll}
         >
           {!isLoading && !error && visibleAnsitze.length === 0 ? (
-            <View style={styles.stateCard}>
-              <Text style={styles.stateTitle}>
-                {ansitze.length === 0 ? "Keine aktiven Ansitze" : "Keine Treffer"}
-              </Text>
-              <Text style={styles.stateCopy}>
-                {ansitze.length === 0
+            <StateView
+              mode="empty"
+              title={ansitze.length === 0 ? "Keine aktiven Ansitze" : "Keine Treffer"}
+              description={
+                ansitze.length === 0
                   ? "Sobald ein Jäger einen Ansitz meldet, erscheint er hier."
-                  : "Mit den aktuellen Filtern findet sich kein Ansitz. Filter zurücksetzen oder Suchbegriff anpassen."}
-              </Text>
-            </View>
+                  : "Mit den aktuellen Filtern findet sich kein Ansitz. Filter zurücksetzen oder Suchbegriff anpassen."
+              }
+            />
           ) : null}
 
           {visibleAnsitze.map((entry) => (

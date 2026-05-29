@@ -23,6 +23,7 @@ import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
+import { StateView } from "../../components/state-view";
 import { ViewToggle } from "../../components/view-toggle";
 import {
   createAufgabe,
@@ -461,10 +462,11 @@ export default function RevierarbeitScreen() {
       ) : null}
 
       {isLoading ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Revierarbeit wird geladen</Text>
-          <Text style={styles.stateCopy}>Meldungen und Aufgaben werden von der API abgefragt.</Text>
-        </View>
+        <StateView
+          mode="loading"
+          title="Revierarbeit wird geladen"
+          description="Meldungen und Aufgaben werden von der API abgefragt."
+        />
       ) : null}
 
       {mode === "karte" && !isLoading ? (
@@ -481,13 +483,11 @@ export default function RevierarbeitScreen() {
             }}
           />
           {meldungPins.length === 0 && !isLoading && !error ? (
-            <View style={styles.stateCard}>
-              <Text style={styles.stateTitle}>Keine Standorte</Text>
-              <Text style={styles.stateCopy}>
-                Reviermeldungen ohne Koordinaten bleiben in der Liste sichtbar. Sobald ein Standort
-                erfasst ist, erscheint er als Pin in der Karte.
-              </Text>
-            </View>
+            <StateView
+              mode="empty"
+              title="Keine Standorte"
+              description="Reviermeldungen ohne Koordinaten bleiben in der Liste sichtbar. Sobald ein Standort erfasst ist, erscheint er als Pin in der Karte."
+            />
           ) : null}
         </>
       ) : null}
@@ -573,20 +573,19 @@ export default function RevierarbeitScreen() {
         ) : null}
 
         {!isLoading && aufgaben.length === 0 ? (
-          <View style={styles.stateCard}>
-            <Text style={styles.stateTitle}>Keine Aufgaben</Text>
-            <Text style={styles.stateCopy}>Zugewiesene oder eigene Aufgaben erscheinen hier.</Text>
-          </View>
+          <StateView
+            mode="empty"
+            title="Keine Aufgaben"
+            description="Zugewiesene oder eigene Aufgaben erscheinen hier."
+          />
         ) : null}
 
         {!isLoading && aufgaben.length > 0 && visibleAufgaben.length === 0 ? (
-          <View style={styles.stateCard}>
-            <Text style={styles.stateTitle}>Keine Treffer</Text>
-            <Text style={styles.stateCopy}>
-              Mit den aktuellen Filtern findet sich keine Aufgabe. Filter zurücksetzen oder
-              Suchbegriff anpassen.
-            </Text>
-          </View>
+          <StateView
+            mode="empty"
+            title="Keine Treffer"
+            description="Mit den aktuellen Filtern findet sich keine Aufgabe. Filter zurücksetzen oder Suchbegriff anpassen."
+          />
         ) : null}
 
         {visibleAufgaben.map((entry) => (
@@ -646,10 +645,11 @@ export default function RevierarbeitScreen() {
 
         <Text style={styles.listHeadline}>Letzte Reviermeldungen</Text>
         {!isLoading && meldungen.length === 0 ? (
-          <View style={styles.stateCard}>
-            <Text style={styles.stateTitle}>Keine Meldungen</Text>
-            <Text style={styles.stateCopy}>Neue Hinweise aus dem Revier erscheinen hier.</Text>
-          </View>
+          <StateView
+            mode="empty"
+            title="Keine Meldungen"
+            description="Neue Hinweise aus dem Revier erscheinen hier."
+          />
         ) : null}
 
           {meldungen.slice(0, 6).map((entry) => (
@@ -991,12 +991,6 @@ const createStyles = (theme: ThemeColors) =>
   },
   buttonDisabled: {
     opacity: 0.7
-  },
-  stateCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
   },
   infoCard: {
     gap: 6,
