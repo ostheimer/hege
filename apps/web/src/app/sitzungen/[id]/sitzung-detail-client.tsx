@@ -4,7 +4,7 @@ import type { Sitzung } from "@hege/domain";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ChangeEvent, FormEvent } from "react";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../../lib/api-error";
 import { buildVersionTimeline } from "../../../lib/version-timeline";
@@ -23,11 +23,19 @@ interface SitzungDetailClientProps {
 }
 
 interface BeschlussDraft {
+  key: string;
   title: string;
   decision: string;
   owner: string;
   dueAt: string;
 }
+
+interface FormFeedback {
+  error: string | null;
+  success: string | null;
+}
+
+const EMPTY_FEEDBACK: FormFeedback = { error: null, success: null };
 
 export function SitzungDetailClient({ sitzung, memberships, canApprove }: SitzungDetailClientProps) {
   const router = useRouter();
@@ -39,8 +47,14 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
     () => buildVersionTimeline(sitzung.versions, memberships),
     [sitzung.versions, memberships]
   );
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  // Feedback getrennt pro Formular, damit eine Meldung nur dort erscheint,
+  // wo die Aktion ausgeloest wurde (nicht gleichzeitig unter Stammdaten und
+  // Protokollversion).
+  const [metaFeedback, setMetaFeedback] = useState<FormFeedback>(EMPTY_FEEDBACK);
+  const [versionFeedback, setVersionFeedback] = useState<FormFeedback>(EMPTY_FEEDBACK);
+  // Freigabe ist eine Aktion im Kopfbereich (nur Revier-Admin) und bekommt
+  // dort eine eigene Rueckmeldung, getrennt von den Formularen darunter.
+  const [actionFeedback, setActionFeedback] = useState<FormFeedback>(EMPTY_FEEDBACK);
   const [title, setTitle] = useState(sitzung.title);
   const [scheduledAt, setScheduledAt] = useState(toDateTimeLocalValue(sitzung.scheduledAt));
   const [locationLabel, setLocationLabel] = useState(sitzung.locationLabel);
@@ -54,19 +68,23 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
   );
   const [summary, setSummary] = useState(latestVersion?.summary ?? "");
   const [agendaText, setAgendaText] = useState((latestVersion?.agenda ?? []).join("\n"));
-  const [beschluesse, setBeschluesse] = useState<BeschlussDraft[]>(
-    latestVersion?.beschluesse.map((entry) => ({
-      title: entry.title,
-      decision: entry.decision,
-      owner: entry.owner ?? "",
-      dueAt: entry.dueAt ? toDateTimeLocalValue(entry.dueAt) : ""
-    })) ?? [{ title: "", decision: "", owner: "", dueAt: "" }]
+  const initialBeschluesse = useMemo<BeschlussDraft[]>(
+    () =>
+      latestVersion?.beschluesse.map((entry, index) => ({
+        key: entry.id ?? `beschluss-${index}`,
+        title: entry.title,
+        decision: entry.decision,
+        owner: entry.owner ?? "",
+        dueAt: entry.dueAt ? toDateTimeLocalValue(entry.dueAt) : ""
+      })) ?? [{ key: "beschluss-0", title: "", decision: "", owner: "", dueAt: "" }],
+    [latestVersion]
   );
+  const [beschluesse, setBeschluesse] = useState<BeschlussDraft[]>(initialBeschluesse);
+  const nextBeschlussKey = useRef(initialBeschluesse.length);
 
   async function handleSaveMeta(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    setSuccess(null);
+    setMetaFeedback(EMPTY_FEEDBACK);
 
     const response = await fetch(`/api/v1/sitzungen/${sitzung.id}`, {
       method: "PATCH",
@@ -84,13 +102,41 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
       })
     });
 
-    await handleResponse(response, "Sitzung gespeichert.");
+    await handleResponse(response, "Sitzung gespeichert.", setMetaFeedback);
   }
 
   async function handleSaveVersion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError(null);
-    setSuccess(null);
+    setVersionFeedback(EMPTY_FEEDBACK);
+
+    const trimmedSummary = summary.trim();
+    const agenda = agendaText
+      .split("\n")
+      .map((entry) => entry.trim())
+      .filter(Boolean);
+    const { complete, incompletePositions } = categorizeBeschluesse(beschluesse);
+
+    // Halb ausgefuellte Beschluesse nicht stillschweigend verwerfen, sondern
+    // klar zurueckmelden — sonst verschwindet ein notierter Titel ohne Hinweis.
+    if (incompletePositions.length > 0) {
+      const positions = incompletePositions.join(", ");
+      setVersionFeedback({
+        error:
+          incompletePositions.length === 1
+            ? `Beschluss ${positions} ist unvollständig — bitte Titel und Beschluss ausfüllen oder den Eintrag entfernen.`
+            : `Die Beschlüsse ${positions} sind unvollständig — bitte Titel und Beschluss ausfüllen oder die Einträge entfernen.`,
+        success: null
+      });
+      return;
+    }
+
+    if (trimmedSummary.length === 0 && agenda.length === 0 && complete.length === 0) {
+      setVersionFeedback({
+        error: "Bitte zumindest eine Zusammenfassung, einen Agenda-Punkt oder einen Beschluss erfassen.",
+        success: null
+      });
+      return;
+    }
 
     const response = await fetch(`/api/v1/sitzungen/${sitzung.id}/versionen`, {
       method: "POST",
@@ -98,44 +144,42 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
         "content-type": "application/json"
       },
       body: JSON.stringify({
-        summary,
-        agenda: agendaText
-          .split("\n")
-          .map((entry) => entry.trim())
-          .filter(Boolean),
-        beschluesse: beschluesse
-          .filter((entry) => entry.title.trim().length > 0 && entry.decision.trim().length > 0)
-          .map((entry) => ({
-            title: entry.title,
-            decision: entry.decision,
-            owner: entry.owner.trim() || undefined,
-            dueAt: entry.dueAt ? new Date(entry.dueAt).toISOString() : undefined
-          }))
+        summary: trimmedSummary,
+        agenda,
+        beschluesse: complete.map((entry) => ({
+          title: entry.title.trim(),
+          decision: entry.decision.trim(),
+          owner: entry.owner.trim() || undefined,
+          dueAt: entry.dueAt ? new Date(entry.dueAt).toISOString() : undefined
+        }))
       })
     });
 
-    await handleResponse(response, "Neue Protokollversion gespeichert.");
+    await handleResponse(response, "Neue Protokollversion gespeichert.", setVersionFeedback);
   }
 
   async function handleFreigeben() {
-    setError(null);
-    setSuccess(null);
+    setActionFeedback(EMPTY_FEEDBACK);
 
     const response = await fetch(`/api/v1/sitzungen/${sitzung.id}/freigeben`, {
       method: "PATCH"
     });
 
-    await handleResponse(response, "Sitzung wurde freigegeben.");
+    await handleResponse(response, "Sitzung wurde freigegeben.", setActionFeedback);
   }
 
-  async function handleResponse(response: Response, successMessage: string) {
+  async function handleResponse(
+    response: Response,
+    successMessage: string,
+    setFeedback: (feedback: FormFeedback) => void
+  ) {
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
-      setError(readApiErrorMessage(payload, "Aktion fehlgeschlagen."));
+      setFeedback({ error: readApiErrorMessage(payload, "Aktion fehlgeschlagen."), success: null });
       return;
     }
 
-    setSuccess(successMessage);
+    setFeedback({ error: null, success: successMessage });
     startTransition(() => {
       router.refresh();
     });
@@ -151,7 +195,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
     };
   }
 
-  function updateBeschluss(index: number, key: keyof BeschlussDraft) {
+  function updateBeschluss(index: number, key: keyof Omit<BeschlussDraft, "key">) {
     return (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const value = event.currentTarget.value;
       setBeschluesse((current) =>
@@ -167,6 +211,17 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
     };
   }
 
+  function addBeschluss() {
+    setBeschluesse((current) => [
+      ...current,
+      { key: `beschluss-neu-${nextBeschlussKey.current++}`, title: "", decision: "", owner: "", dueAt: "" }
+    ]);
+  }
+
+  function removeBeschluss(key: string) {
+    setBeschluesse((current) => (current.length <= 1 ? current : current.filter((entry) => entry.key !== key)));
+  }
+
   return (
     <div className="page-stack">
       <section className="section-card">
@@ -176,7 +231,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             <h1>{sitzung.title}</h1>
           </div>
           <div className="section-actions">
-            <Link className="button-link" href="/sitzungen">
+            <Link className="button-link" href="/app/sitzungen">
               Zur Liste
             </Link>
             {sitzung.publishedDocument ? (
@@ -191,6 +246,13 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             ) : null}
           </div>
         </header>
+
+        {actionFeedback.error || actionFeedback.success ? (
+          <div aria-live="polite" className="form-messages">
+            {actionFeedback.error ? <p className="feedback feedback-error">{actionFeedback.error}</p> : null}
+            {actionFeedback.success ? <p className="feedback feedback-success">{actionFeedback.success}</p> : null}
+          </div>
+        ) : null}
 
         <div className="split-panel">
           <article className="panel-card">
@@ -217,7 +279,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
               <h2>Versions-Timeline</h2>
             </div>
             <div className="section-actions">
-              <span className="badge">{timeline.length} Version(en)</span>
+              <span className="badge">{timeline.length} {timeline.length === 1 ? "Version" : "Versionen"}</span>
             </div>
           </header>
 
@@ -240,7 +302,9 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
                     <p className="version-timeline-summary">{entry.summary}</p>
                   ) : null}
                   <p className="version-timeline-meta">
-                    {entry.agendaCount} Agenda-Punkt(e) · {entry.beschluesseCount} Beschluss/Beschluesse · {entry.attachmentsCount} Anhang/Anhaenge
+                    {entry.agendaCount} {entry.agendaCount === 1 ? "Agenda-Punkt" : "Agenda-Punkte"} ·{" "}
+                    {entry.beschluesseCount} {entry.beschluesseCount === 1 ? "Beschluss" : "Beschlüsse"} ·{" "}
+                    {entry.attachmentsCount} {entry.attachmentsCount === 1 ? "Anhang" : "Anhänge"}
                   </p>
                 </div>
               </li>
@@ -321,8 +385,8 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
 
           <div className="form-footer field-full">
             <div aria-live="polite" className="form-messages">
-              {error ? <p className="feedback feedback-error">{error}</p> : null}
-              {success ? <p className="feedback feedback-success">{success}</p> : null}
+              {metaFeedback.error ? <p className="feedback feedback-error">{metaFeedback.error}</p> : null}
+              {metaFeedback.success ? <p className="feedback feedback-success">{metaFeedback.success}</p> : null}
             </div>
             {isFreigegeben ? null : (
               <button className="button-control" disabled={isPending} type="submit">
@@ -340,6 +404,11 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             <h2>Zusammenfassung, Agenda und Beschlüsse</h2>
           </div>
         </header>
+
+        <p className="form-hint">
+          Eine Version braucht zumindest eine Zusammenfassung, einen Agenda-Punkt oder einen Beschluss.
+          Jedes Speichern legt einen neuen Stand an.
+        </p>
 
         {isFreigegeben ? (
           <p className="feedback feedback-success" role="note">
@@ -371,7 +440,19 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
 
           <div className="page-stack">
             {beschluesse.map((entry, index) => (
-              <article key={`${index}-${entry.title}`} className="detail-card">
+              <article key={entry.key} className="detail-card">
+                <div className="detail-card-header">
+                  <p className="eyebrow">Beschluss {index + 1}</p>
+                  {beschluesse.length > 1 ? (
+                    <button
+                      className="button-control button-control-secondary button-control-small"
+                      onClick={() => removeBeschluss(entry.key)}
+                      type="button"
+                    >
+                      Entfernen
+                    </button>
+                  ) : null}
+                </div>
                 <label className="field">
                   <span>Beschlusstitel</span>
                   <input onChange={updateBeschluss(index, "title")} value={entry.title} />
@@ -392,9 +473,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
             ))}
             <button
               className="button-control button-control-secondary"
-              onClick={() =>
-                setBeschluesse((current) => [...current, { title: "", decision: "", owner: "", dueAt: "" }])
-              }
+              onClick={addBeschluss}
               type="button"
             >
               Weiteren Beschluss hinzufügen
@@ -403,8 +482,8 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
 
           <div className="form-footer">
             <div aria-live="polite" className="form-messages">
-              {error ? <p className="feedback feedback-error">{error}</p> : null}
-              {success ? <p className="feedback feedback-success">{success}</p> : null}
+              {versionFeedback.error ? <p className="feedback feedback-error">{versionFeedback.error}</p> : null}
+              {versionFeedback.success ? <p className="feedback feedback-success">{versionFeedback.success}</p> : null}
             </div>
             <button className="button-control" disabled={isPending} type="submit">
               {isFreigegeben ? "Neue Version öffnen" : "Neue Version speichern"}
@@ -421,16 +500,18 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
           </div>
         </header>
         <div className="card-grid">
-          {sitzung.versions.map((entry) => (
+          {sitzung.versions.map((entry, index) => (
             <article key={entry.id} className="detail-card">
               <div className="detail-card-header">
                 <div>
-                  <p className="eyebrow">{entry.id}</p>
+                  <p className="eyebrow">Version {sitzung.versions.length - index}</p>
                   <h2>{formatDateTime(entry.createdAt)}</h2>
                 </div>
-                <span className="status-pill status-ok">{entry.beschluesse.length} Beschlüsse</span>
+                <span className="status-pill status-ok">
+                  {entry.beschluesse.length} {entry.beschluesse.length === 1 ? "Beschluss" : "Beschlüsse"}
+                </span>
               </div>
-              <p>{entry.summary}</p>
+              <p>{entry.summary || "Keine Zusammenfassung hinterlegt."}</p>
               <div className="simple-list">
                 {entry.beschluesse.length > 0 ? (
                   entry.beschluesse.map((beschluss) => (
@@ -452,6 +533,35 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
       </section>
     </div>
   );
+}
+
+function categorizeBeschluesse(drafts: BeschlussDraft[]): {
+  complete: BeschlussDraft[];
+  incompletePositions: number[];
+} {
+  const complete: BeschlussDraft[] = [];
+  const incompletePositions: number[] = [];
+
+  drafts.forEach((entry, index) => {
+    const title = entry.title.trim();
+    const decision = entry.decision.trim();
+    const owner = entry.owner.trim();
+    const dueAt = entry.dueAt.trim();
+
+    // Komplett leere Zeile: als ungenutzt ignorieren.
+    if (!title && !decision && !owner && !dueAt) {
+      return;
+    }
+
+    if (title && decision) {
+      complete.push(entry);
+      return;
+    }
+
+    incompletePositions.push(index + 1);
+  });
+
+  return { complete, incompletePositions };
 }
 
 function formatDateTime(value: string) {
