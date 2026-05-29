@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   buildRootCss,
   darkColors,
+  darkSemantic,
   lightColors,
+  lightSemantic,
   radius,
   rnShadow,
   shadow,
@@ -27,6 +29,19 @@ describe("@hege/tokens", () => {
     expect(darkColors.background).toBe("#0e1c16");
     expect(darkColors.ink).toBe("#f5f1e7");
     expect(darkColors.accent).toBe("#9db36f");
+  });
+
+  it("haelt die semantischen Farb-Rollen fuer Light + Dark fest", () => {
+    // Werterhaltend zu den bisherigen Hardcodings der Mobile-App.
+    expect(lightSemantic.onAccent).toBe("#fff9ef");
+    expect(lightSemantic.surfaceMuted).toBe("#e3dccd");
+    expect(lightSemantic.inputBorder).toBe("#d9d2c4");
+    expect(lightSemantic.dangerSurface).toBe("rgba(157, 74, 63, 0.12)");
+    expect(lightSemantic.infoSurface).toBe("rgba(36, 73, 58, 0.08)");
+    // Dark kippt die Text-auf-Akzent-Rolle bewusst auf eine dunkle Tinte.
+    expect(darkSemantic.onAccent).toBe("#10231d");
+    // Beide Sets decken dieselben Rollen ab.
+    expect(Object.keys(darkSemantic).sort()).toEqual(Object.keys(lightSemantic).sort());
   });
 
   it("hat numerische Spacing- und Radius-Werte", () => {
