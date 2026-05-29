@@ -140,12 +140,11 @@ Bereits vorhanden:
 
 Noch offen:
 
-- produktive Persistenz
-- Authentifizierung und Rollenpruefung
-- Medien-Uploads und PDF-Generierung
+- echte Kartenintegration (Google Maps/react-native-maps)
+- WebAuthn/Passkeys
+- Messaging-Kanaele (WhatsApp, Telegram)
+- Veranstaltungsmodul
 - produktionsreife Offline-Synchronisierung
-- echte Kartenintegration
-- fachlich ausgearbeitetes Modell fuer Reviermeldungen, Aufgaben, Veranstaltungen und zielgruppenbasierte Kommunikation
 
 ## Umsetzung
 
