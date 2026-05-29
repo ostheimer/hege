@@ -8,6 +8,7 @@ import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { ScreenShell } from "../../components/screen-shell";
 import { SearchInput } from "../../components/search-input";
+import { StateView } from "../../components/state-view";
 import { ViewToggle } from "../../components/view-toggle";
 import { fetchReviereinrichtungenList } from "../../lib/api";
 import { formatDateTime } from "../../lib/format";
@@ -118,15 +119,13 @@ export default function ReviereinrichtungenScreen() {
       </View>
 
       {isLoading ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Einrichtungen werden geladen</Text>
-          <Text style={styles.stateCopy}>Die Revierdaten werden über die API geladen.</Text>
-        </View>
+        <StateView
+          mode="loading"
+          title="Einrichtungen werden geladen"
+          description="Die Revierdaten werden über die API geladen."
+        />
       ) : error ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>API nicht erreichbar</Text>
-          <Text style={styles.stateCopy}>{error}</Text>
-        </View>
+        <StateView mode="error" title="API nicht erreichbar" description={error} />
       ) : null}
 
       <View style={styles.filterSection}>
@@ -196,16 +195,15 @@ export default function ReviereinrichtungenScreen() {
       </View>
 
       {!isLoading && !error && visibleEntries.length === 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>
-            {reviereinrichtungen.length === 0 ? "Noch keine Einrichtungen" : "Keine Treffer"}
-          </Text>
-          <Text style={styles.stateCopy}>
-            {reviereinrichtungen.length === 0
+        <StateView
+          mode="empty"
+          title={reviereinrichtungen.length === 0 ? "Noch keine Einrichtungen" : "Keine Treffer"}
+          description={
+            reviereinrichtungen.length === 0
               ? "Sobald die ersten Hochstände, Fütterungen oder Salzlecken erfasst sind, tauchen sie hier auf."
-              : "Mit den aktuellen Filtern findet sich keine Einrichtung. Filter zurücksetzen oder Suchbegriff anpassen."}
-          </Text>
-        </View>
+              : "Mit den aktuellen Filtern findet sich keine Einrichtung. Filter zurücksetzen oder Suchbegriff anpassen."
+          }
+        />
       ) : null}
 
       {mode === "karte" && !isLoading ? (
@@ -315,22 +313,6 @@ const createStyles = (theme: ThemeColors) =>
     },
     list: {
       gap: 12
-    },
-    stateCard: {
-      gap: 6,
-      padding: 18,
-      borderRadius: 22,
-      backgroundColor: theme.card
-    },
-    stateTitle: {
-      fontSize: 18,
-      fontWeight: "700",
-      color: theme.ink
-    },
-    stateCopy: {
-      fontSize: 14,
-      lineHeight: 20,
-      color: theme.muted
     },
     card: {
       gap: 8,
