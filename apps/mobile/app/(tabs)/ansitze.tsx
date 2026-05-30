@@ -40,6 +40,7 @@ import {
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 type ViewMode = "liste" | "karte";
@@ -518,13 +519,7 @@ const createStyles = (theme: ThemeColors) =>
   filterGroup: {
     gap: 6
   },
-  filterEyebrow: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    color: theme.muted,
-    fontWeight: "700"
-  },
+  filterEyebrow: { ...eyebrowText(theme) },
   filterReset: {
     alignSelf: "flex-start",
     paddingVertical: 6,
@@ -560,12 +555,7 @@ const createStyles = (theme: ThemeColors) =>
     borderRadius: 22,
     backgroundColor: theme.card
   },
-  sectionLabel: {
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    color: theme.muted
-  },
+  sectionLabel: { ...eyebrowText(theme) },
   sectionCopy: {
     fontSize: 14,
     lineHeight: 20,

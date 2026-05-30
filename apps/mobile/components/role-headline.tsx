@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import type { RoleHeadline as RoleHeadlineData } from "../lib/dashboard-role.helpers";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
 interface RoleHeadlineProps {
@@ -64,13 +65,7 @@ const createStyles = (theme: ThemeColors) =>
     cardPressed: {
       opacity: 0.92
     },
-    eyebrow: {
-      fontSize: 11,
-      textTransform: "uppercase",
-      letterSpacing: 1.2,
-      color: theme.muted,
-      fontWeight: "700"
-    },
+    eyebrow: { ...eyebrowText(theme) },
     title: {
       fontSize: 20,
       lineHeight: 26,

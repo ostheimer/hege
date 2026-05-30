@@ -54,6 +54,7 @@ import {
   REVIERMELDUNG_STATUS_LABELS
 } from "../../lib/revierarbeit-map.helpers";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 type ViewMode = "liste" | "karte";
@@ -814,13 +815,7 @@ const createStyles = (theme: ThemeColors) =>
   filterGroup: {
     gap: 6
   },
-  filterEyebrow: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    color: theme.muted,
-    fontWeight: "700"
-  },
+  filterEyebrow: { ...eyebrowText(theme) },
   filterReset: {
     alignSelf: "flex-start",
     paddingVertical: 6,
@@ -882,12 +877,7 @@ const createStyles = (theme: ThemeColors) =>
     borderRadius: 22,
     backgroundColor: theme.card
   },
-  sectionLabel: {
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    color: theme.muted
-  },
+  sectionLabel: { ...eyebrowText(theme) },
   sectionCopy: {
     fontSize: 14,
     lineHeight: 20,
@@ -995,13 +985,7 @@ const createStyles = (theme: ThemeColors) =>
     lineHeight: 20,
     color: theme.muted
   },
-  listHeadline: {
-    marginTop: 6,
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    color: theme.muted
-  },
+  listHeadline: { ...eyebrowText(theme), marginTop: 6 },
   card: {
     gap: 10,
     padding: 18,

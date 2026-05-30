@@ -28,6 +28,7 @@ import {
   updateContactList
 } from "../../lib/api";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 type EntryMode = "member" | "external";
@@ -732,12 +733,7 @@ const createStyles = (theme: ThemeColors) =>
       justifyContent: "space-between",
       gap: 12
     },
-    eyebrow: {
-      fontSize: 12,
-      textTransform: "uppercase",
-      letterSpacing: 1.1,
-      color: theme.muted
-    },
+    eyebrow: { ...eyebrowText(theme) },
     sectionTitle: {
       marginTop: 3,
       fontSize: 17,

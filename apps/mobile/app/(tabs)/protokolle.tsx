@@ -18,6 +18,7 @@ import {
   type ProtokollStatusFilter
 } from "../../lib/protokoll-filter.helpers";
 import type { ThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 export default function ProtokolleScreen() {
@@ -255,13 +256,7 @@ const createStyles = (theme: ThemeColors) =>
   filterGroup: {
     gap: 6
   },
-  filterEyebrow: {
-    fontSize: 11,
-    textTransform: "uppercase",
-    letterSpacing: 1.1,
-    color: theme.muted,
-    fontWeight: "700"
-  },
+  filterEyebrow: { ...eyebrowText(theme) },
   filterReset: {
     alignSelf: "flex-start",
     paddingVertical: 6,
