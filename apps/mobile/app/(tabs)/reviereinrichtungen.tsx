@@ -23,6 +23,7 @@ import {
 } from "../../lib/reviereinrichtung-filter.helpers";
 import type { ThemeColors } from "../../lib/theme";
 import { useThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 type ViewMode = "liste" | "karte";
@@ -282,13 +283,7 @@ const createStyles = (theme: ThemeColors) =>
     filterGroup: {
       gap: 6
     },
-    filterEyebrow: {
-      fontSize: 11,
-      textTransform: "uppercase",
-      letterSpacing: 1.1,
-      color: theme.muted,
-      fontWeight: "700"
-    },
+    filterEyebrow: { ...eyebrowText(theme) },
     filterReset: {
       alignSelf: "flex-start",
       paddingVertical: 6,
@@ -329,12 +324,7 @@ const createStyles = (theme: ThemeColors) =>
       flex: 1,
       gap: 4
     },
-    type: {
-      fontSize: 12,
-      textTransform: "uppercase",
-      letterSpacing: 1.1,
-      color: theme.muted
-    },
+    type: { ...eyebrowText(theme) },
     title: {
       fontSize: 19,
       fontWeight: "700",

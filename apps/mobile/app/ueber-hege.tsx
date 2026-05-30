@@ -2,6 +2,7 @@ import { Linking, Platform, Pressable, Text, View } from "react-native";
 
 import { ScreenShell } from "../components/screen-shell";
 import type { ThemeColors } from "../lib/theme";
+import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
 /**
@@ -142,14 +143,7 @@ const createStyles = (theme: ThemeColors) =>
       backgroundColor: theme.card,
       gap: 10
     },
-    sectionEyebrow: {
-      fontSize: 11,
-      textTransform: "uppercase",
-      letterSpacing: 1.1,
-      color: theme.muted,
-      fontWeight: "700",
-      marginBottom: 4
-    },
+    sectionEyebrow: { ...eyebrowText(theme), marginBottom: 4 },
     detailRow: {
       flexDirection: "row",
       justifyContent: "space-between",

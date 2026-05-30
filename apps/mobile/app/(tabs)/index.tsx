@@ -30,6 +30,7 @@ import {
   getOfflineQueueStatusLabel
 } from "../../lib/offline-queue-status";
 import type { ThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 /**
@@ -455,13 +456,7 @@ const createStyles = (theme: ThemeColors) =>
     cardPressed: {
       opacity: 0.85
     },
-    cardEyebrow: {
-      fontSize: 12,
-      textTransform: "uppercase",
-      letterSpacing: 1.2,
-      color: theme.muted,
-      fontWeight: "700"
-    },
+    cardEyebrow: { ...eyebrowText(theme) },
     cardValue: {
       fontSize: 22,
       fontWeight: "700",

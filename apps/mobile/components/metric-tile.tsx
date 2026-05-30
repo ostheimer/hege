@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 
 import type { ThemeColors } from "../lib/theme";
+import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
 interface MetricTileProps {
@@ -31,12 +32,7 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: 22,
       backgroundColor: theme.card
     },
-    label: {
-      fontSize: 12,
-      letterSpacing: 1.2,
-      textTransform: "uppercase",
-      color: theme.muted
-    },
+    label: { ...eyebrowText(theme) },
     value: {
       fontSize: 28,
       color: theme.ink,

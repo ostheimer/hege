@@ -8,6 +8,7 @@ import {
   type ActivityItemKind
 } from "../lib/activity-feed.helpers";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
 interface ActivityFeedProps {
@@ -150,13 +151,7 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "baseline",
       justifyContent: "space-between"
     },
-    eyebrow: {
-      fontSize: 12,
-      textTransform: "uppercase",
-      letterSpacing: 1.2,
-      color: theme.muted,
-      fontWeight: "700"
-    },
+    eyebrow: { ...eyebrowText(theme) },
     headerHint: {
       fontSize: 11,
       color: theme.muted

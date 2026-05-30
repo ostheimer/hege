@@ -10,6 +10,7 @@ import { fetchDashboardSnapshot, logout } from "../../lib/api";
 import { countUnread, useReadNotificationIds } from "../../lib/notifications-read-state";
 import { useSessionSnapshot } from "../../lib/session";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
 interface MehrLink {
@@ -216,12 +217,7 @@ const createStyles = (theme: ThemeColors) =>
     backgroundColor: theme.card,
     gap: 6
   },
-  profileLabel: {
-    fontSize: 12,
-    textTransform: "uppercase",
-    letterSpacing: 1.2,
-    color: theme.muted
-  },
+  profileLabel: { ...eyebrowText(theme) },
   profileName: {
     fontSize: 22,
     fontWeight: "700",
