@@ -1328,7 +1328,7 @@ const createStyles = (theme: ThemeColors) =>
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-    backgroundColor: "#e8dfcc"
+    backgroundColor: theme.surfaceMuted
   },
   photoPickerButtonText: {
     color: theme.ink,
@@ -1372,7 +1372,7 @@ const createStyles = (theme: ThemeColors) =>
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 999,
-    backgroundColor: "#ddcfb7"
+    backgroundColor: theme.surfaceMutedStrong
   },
   photoRemoveButtonText: {
     color: theme.ink,
@@ -1403,7 +1403,7 @@ const createStyles = (theme: ThemeColors) =>
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: "#e3dccd"
+    backgroundColor: theme.surfaceMuted
   },
   secondaryButtonText: {
     color: theme.ink,
@@ -1498,7 +1498,7 @@ const createStyles = (theme: ThemeColors) =>
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
-    backgroundColor: "#ddcfb7"
+    backgroundColor: theme.surfaceMutedStrong
   },
   discardButtonText: {
     color: theme.ink,

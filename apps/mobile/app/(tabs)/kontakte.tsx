@@ -878,7 +878,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 6,
       paddingHorizontal: 12,
       borderRadius: 14,
-      backgroundColor: "#e3dccd"
+      backgroundColor: theme.surfaceMuted
     },
     secondaryButtonText: {
       color: theme.ink,
@@ -891,7 +891,7 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: 12,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#e3dccd"
+      backgroundColor: theme.surfaceMuted
     },
     iconButtonAccent: {
       backgroundColor: theme.accent

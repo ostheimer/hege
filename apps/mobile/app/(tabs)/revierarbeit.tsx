@@ -892,7 +892,7 @@ const createStyles = (theme: ThemeColors) =>
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderRadius: 999,
-    backgroundColor: "#e3dccd"
+    backgroundColor: theme.surfaceMuted
   },
   chipActive: {
     backgroundColor: theme.accent
@@ -953,7 +953,7 @@ const createStyles = (theme: ThemeColors) =>
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 14,
-    backgroundColor: "#e3dccd"
+    backgroundColor: theme.surfaceMuted
   },
   secondaryButtonText: {
     color: theme.ink,

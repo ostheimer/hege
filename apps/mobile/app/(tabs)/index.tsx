@@ -420,7 +420,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingHorizontal: 14,
       paddingVertical: 10,
       borderRadius: 999,
-      backgroundColor: "#e3dccd"
+      backgroundColor: theme.surfaceMuted
     },
     secondaryButtonText: {
       color: theme.ink,

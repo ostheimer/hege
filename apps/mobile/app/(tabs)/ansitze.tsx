@@ -615,7 +615,7 @@ const createStyles = (theme: ThemeColors) =>
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 16,
-    backgroundColor: "#e3dccd"
+    backgroundColor: theme.surfaceMuted
   },
   secondaryButtonText: {
     color: theme.ink,

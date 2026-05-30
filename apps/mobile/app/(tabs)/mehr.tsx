@@ -286,7 +286,7 @@ const createStyles = (theme: ThemeColors) =>
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 18,
-    backgroundColor: "#e3dccd"
+    backgroundColor: theme.surfaceMuted
   },
   logoutDisabled: {
     opacity: 0.7
