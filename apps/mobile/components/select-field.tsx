@@ -207,7 +207,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingVertical: 14,
       marginTop: 4,
       borderRadius: 14,
-      backgroundColor: "#e3dccd"
+      backgroundColor: theme.surfaceMuted
     },
     sheetCancelText: {
       fontSize: 14,
