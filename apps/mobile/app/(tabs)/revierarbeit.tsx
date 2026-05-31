@@ -55,6 +55,7 @@ import {
   REVIERMELDUNG_STATUS_LABELS
 } from "../../lib/revierarbeit-map.helpers";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -866,12 +867,7 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.ink,
     fontWeight: "600"
   },
-  formCard: {
-    gap: 14,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  formCard: { ...cardSurface(theme), gap: 14 },
   sectionLabel: { ...eyebrowText(theme) },
   sectionCopy: {
     fontSize: 14,
@@ -959,12 +955,7 @@ const createStyles = (theme: ThemeColors) =>
     opacity: 0.7
   },
   listHeadline: { ...eyebrowText(theme), marginTop: 6 },
-  card: {
-    gap: 10,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  card: { ...cardSurface(theme), gap: 10 },
   row: {
     flexDirection: "row",
     gap: 12,

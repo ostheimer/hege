@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 
 import type { ThemeColors } from "../lib/theme";
+import { cardSurface } from "../lib/surfaces";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
@@ -24,14 +25,7 @@ export function MetricTile({ label, value, detail }: MetricTileProps) {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-    card: {
-      flex: 1,
-      minWidth: 150,
-      gap: 8,
-      padding: 18,
-      borderRadius: 22,
-      backgroundColor: theme.card
-    },
+    card: { ...cardSurface(theme), flex: 1, minWidth: 150, gap: 8 },
     label: { ...eyebrowText(theme) },
     value: {
       fontSize: 28,
