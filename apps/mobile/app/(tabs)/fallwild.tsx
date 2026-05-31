@@ -14,6 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 
 import { Badge } from "../../components/badge";
+import { FeedbackBanner } from "../../components/feedback-banner";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
@@ -762,17 +763,15 @@ export default function FallwildScreen() {
         </View>
 
         {feedback ? (
-          <View style={[styles.feedbackCard, feedback.variant === "success" ? styles.feedbackCardSuccess : styles.feedbackCardWarning]}>
-            <Text style={styles.stateTitle}>{feedback.title}</Text>
-            <Text style={styles.stateCopy}>{feedback.copy}</Text>
-          </View>
+          <FeedbackBanner
+            tone={feedback.variant === "success" ? "success" : "warning"}
+            title={feedback.title}
+            description={feedback.copy}
+          />
         ) : null}
 
         {error ? (
-          <View style={styles.errorCard}>
-            <Text style={styles.stateTitle}>Fallwild nicht verfügbar</Text>
-            <Text style={styles.stateCopy}>{error}</Text>
-          </View>
+          <FeedbackBanner tone="danger" title="Fallwild nicht verfügbar" description={error} />
         ) : null}
 
         <View style={styles.actionRow}>
@@ -1410,38 +1409,16 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 15,
     fontWeight: "600"
   },
-  feedbackCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22
-  },
-  feedbackCardSuccess: {
-    backgroundColor: "#e3ecd7"
-  },
-  feedbackCardWarning: {
-    backgroundColor: "#efe3d1"
-  },
   stateCard: {
     gap: 6,
     padding: 18,
     borderRadius: 22,
     backgroundColor: theme.card
   },
-  errorCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#f0d9d4"
-  },
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: theme.ink
-  },
-  stateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: theme.muted
   },
   card: {
     gap: 6,

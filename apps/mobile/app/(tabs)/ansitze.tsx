@@ -13,6 +13,7 @@ import type { Dispatch, SetStateAction } from "react";
 import type { AnsitzSession } from "@hege/domain";
 
 import { Badge } from "../../components/badge";
+import { FeedbackBanner } from "../../components/feedback-banner";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
@@ -264,17 +265,11 @@ export default function AnsitzeScreen() {
         </View>
 
         {message ? (
-          <View style={styles.infoCard}>
-            <Text style={styles.stateTitle}>Status</Text>
-            <Text style={styles.stateCopy}>{message}</Text>
-          </View>
+          <FeedbackBanner tone="info" title="Status" description={message} />
         ) : null}
 
         {error ? (
-          <View style={styles.errorCard}>
-            <Text style={styles.stateTitle}>Ansitz nicht verfügbar</Text>
-            <Text style={styles.stateCopy}>{error}</Text>
-          </View>
+          <FeedbackBanner tone="danger" title="Ansitz nicht verfügbar" description={error} />
         ) : null}
 
         <View style={styles.actionRow}>
@@ -628,27 +623,10 @@ const createStyles = (theme: ThemeColors) =>
     borderRadius: 22,
     backgroundColor: theme.card
   },
-  infoCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#efe3d1"
-  },
-  errorCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#f0d9d4"
-  },
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: theme.ink
-  },
-  stateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: theme.muted
   },
   card: {
     gap: 10,
