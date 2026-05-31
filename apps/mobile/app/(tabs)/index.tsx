@@ -30,6 +30,7 @@ import {
   getOfflineQueueStatusLabel
 } from "../../lib/offline-queue-status";
 import type { ThemeColors } from "../../lib/theme";
+import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -447,12 +448,7 @@ const createStyles = (theme: ThemeColors) =>
       lineHeight: 20,
       color: theme.warning
     },
-    card: {
-      padding: 18,
-      borderRadius: 22,
-      backgroundColor: theme.card,
-      gap: 10
-    },
+    card: { ...cardSurface(theme), gap: 10 },
     cardPressed: {
       opacity: 0.85
     },

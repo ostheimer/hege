@@ -8,6 +8,7 @@ import {
   type ActivityItemKind
 } from "../lib/activity-feed.helpers";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { cardSurface } from "../lib/surfaces";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
@@ -140,12 +141,7 @@ function hexWithAlpha(hex: string, alpha: number): string {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-    card: {
-      padding: 18,
-      borderRadius: 22,
-      backgroundColor: theme.card,
-      gap: 14
-    },
+    card: { ...cardSurface(theme), gap: 14 },
     headerRow: {
       flexDirection: "row",
       alignItems: "baseline",

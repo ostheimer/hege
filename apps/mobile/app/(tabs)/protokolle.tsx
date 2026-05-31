@@ -18,6 +18,7 @@ import {
   type ProtokollStatusFilter
 } from "../../lib/protokoll-filter.helpers";
 import type { ThemeColors } from "../../lib/theme";
+import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -213,12 +214,7 @@ const createStyles = (theme: ThemeColors) =>
   list: {
     gap: 12
   },
-  card: {
-    gap: 8,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  card: { ...cardSurface(theme), gap: 8 },
   cardActive: {
     borderWidth: 1,
     borderColor: theme.accent
@@ -269,12 +265,7 @@ const createStyles = (theme: ThemeColors) =>
     fontWeight: "700",
     color: "#fff9ef"
   },
-  detailCard: {
-    gap: 10,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  detailCard: { ...cardSurface(theme), gap: 10 },
   detailTitle: {
     fontSize: 22,
     fontWeight: "700",

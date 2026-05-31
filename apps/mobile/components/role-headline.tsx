@@ -3,6 +3,7 @@ import { Pressable, Text, View } from "react-native";
 
 import type { RoleHeadline as RoleHeadlineData } from "../lib/dashboard-role.helpers";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { cardSurface } from "../lib/surfaces";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 
@@ -56,12 +57,7 @@ export function RoleHeadline({ data, onPressCta }: RoleHeadlineProps) {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-    card: {
-      padding: 18,
-      borderRadius: 22,
-      backgroundColor: theme.card,
-      gap: 8
-    },
+    card: { ...cardSurface(theme), gap: 8 },
     cardPressed: {
       opacity: 0.92
     },

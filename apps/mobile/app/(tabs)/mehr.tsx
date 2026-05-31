@@ -10,6 +10,7 @@ import { fetchDashboardSnapshot, logout } from "../../lib/api";
 import { countUnread, useReadNotificationIds } from "../../lib/notifications-read-state";
 import { useSessionSnapshot } from "../../lib/session";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -211,12 +212,7 @@ export default function MehrScreen() {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-  profileCard: {
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card,
-    gap: 6
-  },
+  profileCard: { ...cardSurface(theme), gap: 6 },
   profileLabel: { ...eyebrowText(theme) },
   profileName: {
     fontSize: 22,

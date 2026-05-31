@@ -41,6 +41,7 @@ import {
   useOfflineQueueSnapshot
 } from "../../lib/offline-queue";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
+import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -544,12 +545,7 @@ const createStyles = (theme: ThemeColors) =>
     gap: 12,
     paddingBottom: 24
   },
-  formCard: {
-    gap: 14,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  formCard: { ...cardSurface(theme), gap: 14 },
   sectionLabel: { ...eyebrowText(theme) },
   sectionCopy: {
     fontSize: 14,
@@ -617,23 +613,13 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 15,
     fontWeight: "600"
   },
-  stateCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  stateCard: { ...cardSurface(theme), gap: 6 },
   stateTitle: {
     fontSize: 18,
     fontWeight: "700",
     color: theme.ink
   },
-  card: {
-    gap: 10,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: theme.card
-  },
+  card: { ...cardSurface(theme), gap: 10 },
   row: {
     flexDirection: "row",
     gap: 12,

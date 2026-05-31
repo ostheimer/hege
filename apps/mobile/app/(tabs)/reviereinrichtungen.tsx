@@ -23,6 +23,7 @@ import {
 } from "../../lib/reviereinrichtung-filter.helpers";
 import type { ThemeColors } from "../../lib/theme";
 import { useThemeColors } from "../../lib/theme";
+import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 
@@ -309,12 +310,7 @@ const createStyles = (theme: ThemeColors) =>
     list: {
       gap: 12
     },
-    card: {
-      gap: 8,
-      padding: 18,
-      borderRadius: 22,
-      backgroundColor: theme.card
-    },
+    card: { ...cardSurface(theme), gap: 8 },
     row: {
       flexDirection: "row",
       gap: 10,
