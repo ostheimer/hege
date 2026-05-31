@@ -12,7 +12,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Mobile Design-System §10: semantische Farb-Tokens (`semantic color roles`) in `packages/domain`; erstmals in `StateView` für Loading-/Empty-States adoptiert (PR #134).
 - Mobile Design-System §10.7: Eyebrow- und Section-Label-Typographie aus gesamter App in gemeinsame Tokens konsolidiert (PR #141).
 - Mobile Design-System §10.3: Muted-Surface-Button-Farben auf Tokens umgestellt; alle `ghost`/`outline`-Buttons holen Hintergrundfarbe jetzt aus dem Token-System (PR #142).
-- Mobile API-Base-URL-Fix: `EXPO_PUBLIC_API_BASE_URL` fällt standardmäßig auf `/api/v1` zurück, sodass kein externer Basis-Pfad mehr konfiguriert werden muss (PR #140).
+- Mobile API-Base-URL-Fix: Lokaler Entwicklungs-Fallback in `apps/mobile/lib/api.ts` von `http://localhost:3000` auf `http://localhost:3000/api/v1` korrigiert (fehlender `/v1`-Pfadanteil führte zu 404s im lokalen Dev); für Geräte- und Produktions-Builds muss `EXPO_PUBLIC_API_BASE_URL` weiterhin über EAS-Profile gesetzt werden (PR #140).
 
 - Kontaktlisten v1: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü.
 - Reviermeldungen und Aufgaben v1: Drizzle-Tabellen, Seed-Daten, `GET/POST/PATCH /api/v1/reviermeldungen`, `GET/POST/PATCH /api/v1/aufgaben`, Rollenprüfung, Aufgaben-Sichtbarkeit (eigene/offene) und Dashboard-Zähler.
