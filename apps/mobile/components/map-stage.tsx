@@ -320,7 +320,7 @@ const createStyles = (theme: ThemeColors) =>
     fallbackTitle: {
       fontSize: 18,
       fontWeight: "700",
-      color: "#fff9ef",
+      color: theme.onAccent,
       textAlign: "center"
     },
     fallbackCopy: {
@@ -402,13 +402,13 @@ const createStyles = (theme: ThemeColors) =>
       opacity: 0.85
     },
     chipLabelActive: {
-      color: "#fff9ef"
+      color: theme.onAccent
     },
     chipLabelInactive: {
       color: theme.ink
     },
     chipActiveIconColor: {
-      color: "#fff9ef"
+      color: theme.onAccent
     },
     chipInactiveIconColor: {
       color: theme.ink

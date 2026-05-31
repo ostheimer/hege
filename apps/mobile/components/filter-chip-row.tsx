@@ -123,7 +123,7 @@ const createStyles = (theme: ThemeColors) =>
       fontWeight: "600"
     },
     chipLabelActive: {
-      color: "#fff9ef"
+      color: theme.onAccent
     },
     chipLabelInactive: {
       color: theme.ink
@@ -143,7 +143,7 @@ const createStyles = (theme: ThemeColors) =>
     countActive: {
       fontSize: 11,
       fontWeight: "700",
-      color: "#fff9ef"
+      color: theme.onAccent
     },
     countInactive: {
       fontSize: 11,

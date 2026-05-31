@@ -106,7 +106,7 @@ export function PinDetailSheet({ pin, onClose, onOpenDetails }: PinDetailSheetPr
               style={({ pressed }) => [styles.primaryAction, pressed ? styles.primaryActionPressed : null]}
             >
               <Text style={styles.primaryActionText}>Details öffnen</Text>
-              <Ionicons color="#fff9ef" name="arrow-forward" size={18} />
+              <Ionicons color={styles.primaryActionText.color} name="arrow-forward" size={18} />
             </Pressable>
           </View>
         ) : null}
@@ -514,7 +514,7 @@ const createStyles = (theme: ThemeColors) =>
       opacity: 0.85
     },
     primaryActionText: {
-      color: "#fff9ef",
+      color: theme.onAccent,
       fontSize: 16,
       fontWeight: "700"
     }

@@ -145,7 +145,7 @@ const createStyles = (theme: ThemeColors) =>
     fallbackTitle: {
       fontSize: 17,
       fontWeight: "700",
-      color: "#fff9ef",
+      color: theme.onAccent,
       textAlign: "center"
     },
     fallbackCopy: {

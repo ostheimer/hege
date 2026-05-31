@@ -324,7 +324,7 @@ export default function RevierarbeitScreen() {
             accessibilityLabel={`${openTaskCount} offene Aufgaben`}
             style={[styles.statPill, styles.statPillActive]}
           >
-            <Ionicons color="#fff9ef" name="list-circle" size={14} />
+            <Ionicons color={theme.onAccent} name="list-circle" size={14} />
             <Text style={[styles.statPillLabel, styles.statPillLabelOnAccent]}>{openTaskCount} offen</Text>
           </View>
         ) : (
@@ -822,7 +822,7 @@ const createStyles = (theme: ThemeColors) =>
   filterResetText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#fff9ef"
+    color: theme.onAccent
   },
   statPill: {
     flexDirection: "row",
@@ -846,7 +846,7 @@ const createStyles = (theme: ThemeColors) =>
     letterSpacing: 0.4
   },
   statPillLabelOnAccent: {
-    color: "#fff9ef"
+    color: theme.onAccent
   },
   statPillLabelMuted: {
     color: theme.accent
