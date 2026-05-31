@@ -71,7 +71,7 @@ export function ErfassenFab({ onSelectAction, bottomOffset = 92 }: ErfassenFabPr
         onPress={open}
         style={({ pressed }) => [styles.fab, pressed ? styles.fabPressed : null]}
       >
-        <Ionicons color="#fff9ef" name="add" size={28} />
+        <Ionicons color={styles.fabLabel.color} name="add" size={28} />
         <Text style={styles.fabLabel}>Erfassen</Text>
       </Pressable>
     </View>
@@ -104,7 +104,7 @@ const createStyles = (theme: ThemeColors) =>
       transform: [{ scale: 0.98 }]
     },
     fabLabel: {
-      color: "#fff9ef",
+      color: theme.onAccent,
       fontWeight: "700",
       fontSize: 15
     }

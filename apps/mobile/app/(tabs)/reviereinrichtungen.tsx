@@ -295,7 +295,7 @@ const createStyles = (theme: ThemeColors) =>
     filterResetText: {
       fontSize: 12,
       fontWeight: "700",
-      color: "#fff9ef"
+      color: theme.onAccent
     },
     refreshButton: {
       paddingHorizontal: 14,

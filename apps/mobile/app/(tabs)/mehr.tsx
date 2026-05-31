@@ -273,7 +273,7 @@ const createStyles = (theme: ThemeColors) =>
     justifyContent: "center"
   },
   unreadBadgeText: {
-    color: "#fff9ef",
+    color: theme.onAccent,
     fontSize: 12,
     fontWeight: "700"
   },

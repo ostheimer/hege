@@ -489,7 +489,7 @@ const createStyles = (theme: ThemeColors) =>
       backgroundColor: theme.accent
     },
     ansitzBadgeText: {
-      color: "#fff9ef",
+      color: theme.onAccent,
       fontSize: 11,
       fontWeight: "700",
       textTransform: "uppercase",
