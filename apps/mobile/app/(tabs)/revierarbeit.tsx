@@ -19,6 +19,7 @@ import type {
 } from "@hege/domain";
 
 import { Badge, type BadgeTone } from "../../components/badge";
+import { FeedbackBanner } from "../../components/feedback-banner";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
@@ -450,17 +451,11 @@ export default function RevierarbeitScreen() {
       </View>
 
       {message ? (
-        <View style={styles.infoCard}>
-          <Text style={styles.stateTitle}>Status</Text>
-          <Text style={styles.stateCopy}>{message}</Text>
-        </View>
+        <FeedbackBanner tone="info" title="Status" description={message} />
       ) : null}
 
       {error ? (
-        <View style={styles.errorCard}>
-          <Text style={styles.stateTitle}>Revierarbeit nicht verfügbar</Text>
-          <Text style={styles.stateCopy}>{error}</Text>
-        </View>
+        <FeedbackBanner tone="danger" title="Revierarbeit nicht verfügbar" description={error} />
       ) : null}
 
       {isLoading ? (
@@ -962,28 +957,6 @@ const createStyles = (theme: ThemeColors) =>
   },
   buttonDisabled: {
     opacity: 0.7
-  },
-  infoCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#efe3d1"
-  },
-  errorCard: {
-    gap: 6,
-    padding: 18,
-    borderRadius: 22,
-    backgroundColor: "#f0d9d4"
-  },
-  stateTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: theme.ink
-  },
-  stateCopy: {
-    fontSize: 14,
-    lineHeight: 20,
-    color: theme.muted
   },
   listHeadline: { ...eyebrowText(theme), marginTop: 6 },
   card: {
