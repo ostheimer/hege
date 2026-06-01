@@ -326,7 +326,7 @@ const createStyles = (theme: ThemeColors) =>
     fallbackCopy: {
       fontSize: 13,
       lineHeight: 18,
-      color: "#f7f2e5",
+      color: theme.onAccent,
       textAlign: "center"
     },
     topBar: {

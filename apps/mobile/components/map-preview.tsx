@@ -139,9 +139,8 @@ const createStyles = (theme: ThemeColors) =>
       padding: 22,
       gap: 6
     },
-    // Heller Schrift-Token-Wert auf accent/Overlay-Hintergrund. Auf Light hellgelb,
-    // auf Dark bewusst fast identisch, damit Lesbarkeit unter dem gruenen
-    // Marker-Overlay garantiert ist (siehe README zu mobilen Dark-Tokens).
+    // Text direkt auf Accent-Flaechen nutzt onAccent: Light bleibt creme,
+    // Dark kippt auf dunkle Tinte fuer ausreichenden Kontrast.
     fallbackTitle: {
       fontSize: 17,
       fontWeight: "700",
@@ -151,13 +150,13 @@ const createStyles = (theme: ThemeColors) =>
     fallbackCopy: {
       fontSize: 13,
       lineHeight: 18,
-      color: "#f7f2e5",
+      color: theme.onAccent,
       textAlign: "center"
     },
     fallbackHint: {
       fontSize: 12,
       lineHeight: 16,
-      color: "#e5efd9",
+      color: theme.onAccent,
       textAlign: "center"
     },
     emptyState: {
