@@ -21,6 +21,8 @@ apps/
   api/
 packages/
   domain/
+  tokens/
+  icons/
 docs/
 ```
 
@@ -225,13 +227,15 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 - erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
 - Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
 - Domain- und Env-Grundlage fuer `hege.app` vorhanden
-- produktive Persistenz, Authentifizierung und Rechtepruefung noch offen
+- produktive Authentifizierung aktiv (E-Mail/Benutzername + PIN, Auth-Session, Revierkontext)
+- persistente Drizzle-/Neon-Schicht fuer alle Kernmodule vorhanden und produktiv
+- Design-System `@hege/tokens` und `@hege/icons` als eigene Packages in `packages/` etabliert
 
 ## Naechste technische Ausbaustufe
 
-1. Dashboard-Slice auf echte API und Persistenz erweitern
-2. Datenbank-Slice auf weitere Module erweitern
-3. Authentifizierung und Rollenmodell serverseitig aktivieren
-4. Demo-Store durch persistente Services ersetzen
-5. Uploads, PDFs und Benachrichtigungen produktionsreif machen
-6. Google-Maps-Integration in Web und Mobile konkretisieren
+1. Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+2. Google-Maps-Karten auf echte Daten umstellen (Backoffice-Dashboard und Mobile-MapPreview)
+3. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
+4. Android-Emulator-Smoke als Zweitpfad vorbereiten
+5. PDF-Erzeugung weiter haerten
+6. GIP-Bounding-Box mit dem tatsaechlichen Revier abgleichen
