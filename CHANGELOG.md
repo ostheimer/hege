@@ -12,6 +12,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Mobile Design-System §10: semantische Farb-Tokens (`onAccent`, `surfaceMuted`, Status-Surfaces) in `@hege/tokens` (`packages/tokens`); erstmals in `StateView` für Loading-/Empty-States adoptiert (PR #134).
 - Mobile Design-System §10.7: Eyebrow- und Section-Label-Typographie aus gesamter App in gemeinsame Tokens konsolidiert (PR #141).
 - Mobile Design-System §10.3: Muted-Surface-Button-Farben auf Tokens umgestellt; die Sekundär-/Muted-Buttons holen ihre Hintergrundfarbe jetzt aus `surfaceMuted`/`surfaceMutedStrong` (PR #142).
+- Mobile Design-System §10: `<FeedbackBanner tone>` Primitiv für Info-/Success-/Warning-/Danger-Banner mit semantischen Surface-Tokens und assertiver Live-Region für Fehler (PR #144).
+- Mobile Design-System §10: `cardSurface()`-Style-Fragment extrahiert — die dominante Content-Card (Padding 18 / Radius 22 / `theme.card`) über ~17 Definitionen in 10 Dateien zentralisiert, werterhaltend (PR #145).
+- Mobile Design-System §10: `onAccent`-Token auf Akzent-Flächen adoptiert (Filter-Reset, FAB, aktive Filter-Chips, Badges, Primär-Aktionen, Map-Fallbacks); behebt einen latenten Dark-Mode-Kontrast-Bug — der helle Salbei-Akzent bekommt jetzt dunklen statt cremefarbenem Text, Light Mode unverändert (PR #146).
 - Mobile API-Base-URL-Fix: Lokaler Entwicklungs-Fallback in `apps/mobile/lib/api.ts` von `http://localhost:3000` auf `http://localhost:3000/api/v1` korrigiert (fehlender `/v1`-Pfadanteil führte zu 404s im lokalen Dev); für Geräte- und Produktions-Builds muss `EXPO_PUBLIC_API_BASE_URL` weiterhin über EAS-Profile gesetzt werden (PR #140).
 
 - Kontaktlisten v1: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü.

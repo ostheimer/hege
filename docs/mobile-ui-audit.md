@@ -253,7 +253,7 @@ Drei Patches angewendet und im Simulator verifiziert.
 
 ### Light-Inks (Tinte auf Akzent-grün)
 
-`#fff8ec`, `#fff9ef`, `#f7f2e5` — drei Cremetöne für dasselbe Konzept "Tinte auf grünem Akzent". Brauche Token `onAccent`.
+`#fff8ec`, `#fff9ef`, `#f7f2e5` — drei Cremetöne für dasselbe Konzept "Tinte auf grünem Akzent". Brauche Token `onAccent`. → ✅ **Erledigt:** `onAccent` erstellt (PR #134) und auf allen Akzent-Flächen adoptiert (PR #146); behebt zugleich den latenten Dark-Mode-Kontrast (heller Salbei-Akzent → dunkler statt cremefarbener Text).
 
 ### Sonstige Drifts
 
@@ -352,6 +352,7 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
 1. **Semantische Farb-Sets** in `@hege/tokens`:
    - `surfaceMuted`, `surfaceMutedStrong`, `inputBorder`, `onAccent`
    - `successSurface`, `warningSurface`, `dangerSurface`, `infoSurface`, `conflictSurface`
+   - _Status: ✅ Tokens erstellt (PR #134); adoptiert in `StateView` (#134), `<Badge>`/Status-Surfaces (#135/#136), Muted-Buttons (#142), `<FeedbackBanner>` (#144) und `onAccent` auf Akzent-Flächen inkl. Dark-Mode-Fix (#146). Offen: Status-Familie `queue-status-pill`/`queue-badge` (Warning-Flächen brauchen ggf. `onWarning`)._
 
 2. **Spacing-Tokens tatsächlich nutzen.** Ersetze 6/10/12/14/18/22 durch `tokens.spacing.xs/sm/md/lg`.
 
