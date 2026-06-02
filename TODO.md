@@ -61,8 +61,8 @@ Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zue
 - [ ] P1.1 — Demo-Daten erweitern auf realistische Volumina (~20 Sitzungen, ~30 Fallwild, ~12 Reviereinrichtungen, ~8 Mitglieder, dazu passende Reviermeldungen/Aufgaben).
 - [ ] P1.2 — Wortmarken-Logo als SVG-Asset-Satz (Mark+Wortmarke kombiniert + monochrome Varianten) für Header, Favicon, OG-Image, Mobile-Login, Mobile-Splash.
 - [ ] P1.3 — Mobile Heute-Tab Layout-Fixes: Bottom-Padding für Tab-Bar (Tiles werden nicht mehr abgeschnitten), Aside-Card kollabiert auf 0-Wert, Slash-Trennung der Personenzeile durch Punkt-Trennung ersetzt, Hero-Title mit Auto-Shrink, Toolbar-Buttons in Header-Aside oder Pull-to-Refresh.
-- [ ] P1.4 — Vereinheitlichte `<StateView>`-Komponente für Empty/Loading/Error in Web und Mobile, ad-hoc-Cards migrieren.
-- [ ] P1.5 — Custom Domain-Iconographie als neues `packages/icons`-Workspace-Package (Hochstand, Fütterung, Ansitz, Fallwild, Reviereinrichtung, Sitzung, Protokoll, Mitglied), Web + Mobile.
+- [ ] P1.4 — Vereinheitlichte `<StateView>`-Komponente für Empty/Loading/Error in Web und Mobile, ad-hoc-Cards migrieren. *`StateView` bereits in `packages/tokens` vorhanden (CHANGELOG Unreleased, PR #134); ausstehend: Migration der ad-hoc-Cards in Web und Mobile.*
+- [ ] P1.5 — Custom Domain-Iconographie: `packages/icons` (`@hege/icons`) als Workspace-Package erstellt und im Repo vorhanden. *`apps/mobile` hat noch keine `@hege/icons`-Abhängigkeit — Mobile-Integration ausstehend.*
 - [ ] P1.6 — Mikrointeraktionen: Web View Transitions, Hover/Press-Feedback; Mobile Sheet-Slides + Reanimated Pressable-Skalierung + Haptik bei Save/Send/Discard.
 - [ ] P1.7 — Hero-Visuals auf Public-Landing: Backoffice-Mockup mit echter Karte und iPhone-Mock mit Fallwild-Form als statische Assets in `apps/web/public/landing/`.
 - [ ] P1.8 — Dark Mode Mobile durchziehen: Components von `colors.x` auf `useThemeColors()` migrieren, sodass `userInterfaceStyle: automatic` wirklich greift.
