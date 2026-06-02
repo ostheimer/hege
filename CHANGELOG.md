@@ -8,6 +8,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
+- Mobile Design-System §10: `<FeedbackBanner>` Primitiv (`components/feedback-banner.tsx`) fuer transientes Aktions-Feedback an Formularen (Ansitze, Fallwild, Revierarbeit); ersetzt die pro Screen duplizierten `infoCard`/`errorCard`/`feedbackCard`-Banner — werterhaltend (gleiche Flaechen und Copy) (PR #144).
+- Mobile Design-System §10: `cardSurface(theme)` Hilfsfunktion in `lib/surfaces.ts` konsolidiert die dominante Content-Card-Flaeche (Padding 18, Radius 22, `theme.card`) in 10 Dateien — werterhaltend (PR #145).
 - Mobile Design-System §10: `<Badge tone>` Primitiv (PR #135) mit semantischen Color-Roles für Success, Warning, Error und Info; auf Revierarbeit, Protokolle, Ansitze und Fallwild eingesetzt (PR #136).
 - Mobile Design-System §10: semantische Farb-Tokens (`onAccent`, `surfaceMuted`, Status-Surfaces) in `@hege/tokens` (`packages/tokens`); erstmals in `StateView` für Loading-/Empty-States adoptiert (PR #134).
 - Mobile Design-System §10.7: Eyebrow- und Section-Label-Typographie aus gesamter App in gemeinsame Tokens konsolidiert (PR #141).
@@ -41,6 +43,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Changed
 
+- Mobile Design-System §10: `onAccent`-Token auf Accent-Flaechen adoptiert (20 hartkodierte `#fff9ef`-Vordergruende in 13 Dateien): Filter-Reset-Buttons, Badges, FAB, aktive Filter-Chips, Map-Fallbacks; behebt Dark-Mode-Kontrast-Bug (`#fff9ef` auf `#9db36f` ~2:1 → `theme.onAccent` `#10231d` auf Salbei-Accent); OTA `0.1.0 · 2026-05-31.8` (PR #146).
 - Neues `hege`-Logo fuer iOS-App und Website eingebaut; auf `https://hege.app` produktiv verfuegbar.
 - Mobile Session-Restore um lokalen `locked`-Status und biometrisches Entsperren (Face ID/Touch ID) fuer gespeicherte Sitzungen erweitert; iPhone-Abnahme 2026-05-06 bestaetigt.
 - Mobile Offline-Queue auf Queue v2 umgestellt: `nextAttemptAt`, exponentieller Retry-Backoff, dynamische Sync-Schleife, manueller Retry und Verwerfen fehlgeschlagener Eintraege; Fallwild Create-zu-Upload-Kette bleibt erhalten.
@@ -67,6 +70,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Fixed
 
+- Mobile Map-Fallback-Texte (`EntityMap`, `MapPreview`, `MapStage`) nutzen jetzt `theme.onAccent` statt hartkodierter Creme-Farben (`#f7f2e5`/`#e5efd9`); behebt ~2:1-Kontrastproblem im Dark-Mode auf dem Accent-Token `#9db36f` (PR #148).
 - Web Storage-Rollback fuer Fallwild-Fotos: nach fehlgeschlagenem `media_assets`-Insert wird das bereits in R2 hochgeladene Objekt per best-effort `DeleteObjectCommand` entfernt.
 - Web-Sidebar um eine sichtbare `Abmelden`-Aktion ergaenzt und den Logout-Flow ueber Cookie-Clear mit Redirect auf `/login` abgesichert.
 - Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.
