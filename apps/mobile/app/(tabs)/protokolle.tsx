@@ -21,6 +21,7 @@ import type { ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 export default function ProtokolleScreen() {
   const styles = useThemedStyles(createStyles);
@@ -214,7 +215,7 @@ const createStyles = (theme: ThemeColors) =>
   list: {
     gap: 12
   },
-  card: { ...cardSurface(theme), gap: 8 },
+  card: { ...cardSurface(theme), gap: spacing.sm },
   cardActive: {
     borderWidth: 1,
     borderColor: theme.accent
@@ -226,7 +227,7 @@ const createStyles = (theme: ThemeColors) =>
   },
   grow: {
     flex: 1,
-    gap: 4
+    gap: spacing.xs
   },
   title: {
     fontSize: 20,
@@ -241,7 +242,7 @@ const createStyles = (theme: ThemeColors) =>
   separator: {
     height: 1,
     backgroundColor: "#e5dfd1",
-    marginVertical: 4
+    marginVertical: spacing.xs
   },
   filterSection: {
     gap: 10,
@@ -257,7 +258,7 @@ const createStyles = (theme: ThemeColors) =>
     alignSelf: "flex-start",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.accent
   },
   filterResetText: {
@@ -273,7 +274,7 @@ const createStyles = (theme: ThemeColors) =>
   },
   detailList: {
     gap: 12,
-    paddingBottom: 8
+    paddingBottom: spacing.sm
   },
   version: {
     gap: 6
@@ -285,7 +286,7 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.muted
   },
   decision: {
-    gap: 4
+    gap: spacing.xs
   },
   decisionTitle: {
     fontSize: 16,

@@ -75,6 +75,7 @@ import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 interface FallwildFormState {
   locationLabel: string;
@@ -1172,7 +1173,7 @@ const createStyles = (theme: ThemeColors) =>
     alignSelf: "flex-start",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.accent
   },
   filterResetText: {
@@ -1181,13 +1182,13 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.onAccent
   },
   smartDefaultsBanner: {
-    gap: 4,
+    gap: spacing.xs,
     padding: 14,
     borderRadius: 16,
     backgroundColor: "rgba(157, 179, 111, 0.18)",
     borderWidth: 1,
     borderColor: "rgba(36, 73, 58, 0.18)",
-    marginTop: 4
+    marginTop: spacing.xs
   },
   smartDefaultsEyebrow: {
     fontSize: 11,
@@ -1212,7 +1213,7 @@ const createStyles = (theme: ThemeColors) =>
     justifyContent: "center",
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.card
   },
   buttonDisabled: {
@@ -1224,11 +1225,11 @@ const createStyles = (theme: ThemeColors) =>
   },
   listContent: {
     gap: 12,
-    paddingBottom: 24
+    paddingBottom: spacing.lg
   },
   formCard: { ...cardSurface(theme), gap: 14 },
   locationActionCard: {
-    gap: 8,
+    gap: spacing.sm,
     padding: 14,
     borderRadius: 18,
     backgroundColor: "#f3ecdf"
@@ -1289,7 +1290,7 @@ const createStyles = (theme: ThemeColors) =>
   },
   photoSection: {
     gap: 10,
-    paddingTop: 4
+    paddingTop: spacing.xs
   },
   photoActionsRow: {
     flexDirection: "row",
@@ -1307,7 +1308,7 @@ const createStyles = (theme: ThemeColors) =>
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.accent
   },
   photoCameraButtonText: {
@@ -1322,7 +1323,7 @@ const createStyles = (theme: ThemeColors) =>
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.surfaceMuted
   },
   photoPickerButtonText: {
@@ -1366,7 +1367,7 @@ const createStyles = (theme: ThemeColors) =>
     paddingHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.surfaceMutedStrong
   },
   photoRemoveButtonText: {
@@ -1428,7 +1429,7 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.muted
   },
   queueRow: {
-    gap: 4
+    gap: spacing.xs
   },
   queueRowTitle: {
     fontSize: 15,
@@ -1443,13 +1444,13 @@ const createStyles = (theme: ThemeColors) =>
   queueActionRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    paddingTop: 4
+    gap: spacing.sm,
+    paddingTop: spacing.xs
   },
   retryButton: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
     backgroundColor: theme.accent
   },
   retryButtonText: {
@@ -1459,8 +1460,8 @@ const createStyles = (theme: ThemeColors) =>
   },
   discardButton: {
     paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 999,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
     backgroundColor: theme.surfaceMutedStrong
   },
   discardButtonText: {

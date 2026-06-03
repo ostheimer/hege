@@ -30,6 +30,7 @@ import {
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 type EntryMode = "member" | "external";
 
@@ -745,7 +746,7 @@ const createStyles = (theme: ThemeColors) =>
       minWidth: 30,
       paddingHorizontal: 9,
       paddingVertical: 5,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: "rgba(157, 179, 111, 0.2)",
       color: theme.ink,
       fontWeight: "700",
@@ -784,7 +785,7 @@ const createStyles = (theme: ThemeColors) =>
     contactIcon: {
       width: 34,
       height: 34,
-      borderRadius: 12,
+      borderRadius: radius.md,
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: theme.accent
@@ -824,7 +825,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     formBlock: {
       gap: 12,
-      paddingTop: 4
+      paddingTop: spacing.xs
     },
     inputField: {
       gap: 6
@@ -853,7 +854,7 @@ const createStyles = (theme: ThemeColors) =>
     actionRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 8
+      gap: spacing.sm
     },
     primaryButton: {
       minHeight: 46,
@@ -888,7 +889,7 @@ const createStyles = (theme: ThemeColors) =>
     iconButton: {
       width: 36,
       height: 36,
-      borderRadius: 12,
+      borderRadius: radius.md,
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: theme.surfaceMuted

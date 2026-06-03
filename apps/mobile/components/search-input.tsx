@@ -4,6 +4,7 @@ import { Pressable, TextInput, View } from "react-native";
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing } from "@hege/tokens";
 
 interface SearchInputProps {
   value: string;
@@ -66,9 +67,9 @@ const createStyles = (theme: ThemeColors) =>
     container: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
+      gap: spacing.sm,
       paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingVertical: spacing.sm,
       borderRadius: 14,
       backgroundColor: theme.card,
       borderWidth: 1,

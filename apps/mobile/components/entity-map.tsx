@@ -13,6 +13,7 @@ import {
   buildInitialRegion,
   type RevierCenter
 } from "./map-preview.helpers";
+import { spacing } from "@hege/tokens";
 
 const ANDROID_GOOGLE_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY;
 const ANDROID_HAS_GOOGLE_KEY = Platform.OS === "android" && !!ANDROID_GOOGLE_KEY;
@@ -151,8 +152,8 @@ const createStyles = (theme: ThemeColors) =>
     fallback: {
       alignItems: "center",
       justifyContent: "center",
-      padding: 24,
-      gap: 8,
+      padding: spacing.lg,
+      gap: spacing.sm,
       backgroundColor: theme.accent,
       minHeight: 200
     },

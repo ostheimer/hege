@@ -33,6 +33,7 @@ import type { ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 /**
  * Heute-Tab — Dashboard "Was gibt's Neues" (Pfad-2-Rework).
@@ -420,7 +421,7 @@ const createStyles = (theme: ThemeColors) =>
       justifyContent: "center",
       paddingHorizontal: 14,
       paddingVertical: 10,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.surfaceMuted
     },
     secondaryButtonText: {
@@ -467,7 +468,7 @@ const createStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
-      paddingVertical: 4
+      paddingVertical: spacing.xs
     },
     ansitzCopy: {
       flex: 1,
@@ -484,8 +485,8 @@ const createStyles = (theme: ThemeColors) =>
     },
     ansitzBadge: {
       paddingHorizontal: 10,
-      paddingVertical: 4,
-      borderRadius: 999,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.full,
       backgroundColor: theme.accent
     },
     ansitzBadgeText: {
@@ -506,7 +507,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     queueRowCopy: {
       flex: 1,
-      gap: 4
+      gap: spacing.xs
     },
     queueRowTitle: {
       fontSize: 16,
@@ -519,13 +520,13 @@ const createStyles = (theme: ThemeColors) =>
       color: theme.muted
     },
     queueRowActions: {
-      gap: 8,
+      gap: spacing.sm,
       alignItems: "flex-end"
     },
     queueBadge: {
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 999
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full
     },
     queueBadgePending: {
       backgroundColor: "#dde7cf"
@@ -545,8 +546,8 @@ const createStyles = (theme: ThemeColors) =>
     },
     discardButton: {
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 999,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
       backgroundColor: theme.card
     },
     discardButtonText: {
@@ -555,8 +556,8 @@ const createStyles = (theme: ThemeColors) =>
     },
     retryButton: {
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 999,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
       backgroundColor: theme.accent
     },
     retryButtonText: {

@@ -6,6 +6,7 @@ import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { cardSurface } from "../lib/surfaces";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing } from "@hege/tokens";
 
 interface RoleHeadlineProps {
   data: RoleHeadlineData;
@@ -57,7 +58,7 @@ export function RoleHeadline({ data, onPressCta }: RoleHeadlineProps) {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-    card: { ...cardSurface(theme), gap: 8 },
+    card: { ...cardSurface(theme), gap: spacing.sm },
     cardPressed: {
       opacity: 0.92
     },
@@ -77,7 +78,7 @@ const createStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-      marginTop: 4
+      marginTop: spacing.xs
     },
     ctaLabel: {
       fontSize: 13,

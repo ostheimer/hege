@@ -14,6 +14,7 @@ import {
 import { unlockStoredSession, useSessionSnapshot } from "../lib/session";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 const logoMark = require("../assets/logo-mark.png");
 
@@ -247,8 +248,8 @@ const createStyles = (theme: ThemeColors) =>
   },
   card: {
     gap: 18,
-    padding: 24,
-    borderRadius: 28,
+    padding: spacing.lg,
+    borderRadius: radius.xl,
     backgroundColor: theme.card,
     shadowColor: "#10231d",
     shadowOpacity: 0.12,
@@ -262,7 +263,7 @@ const createStyles = (theme: ThemeColors) =>
     alignSelf: "center",
     justifyContent: "center",
     gap: 12,
-    marginBottom: 4
+    marginBottom: spacing.xs
   },
   logo: {
     width: 56,
@@ -291,7 +292,7 @@ const createStyles = (theme: ThemeColors) =>
   unlockPanel: {
     gap: 10,
     padding: 14,
-    borderRadius: 20,
+    borderRadius: radius.lg,
     backgroundColor: "#f0eadc"
   },
   unlockTitle: {

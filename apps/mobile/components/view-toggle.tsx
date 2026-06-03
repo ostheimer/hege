@@ -5,6 +5,7 @@ import { Pressable, Text, View } from "react-native";
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 export interface ViewToggleOption<K extends string> {
   key: K;
@@ -91,8 +92,8 @@ const createStyles = (theme: ThemeColors) =>
   ({
     bar: {
       flexDirection: "row",
-      padding: 4,
-      borderRadius: 999,
+      padding: spacing.xs,
+      borderRadius: radius.full,
       backgroundColor: theme.surface,
       borderWidth: 1,
       borderColor: theme.muted,
@@ -105,7 +106,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 6,
       paddingVertical: 7,
       paddingHorizontal: 14,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: "transparent"
     },
     segmentActive: {

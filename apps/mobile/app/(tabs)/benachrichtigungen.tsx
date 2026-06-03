@@ -18,6 +18,7 @@ import {
 import type { ThemeColors } from "../../lib/theme";
 import { useThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 type NotificationFilter = "alle" | "ungelesen";
 
@@ -251,7 +252,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 6,
       paddingVertical: 6,
       paddingHorizontal: 12,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.card,
       borderWidth: 1,
       borderColor: theme.muted
@@ -269,7 +270,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     card: {
       gap: 6,
-      padding: 16,
+      padding: spacing.md,
       borderRadius: 18,
       backgroundColor: theme.card
     },
@@ -291,10 +292,10 @@ const createStyles = (theme: ThemeColors) =>
     channelPill: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 4,
-      paddingHorizontal: 8,
+      gap: spacing.xs,
+      paddingHorizontal: spacing.sm,
       paddingVertical: 2,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.surface
     },
     channelLabel: {
@@ -307,7 +308,7 @@ const createStyles = (theme: ThemeColors) =>
     unreadDot: {
       width: 9,
       height: 9,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.accent
     },
     cardTitle: {
@@ -328,8 +329,8 @@ const createStyles = (theme: ThemeColors) =>
     },
     emptyCard: {
       alignItems: "center",
-      gap: 8,
-      padding: 24,
+      gap: spacing.sm,
+      padding: spacing.lg,
       borderRadius: 22,
       backgroundColor: theme.card
     },

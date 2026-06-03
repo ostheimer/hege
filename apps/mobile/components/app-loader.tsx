@@ -3,6 +3,7 @@ import { Image, Platform, Text, View } from "react-native";
 
 import type { ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 const logoMark = require("../assets/logo-mark.png");
 
@@ -35,8 +36,8 @@ const createStyles = (theme: ThemeColors) =>
       width: "100%",
       maxWidth: 420,
       gap: 10,
-      padding: 24,
-      borderRadius: 28,
+      padding: spacing.lg,
+      borderRadius: radius.xl,
       backgroundColor: theme.card,
       shadowColor: "#10231d",
       shadowOpacity: 0.12,
@@ -49,7 +50,7 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "flex-end",
       alignSelf: "center",
       justifyContent: "center",
-      marginBottom: 4
+      marginBottom: spacing.xs
     },
     logo: {
       width: 64,

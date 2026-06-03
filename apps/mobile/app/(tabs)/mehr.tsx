@@ -13,6 +13,7 @@ import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 interface MehrLink {
   href: string;
@@ -233,8 +234,8 @@ const createStyles = (theme: ThemeColors) =>
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "rgba(25, 57, 44, 0.08)"
   },
@@ -244,14 +245,14 @@ const createStyles = (theme: ThemeColors) =>
   linkIcon: {
     width: 38,
     height: 38,
-    borderRadius: 12,
+    borderRadius: radius.md,
     backgroundColor: "rgba(157, 179, 111, 0.18)",
     alignItems: "center",
     justifyContent: "center"
   },
   linkCopy: {
     flex: 1,
-    gap: 4
+    gap: spacing.xs
   },
   linkLabel: {
     fontSize: 16,
@@ -267,7 +268,7 @@ const createStyles = (theme: ThemeColors) =>
     minWidth: 22,
     height: 22,
     paddingHorizontal: 7,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.accent,
     alignItems: "center",
     justifyContent: "center"

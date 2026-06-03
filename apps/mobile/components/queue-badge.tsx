@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 interface QueueBadgeProps {
   count: number;
@@ -74,9 +75,9 @@ const createStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
-      paddingVertical: 8,
+      paddingVertical: spacing.sm,
       paddingHorizontal: 12,
-      borderRadius: 999,
+      borderRadius: radius.full,
       shadowColor: "#10231d",
       shadowOpacity: 0.18,
       shadowRadius: 12,

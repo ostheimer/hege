@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 export type BadgeTone = "success" | "info" | "warning" | "danger" | "neutral";
 
@@ -66,8 +67,8 @@ const createStyles = (theme: ThemeColors) =>
     badge: {
       alignSelf: "flex-start",
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 999
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full
     },
     containerSuccess: {
       backgroundColor: "#dde7cf"

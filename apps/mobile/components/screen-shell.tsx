@@ -5,10 +5,11 @@ import type { PropsWithChildren, ReactNode } from "react";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing } from "@hege/tokens";
 
 /**
  * Tab-Bar-Hoehe wie in `apps/mobile/app/(tabs)/_layout.tsx` konfiguriert.
- * `height: 72` plus `paddingBottom: 12` plus `paddingTop: 8` = 92.
+ * `height: 72` plus `paddingBottom: 12` plus `paddingTop: spacing.sm` = 92.
  * Wir lassen 16 px Atemraum oben drauf, damit Tiles nicht direkt am
  * Bar-Rand kleben. Den `safe-area`-Bottom-Inset zaehlen wir noch dazu.
  */
@@ -91,8 +92,8 @@ const createStyles = (theme: ThemeColors) =>
       backgroundColor: theme.background
     },
     scrollContent: {
-      padding: 16,
-      gap: 16
+      padding: spacing.md,
+      gap: spacing.md
     },
     hero: {
       borderRadius: 24,
@@ -102,7 +103,7 @@ const createStyles = (theme: ThemeColors) =>
     heroCompact: {
       borderRadius: 18,
       padding: 14,
-      gap: 4
+      gap: spacing.xs
     },
     heroHeaderRow: {
       flexDirection: "row",
@@ -126,7 +127,7 @@ const createStyles = (theme: ThemeColors) =>
       lineHeight: 30,
       color: theme.ink,
       fontWeight: "700",
-      marginTop: 4
+      marginTop: spacing.xs
     },
     titleCompact: {
       fontSize: 20,
@@ -143,6 +144,6 @@ const createStyles = (theme: ThemeColors) =>
       lineHeight: 18
     },
     children: {
-      gap: 16
+      gap: spacing.md
     }
   }) as const;

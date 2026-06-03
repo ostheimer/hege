@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { radius } from "@hege/tokens";
 
 interface QueueStatusPillProps {
   count: number;
@@ -99,7 +100,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 5,
       paddingVertical: 5,
       paddingHorizontal: 10,
-      borderRadius: 999
+      borderRadius: radius.full
     },
     pillSynced: {
       backgroundColor: theme.card,

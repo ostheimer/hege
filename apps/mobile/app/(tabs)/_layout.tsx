@@ -4,6 +4,7 @@ import { Redirect, Tabs } from "expo-router";
 import { AppLoader } from "../../components/app-loader";
 import { useThemeColors } from "../../lib/theme";
 import { useSessionSnapshot } from "../../lib/session";
+import { spacing } from "@hege/tokens";
 
 export default function TabsLayout() {
   const session = useSessionSnapshot();
@@ -26,7 +27,7 @@ export default function TabsLayout() {
         tabBarStyle: {
           height: 72,
           paddingBottom: 12,
-          paddingTop: 8,
+          paddingTop: spacing.sm,
           // Im Light-Mode bleibt die Bar in der Brand-Cremefarbe; im Dark-Mode
           // gleitet sie auf die dunkle Card-Surface, damit sie sich vom
           // ScrollView-Hintergrund abhebt (P1.8).
