@@ -14,7 +14,7 @@ import {
 import { unlockStoredSession, useSessionSnapshot } from "../lib/session";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
-import { spacing, radius } from "@hege/tokens";
+import { spacing, radius, rnShadow } from "@hege/tokens";
 
 const logoMark = require("../assets/logo-mark.png");
 
@@ -251,10 +251,7 @@ const createStyles = (theme: ThemeColors) =>
     padding: spacing.lg,
     borderRadius: radius.xl,
     backgroundColor: theme.card,
-    shadowColor: "#10231d",
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 18 },
+    ...rnShadow.card,
     elevation: 4
   },
   brand: {

@@ -23,7 +23,7 @@ Alle Bilder unter `docs/mobile-ui-audit/`. Pro Screen (Reihenfolge wie sie der U
 ## Zusammenfassung
 
 - **Geprüfte Screens:** 11 — Login, Heute, Ansitze, Fallwild, Mehr, Kontakte, Protokolle, Revierarbeit, Reviereinrichtungen, Benachrichtigungen, Über-hege
-- **Token-Adoption:** `packages/tokens/src/index.ts` bietet `spacing`, `radius`, `rnShadow`, semantische Farben. **Stand (§10-PRs #134–#154):** semantische Farben sowie `spacing`/`radius` für exakt passende Werte werden in der Mobile-App genutzt. Noch offen: off-scale-Spacing/-Radien und `rnShadow`.
+- **Token-Adoption:** `packages/tokens/src/index.ts` bietet `spacing`, `radius`, `rnShadow`, semantische Farben. **Stand (§10-PRs #134–#156):** semantische Farben, `spacing`/`radius` (exakt passende Werte) und `rnShadow.card` (Login-/App-Loader-Cards, #156) werden in der Mobile-App genutzt. Bewusst nicht adoptiert: die 6 bespoke Komponenten-Schatten (FAB, Map-Stage, Queue-Badge, View-Toggle) — der web-abgeleitete `rnShadow` passt dort nicht. Noch offen: off-scale-Spacing/-Radien (feineres Raster als die Skala).
 
 ## Bestätigte Painpoints aus dem Simulator
 
