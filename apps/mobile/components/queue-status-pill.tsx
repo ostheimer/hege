@@ -47,8 +47,8 @@ export function QueueStatusPill({ count, failedCount, apiOffline }: QueueStatusP
         accessibilityLabel={`${failedCount} Warteschlangen-Eintraege mit Fehler`}
         style={[styles.pill, styles.pillFailed]}
       >
-        <Ionicons color="#fff9ef" name="alert-circle" size={14} />
-        <Text style={[styles.label, styles.labelOnAccent]}>{failedCount} Fehler</Text>
+        <Ionicons color={theme.onWarning} name="alert-circle" size={14} />
+        <Text style={[styles.label, styles.labelOnWarning]}>{failedCount} Fehler</Text>
       </View>
     );
   }
@@ -60,7 +60,7 @@ export function QueueStatusPill({ count, failedCount, apiOffline }: QueueStatusP
         accessibilityLabel={`${count} Warteschlangen-Eintraege warten auf Sync`}
         style={[styles.pill, styles.pillPending]}
       >
-        <Ionicons color="#fff9ef" name="cloud-upload" size={14} />
+        <Ionicons color={theme.onAccent} name="cloud-upload" size={14} />
         <Text style={[styles.label, styles.labelOnAccent]}>{count} warten</Text>
       </View>
     );
@@ -73,8 +73,8 @@ export function QueueStatusPill({ count, failedCount, apiOffline }: QueueStatusP
         accessibilityLabel="API nicht erreichbar"
         style={[styles.pill, styles.pillFailed]}
       >
-        <Ionicons color="#fff9ef" name="cloud-offline" size={14} />
-        <Text style={[styles.label, styles.labelOnAccent]}>API offline</Text>
+        <Ionicons color={theme.onWarning} name="cloud-offline" size={14} />
+        <Text style={[styles.label, styles.labelOnWarning]}>API offline</Text>
       </View>
     );
   }
@@ -118,7 +118,10 @@ const createStyles = (theme: ThemeColors) =>
       letterSpacing: 0.4
     },
     labelOnAccent: {
-      color: "#fff9ef"
+      color: theme.onAccent
+    },
+    labelOnWarning: {
+      color: theme.onWarning
     },
     labelMuted: {
       color: theme.accent

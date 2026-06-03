@@ -89,6 +89,8 @@ export const darkColors: ThemeColors = {
 export interface SemanticColors {
   /** Textfarbe auf Akzent-Flaechen (Primary-Buttons, Pills). */
   onAccent: string;
+  /** Textfarbe auf Warning-Flaechen (Fehler-/Offline-Pills, Queue-Badge). */
+  onWarning: string;
   /** Gedaempfte Creme-Flaeche (Sekundaer-Buttons, Panels, Chips). */
   surfaceMuted: string;
   /** Kraeftigere gedaempfte Flaeche. */
@@ -105,6 +107,7 @@ export interface SemanticColors {
 
 export const lightSemantic: SemanticColors = {
   onAccent: "#fff9ef",
+  onWarning: "#fff9ef",
   surfaceMuted: "#e3dccd",
   surfaceMutedStrong: "#ddcfb7",
   inputBorder: "#d9d2c4",
@@ -117,6 +120,7 @@ export const lightSemantic: SemanticColors = {
 
 export const darkSemantic: SemanticColors = {
   onAccent: "#10231d",
+  onWarning: "#10231d",
   surfaceMuted: "#243f33",
   surfaceMutedStrong: "#2c4a3b",
   inputBorder: "rgba(157, 179, 111, 0.28)",

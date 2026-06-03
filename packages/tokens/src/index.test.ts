@@ -40,6 +40,10 @@ describe("@hege/tokens", () => {
     expect(lightSemantic.infoSurface).toBe("rgba(36, 73, 58, 0.08)");
     // Dark kippt die Text-auf-Akzent-Rolle bewusst auf eine dunkle Tinte.
     expect(darkSemantic.onAccent).toBe("#10231d");
+    // onWarning teilt die Werte mit onAccent (beide Flaechen sind hell-in-dunkel),
+    // bleibt aber als eigene semantische Rolle getrennt.
+    expect(lightSemantic.onWarning).toBe("#fff9ef");
+    expect(darkSemantic.onWarning).toBe("#10231d");
     // Beide Sets decken dieselben Rollen ab.
     expect(Object.keys(darkSemantic).sort()).toEqual(Object.keys(lightSemantic).sort());
   });
