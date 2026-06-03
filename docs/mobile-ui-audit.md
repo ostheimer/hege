@@ -253,7 +253,7 @@ Drei Patches angewendet und im Simulator verifiziert.
 
 ### Light-Inks (Tinte auf Akzent-grün)
 
-`#fff8ec`, `#fff9ef`, `#f7f2e5` — drei Cremetöne für dasselbe Konzept "Tinte auf grünem Akzent". Brauche Token `onAccent`.
+`#fff8ec`, `#fff9ef`, `#f7f2e5` — drei Cremetöne für dasselbe Konzept "Tinte auf grünem Akzent". Brauche Token `onAccent`. → ✅ **Erledigt:** `onAccent` erstellt (#134) + auf Akzent-Flächen und Map-Fallbacks adoptiert (#146/#148); analog `onWarning` für `theme.warning`-Flächen (Status-Pills/-Badges, #152). Beide kippen im Dark Mode bewusst auf dunkle Tinte (`#10231d`) statt Creme — Kontrast behoben.
 
 ### Sonstige Drifts
 
@@ -350,8 +350,9 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
 ### Fehlende Tokens / Style-Primitiven
 
 1. **Semantische Farb-Sets** in `@hege/tokens`:
-   - `surfaceMuted`, `surfaceMutedStrong`, `inputBorder`, `onAccent`
+   - `surfaceMuted`, `surfaceMutedStrong`, `inputBorder`, `onAccent`, `onWarning`
    - `successSurface`, `warningSurface`, `dangerSurface`, `infoSurface`, `conflictSurface`
+   - _Status: ✅ erstellt (#134), erweitert um `onWarning` (#152). Adoptiert: `StateView` (#134), `<Badge>`/Status-Surfaces (#135/#136), Muted-Buttons (#142), `<FeedbackBanner>` (#144), `onAccent` auf Akzent-Flächen + Map-Fallbacks (#146/#148), `onWarning` auf Status-Pills/-Badges (#152). Text-auf-farbiger-Fläche ist im Dark Mode jetzt durchgehend kontraststark._
 
 2. **Spacing-Tokens tatsächlich nutzen.** Ersetze 6/10/12/14/18/22 durch `tokens.spacing.xs/sm/md/lg`.
 
