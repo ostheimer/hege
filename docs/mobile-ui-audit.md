@@ -23,7 +23,7 @@ Alle Bilder unter `docs/mobile-ui-audit/`. Pro Screen (Reihenfolge wie sie der U
 ## Zusammenfassung
 
 - **Geprüfte Screens:** 11 — Login, Heute, Ansitze, Fallwild, Mehr, Kontakte, Protokolle, Revierarbeit, Reviereinrichtungen, Benachrichtigungen, Über-hege
-- **Token-Adoption:** `packages/tokens/src/index.ts` bietet `spacing`, `radius`, `rnShadow`, semantische Farben — **wird in keinem einzigen Mobile-Screen importiert**. `apps/mobile/lib/theme.ts` zieht nur `lightColors`/`darkColors`. `spacing`, `radius` und `rnShadow` sind komplett ungenutzt.
+- **Token-Adoption:** `packages/tokens/src/index.ts` bietet `spacing`, `radius`, `rnShadow`, semantische Farben. **Stand (§10-PRs #134–#154):** semantische Farben sowie `spacing`/`radius` für exakt passende Werte werden in der Mobile-App genutzt. Noch offen: off-scale-Spacing/-Radien und `rnShadow`.
 
 ## Bestätigte Painpoints aus dem Simulator
 
@@ -354,7 +354,7 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
    - `successSurface`, `warningSurface`, `dangerSurface`, `infoSurface`, `conflictSurface`
    - _Status: ✅ erstellt (#134), erweitert um `onWarning` (#152). Adoptiert: `StateView` (#134), `<Badge>`/Status-Surfaces (#135/#136), Muted-Buttons (#142), `<FeedbackBanner>` (#144), `onAccent` auf Akzent-Flächen + Map-Fallbacks (#146/#148), `onWarning` auf Status-Pills/-Badges (#152). Text-auf-farbiger-Fläche ist im Dark Mode jetzt durchgehend kontraststark._
 
-2. **Spacing-Tokens tatsächlich nutzen.** Ersetze 6/10/12/14/18/22 durch `tokens.spacing.xs/sm/md/lg`.
+2. **Spacing-Tokens tatsächlich nutzen.** Ersetze 6/10/12/14/18/22 durch `tokens.spacing.xs/sm/md/lg`. → ✅ exact-match (4/8/16/24/32) adoptiert (#154); off-scale (6/10/12/14/18/22) bewusst belassen — die App nutzt ein feineres Raster als die Skala, Snapping wäre ein sichtbarer Eingriff (separate Design-Entscheidung).
 
 3. **Radius-Mapping:**
    - `radius.sm` (6) → Channel-Pills
@@ -362,6 +362,7 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
    - `radius.lg` (20) → State-Cards, Filter-Sections (statt 18/22)
    - `radius.xl` (28) → Hero, Login-Card (statt 24/28)
    - `radius.full` (999) → Pills/Badges
+   - _Status: ✅ exact-match (12/20/28/999) adoptiert (#154); off-scale (14/16/18/22/24) bewusst belassen._
 
 4. **Style-Primitive-Komponenten** (`apps/mobile/components/ui/`):
    - `<PrimaryButton>` mit Größen `default | small | pill`
