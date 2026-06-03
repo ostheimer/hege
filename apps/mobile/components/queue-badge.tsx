@@ -51,7 +51,7 @@ export function QueueBadge({ count, failedCount, onPress, topOffset = 132 }: Que
         ]}
       >
         <Ionicons
-          color={isFailed ? "#fff9ef" : theme.ink}
+          color={isFailed ? theme.onWarning : theme.ink}
           name={isFailed ? "alert-circle" : "cloud-upload"}
           size={16}
         />
@@ -100,6 +100,6 @@ const createStyles = (theme: ThemeColors) =>
       color: theme.ink
     },
     badgeTextFailed: {
-      color: "#fff9ef"
+      color: theme.onWarning
     }
   }) as const;
