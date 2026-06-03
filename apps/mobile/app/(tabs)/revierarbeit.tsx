@@ -58,6 +58,7 @@ import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 type ViewMode = "liste" | "karte";
 const MAP_HEIGHT = 380;
@@ -800,7 +801,7 @@ const createStyles = (theme: ThemeColors) =>
   },
   listContent: {
     gap: 12,
-    paddingBottom: 24
+    paddingBottom: spacing.lg
   },
   filterSection: {
     gap: 10,
@@ -816,7 +817,7 @@ const createStyles = (theme: ThemeColors) =>
     alignSelf: "flex-start",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.accent
   },
   filterResetText: {
@@ -830,7 +831,7 @@ const createStyles = (theme: ThemeColors) =>
     gap: 5,
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderRadius: 999
+    borderRadius: radius.full
   },
   statPillActive: {
     backgroundColor: theme.accent
@@ -860,7 +861,7 @@ const createStyles = (theme: ThemeColors) =>
   refreshButton: {
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.card
   },
   refreshButtonText: {
@@ -877,12 +878,12 @@ const createStyles = (theme: ThemeColors) =>
   chipGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8
+    gap: spacing.sm
   },
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 9,
-    borderRadius: 999,
+    borderRadius: radius.full,
     backgroundColor: theme.surfaceMuted
   },
   chipActive: {

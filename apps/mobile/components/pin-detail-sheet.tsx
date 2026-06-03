@@ -17,6 +17,7 @@ import {
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 /**
  * Pin-Detail-Sheet — Bottom-Modal, das beim Tap auf einen Karten-Marker
@@ -408,7 +409,7 @@ const createStyles = (theme: ThemeColors) =>
       marginTop: 6,
       width: 48,
       height: 5,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.muted,
       opacity: 0.25
     },
@@ -417,7 +418,7 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "flex-start",
       gap: 12,
       paddingHorizontal: 20,
-      paddingVertical: 16
+      paddingVertical: spacing.md
     },
     headerCopy: {
       flex: 1,
@@ -426,12 +427,12 @@ const createStyles = (theme: ThemeColors) =>
     headerEyebrowRow: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8
+      gap: spacing.sm
     },
     colorDot: {
       width: 10,
       height: 10,
-      borderRadius: 999
+      borderRadius: radius.full
     },
     headerEyebrow: {
       fontSize: 12,
@@ -448,7 +449,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     closeButton: {
       padding: 6,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.card
     },
     closePressed: {
@@ -485,7 +486,7 @@ const createStyles = (theme: ThemeColors) =>
       fontWeight: "500"
     },
     noteBlock: {
-      marginTop: 8,
+      marginTop: spacing.sm,
       gap: 6,
       padding: 14,
       borderRadius: 16,
@@ -499,13 +500,13 @@ const createStyles = (theme: ThemeColors) =>
     footer: {
       paddingHorizontal: 20,
       paddingTop: 12,
-      paddingBottom: 8
+      paddingBottom: spacing.sm
     },
     primaryAction: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 8,
+      gap: spacing.sm,
       paddingVertical: 14,
       borderRadius: 16,
       backgroundColor: theme.accent

@@ -4,6 +4,7 @@ import { ActionSheetIOS, Platform, Pressable, Text, View } from "react-native";
 
 import type { ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { radius } from "@hege/tokens";
 
 export type ErfassenAction = "ansitz" | "fallwild" | "wartung";
 
@@ -91,7 +92,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 6,
       paddingVertical: 12,
       paddingHorizontal: 18,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.accent,
       shadowColor: "#10231d",
       shadowOpacity: 0.32,

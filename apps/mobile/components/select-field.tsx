@@ -4,6 +4,7 @@ import { ActionSheetIOS, Modal, Platform, Pressable, Text, View } from "react-na
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing } from "@hege/tokens";
 
 export interface SelectFieldOption<T extends string> {
   value: T;
@@ -164,19 +165,19 @@ const createStyles = (theme: ThemeColors) =>
       justifyContent: "flex-end"
     },
     sheet: {
-      padding: 16,
-      paddingBottom: 24,
+      padding: spacing.md,
+      paddingBottom: spacing.lg,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
       backgroundColor: theme.card,
-      gap: 8
+      gap: spacing.sm
     },
     sheetTitle: {
       fontSize: 16,
       fontWeight: "700",
       color: theme.ink,
-      paddingVertical: 8,
-      paddingHorizontal: 4
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.xs
     },
     sheetOption: {
       flexDirection: "row",
@@ -205,7 +206,7 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
       paddingVertical: 14,
-      marginTop: 4,
+      marginTop: spacing.xs,
       borderRadius: 14,
       backgroundColor: theme.surfaceMuted
     },

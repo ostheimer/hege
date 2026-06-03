@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 export type StateViewMode = "loading" | "empty" | "error";
 
@@ -131,7 +132,7 @@ const createStyles = (theme: ThemeColors) =>
       justifyContent: "center"
     },
     body: {
-      gap: 4
+      gap: spacing.xs
     },
     title: {
       fontSize: 18,
@@ -147,7 +148,7 @@ const createStyles = (theme: ThemeColors) =>
       alignSelf: "flex-start",
       paddingVertical: 10,
       paddingHorizontal: 14,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.surfaceMuted
     },
     actionPressed: {
@@ -159,6 +160,6 @@ const createStyles = (theme: ThemeColors) =>
       fontSize: 14
     },
     footer: {
-      paddingTop: 4
+      paddingTop: spacing.xs
     }
   }) as const;

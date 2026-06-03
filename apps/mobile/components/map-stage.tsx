@@ -19,6 +19,7 @@ import {
 } from "./map-stage.helpers";
 import { PinDetailSheet, type SelectedPin } from "./pin-detail-sheet";
 import { QueueBadge } from "./queue-badge";
+import { spacing, radius } from "@hege/tokens";
 
 /**
  * Auf Android braucht `react-native-maps` mit Provider Google einen API-Key
@@ -313,8 +314,8 @@ const createStyles = (theme: ThemeColors) =>
       ...StyleSheet.absoluteFillObject,
       alignItems: "center",
       justifyContent: "center",
-      padding: 32,
-      gap: 8,
+      padding: spacing.xl,
+      gap: spacing.sm,
       backgroundColor: theme.accent
     },
     fallbackTitle: {
@@ -335,7 +336,7 @@ const createStyles = (theme: ThemeColors) =>
       left: 0,
       right: 0,
       paddingHorizontal: 12,
-      gap: 8
+      gap: spacing.sm
     },
     topBarRow: {
       flexDirection: "row",
@@ -343,7 +344,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     brandPill: {
       paddingHorizontal: 14,
-      paddingVertical: 8,
+      paddingVertical: spacing.sm,
       borderRadius: 14,
       backgroundColor: theme.card,
       maxWidth: "85%",
@@ -367,16 +368,16 @@ const createStyles = (theme: ThemeColors) =>
     chipsRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 8,
-      marginTop: 4
+      gap: spacing.sm,
+      marginTop: spacing.xs
     },
     chip: {
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 999,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.full,
       shadowColor: "#10231d",
       shadowOpacity: 0.12,
       shadowRadius: 8,
@@ -419,13 +420,13 @@ const createStyles = (theme: ThemeColors) =>
       left: 0,
       right: 0,
       paddingHorizontal: 12,
-      paddingBottom: 8
+      paddingBottom: spacing.sm
     },
     summaryCard: {
       flexDirection: "row",
       alignItems: "center",
       gap: 12,
-      paddingHorizontal: 16,
+      paddingHorizontal: spacing.md,
       paddingVertical: 12,
       borderRadius: 18,
       backgroundColor: theme.card,
@@ -470,7 +471,7 @@ const createStyles = (theme: ThemeColors) =>
     summaryAffordance: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 4
+      gap: spacing.xs
     },
     summaryAffordanceLabel: {
       fontSize: 13,

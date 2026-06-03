@@ -4,6 +4,7 @@ import { ScreenShell } from "../components/screen-shell";
 import type { ThemeColors } from "../lib/theme";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing } from "@hege/tokens";
 
 /**
  * Build-Konstanten — werden bewusst hier hartcodiert statt aus
@@ -138,17 +139,17 @@ function DetailRow({ label, value, styles }: DetailRowProps) {
 const createStyles = (theme: ThemeColors) =>
   ({
     card: {
-      padding: 16,
+      padding: spacing.md,
       borderRadius: 18,
       backgroundColor: theme.card,
       gap: 10
     },
-    sectionEyebrow: { ...eyebrowText(theme), marginBottom: 4 },
+    sectionEyebrow: { ...eyebrowText(theme), marginBottom: spacing.xs },
     detailRow: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      paddingVertical: 4
+      paddingVertical: spacing.xs
     },
     detailLabel: {
       fontSize: 13,
@@ -160,7 +161,7 @@ const createStyles = (theme: ThemeColors) =>
       fontWeight: "600"
     },
     linkRow: {
-      paddingVertical: 8,
+      paddingVertical: spacing.sm,
       gap: 2
     },
     linkRowPressed: {
@@ -179,13 +180,13 @@ const createStyles = (theme: ThemeColors) =>
       fontSize: 13,
       lineHeight: 18,
       color: theme.muted,
-      marginBottom: 4
+      marginBottom: spacing.xs
     },
     licenseRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingVertical: 8
+      paddingVertical: spacing.sm
     },
     licenseBody: {
       flex: 1
@@ -207,6 +208,6 @@ const createStyles = (theme: ThemeColors) =>
       fontSize: 11,
       color: theme.muted,
       textAlign: "center",
-      marginTop: 8
+      marginTop: spacing.sm
     }
   }) as const;

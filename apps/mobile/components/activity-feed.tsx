@@ -11,6 +11,7 @@ import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { cardSurface } from "../lib/surfaces";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { radius } from "@hege/tokens";
 
 interface ActivityFeedProps {
   items: ReadonlyArray<ActivityItem>;
@@ -168,7 +169,7 @@ const createStyles = (theme: ThemeColors) =>
     iconWrap: {
       width: 36,
       height: 36,
-      borderRadius: 12,
+      borderRadius: radius.md,
       alignItems: "center",
       justifyContent: "center"
     },

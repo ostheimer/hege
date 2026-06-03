@@ -26,6 +26,7 @@ import { useThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 type ViewMode = "liste" | "karte";
 
@@ -289,7 +290,7 @@ const createStyles = (theme: ThemeColors) =>
       alignSelf: "flex-start",
       paddingVertical: 6,
       paddingHorizontal: 12,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.accent
     },
     filterResetText: {
@@ -300,7 +301,7 @@ const createStyles = (theme: ThemeColors) =>
     refreshButton: {
       paddingHorizontal: 14,
       paddingVertical: 10,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.card
     },
     refreshButtonText: {
@@ -310,7 +311,7 @@ const createStyles = (theme: ThemeColors) =>
     list: {
       gap: 12
     },
-    card: { ...cardSurface(theme), gap: 8 },
+    card: { ...cardSurface(theme), gap: spacing.sm },
     row: {
       flexDirection: "row",
       gap: 10,
@@ -318,7 +319,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     grow: {
       flex: 1,
-      gap: 4
+      gap: spacing.xs
     },
     type: { ...eyebrowText(theme) },
     title: {

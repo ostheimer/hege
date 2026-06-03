@@ -4,6 +4,7 @@ import type { ThemeColors } from "../lib/theme";
 import { cardSurface } from "../lib/surfaces";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing } from "@hege/tokens";
 
 interface MetricTileProps {
   label: string;
@@ -25,7 +26,7 @@ export function MetricTile({ label, value, detail }: MetricTileProps) {
 
 const createStyles = (theme: ThemeColors) =>
   ({
-    card: { ...cardSurface(theme), flex: 1, minWidth: 150, gap: 8 },
+    card: { ...cardSurface(theme), flex: 1, minWidth: 150, gap: spacing.sm },
     label: { ...eyebrowText(theme) },
     value: {
       fontSize: 28,

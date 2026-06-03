@@ -9,6 +9,7 @@ import {
   buildInitialRegion,
   type RevierCenter
 } from "./map-preview.helpers";
+import { spacing, radius } from "@hege/tokens";
 
 interface MapPreviewProps {
   revierName: string;
@@ -113,7 +114,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 12
     },
     header: {
-      gap: 4
+      gap: spacing.xs
     },
     heading: {
       fontSize: 20,
@@ -128,7 +129,7 @@ const createStyles = (theme: ThemeColors) =>
     mapSurface: {
       position: "relative",
       height: 250,
-      borderRadius: 20,
+      borderRadius: radius.lg,
       overflow: "hidden",
       backgroundColor: theme.accent
     },
@@ -168,7 +169,7 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "center",
       justifyContent: "center",
       padding: 22,
-      gap: 4,
+      gap: spacing.xs,
       backgroundColor: "rgba(41, 80, 63, 0.55)"
     },
     emptyTitle: {

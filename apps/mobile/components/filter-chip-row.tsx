@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 
 import type { ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
+import { spacing, radius } from "@hege/tokens";
 
 export interface FilterChipOption<K extends string> {
   key: K;
@@ -95,7 +96,7 @@ export function FilterChipRow<K extends string>({
 const createStyles = (theme: ThemeColors) =>
   ({
     container: {
-      gap: 8,
+      gap: spacing.sm,
       paddingVertical: 2
     },
     chip: {
@@ -104,7 +105,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 6,
       paddingVertical: 6,
       paddingHorizontal: 14,
-      borderRadius: 999,
+      borderRadius: radius.full,
       borderWidth: 1
     },
     chipActive: {
@@ -131,13 +132,13 @@ const createStyles = (theme: ThemeColors) =>
     countBadgeActive: {
       paddingHorizontal: 6,
       paddingVertical: 1,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: "rgba(255, 249, 239, 0.22)"
     },
     countBadgeInactive: {
       paddingHorizontal: 6,
       paddingVertical: 1,
-      borderRadius: 999,
+      borderRadius: radius.full,
       backgroundColor: theme.card
     },
     countActive: {
