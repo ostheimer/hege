@@ -19,6 +19,7 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 4. Kontaktlisten im nativen iPhone-Smoke prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Rollenrechte für Schriftführung/Admin
 5. Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
 6. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
+7. Mobile Design-System §10 (PRs #134–#148): Token-Konsolidierung, `<Badge>`, semantische Farbtoken (`onAccent`, `surfaceMuted`), `<FeedbackBanner>`, `cardSurface()`, Eyebrow-Typographie und Dark-Mode-Kontrast fortsetzen — vollständige Liste in [UX-Roadmap v2 Pfad 1](./docs/ux-roadmap-v2.md) und [Autonomer Umsetzungsplan](./docs/autonomer-umsetzungsplan-2026-05.md).
 
 ## Detaildokumente
 
@@ -43,3 +44,4 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 - [Design-System v1](./docs/design-system-v1.md)
 - [UX-Roadmap v2](./docs/ux-roadmap-v2.md)
 - [Test-Accounts und Rollen-Übersicht](./docs/test-accounts.md)
+- [Vercel-native Slice 1 Plan](./docs/vercel-native-slice-1-plan.md)
