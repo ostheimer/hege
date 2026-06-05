@@ -6,6 +6,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ## [Unreleased]
 
+### Changed
+
+- Mobile: **Dark Mode aktiviert** — `ios/hegeRevier/Info.plist` `UIUserInterfaceStyle` von `Light` auf `Automatic` umgestellt; die App folgt jetzt dem System-Erscheinungsbild (bare/prebuild-Projekt, daher gewinnt der native Wert über `app.json`). Zusammen mit den §10-Kontrast-Fixes (`onAccent`/`onWarning`) ist Dark Mode durchgängig lesbar (PR #159).
+
 ## [0.1.0] - 2026-06-03
 
 ### Added
