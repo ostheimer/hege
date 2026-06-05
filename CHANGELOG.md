@@ -6,6 +6,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-06-03
+
 ### Added
 
 - Mobile Design-System §10: `<FeedbackBanner>` Primitiv (`components/feedback-banner.tsx`) fuer transientes Aktions-Feedback an Formularen (Ansitze, Fallwild, Revierarbeit); ersetzt die pro Screen duplizierten `infoCard`/`errorCard`/`feedbackCard`-Banner — werterhaltend (gleiche Flaechen und Copy) (PR #144).
