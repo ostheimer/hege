@@ -290,6 +290,7 @@ Drei Patches angewendet und im Simulator verifiziert.
 
 - `rnShadow.card` und `rnShadow.elevated` existieren in Tokens (`packages/tokens/src/index.ts:141-156`).
 - **Niemand importiert sie.** `grep "rnShadow" apps/mobile` → 0 Treffer.
+- ✅ **Korrigiert (PR #156, 2026-06-03):** `rnShadow.card` wird jetzt in Login-Screen und App-Loader Card verwendet. Der ursprüngliche Befund ist überholt.
 - Login-Card hat als einzige einen Inline-Schatten (`login.tsx:243-247`) — identisch zum Token-Wert, **außer `elevation: 4` statt `6`**.
 
 ---
