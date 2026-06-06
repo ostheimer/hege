@@ -26,6 +26,9 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
+- Mitgliedschaftsverwaltung über `GET/POST/PATCH /api/v1/memberships` — Einladungen, Rollen und Mitgliedsstatus
+- Revierdaten-Endpunkt über `GET/PATCH /api/v1/reviere` — Revierstammdaten und Einstellungen
+- Öffentliche Endpunkte über `/api/v1/public` — öffentlich zugängliche Revier- und Planungsdaten
 - S3-kompatible Storage-Schicht für lokales MinIO und Cloudflare R2 inklusive best-effort Rollback nach fehlgeschlagenem Medien-Insert
 - Seed-Skript auf Basis der bestehenden Demo-Daten
 - Login in Web und App über E-Mail oder Benutzername plus vierstellige PIN
@@ -34,6 +37,8 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
 - Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
 - Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
+- Web-Einladungsflow `/einladung` — Mitglieder per Einladungslink in ein Revier aufnehmen
+- Web-Mitgliederverwaltung `/app/mitglieder` — Mitgliederliste, Rollen-Zuweisung und Einladungsstatus im Backoffice
 - Public Landing, Login, Registrierung und Setup-Flow mit neuem `hege`-Logo; die Website ist auf `https://hege.app` produktiv geprüft
 - Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
 - Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
