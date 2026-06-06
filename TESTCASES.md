@@ -588,9 +588,9 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `ueber-hege.tsx` Screen
 
 ### API-Endpunkte ohne Test Cases
-- `/api/v1/memberships`
-- `/api/v1/reviere`
-- `/api/v1/public`
+- `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (GET/PATCH), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
+- `/api/v1/reviere/active/setup` (GET/PATCH)
+- `/api/v1/public/register` (POST)
 
 ### Rollen-/Berechtigungslogik
 - Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
