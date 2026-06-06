@@ -26,8 +26,8 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
-- Mitgliedschaftsverwaltung über `GET/POST /api/v1/memberships/invitations` — Einladungen abrufen und anlegen; `POST /api/v1/memberships/invitations/accept` für Annahme, `PATCH /api/v1/memberships/invitations/[id]` für Statusänderungen, `GET /api/v1/memberships/invitations/export.csv` für CSV-Export
-- Revierdaten-Endpunkt über `GET/PATCH /api/v1/reviere/active/setup` — aktives Revier und Setup-Konfiguration
+- Mitgliedschaftsverwaltung über `GET/POST /api/v1/memberships/invitations` — Einladungen abrufen und anlegen; `POST /api/v1/memberships/invitations/accept` für Annahme, `DELETE /api/v1/memberships/invitations/[id]` für Einladung widerrufen, `GET /api/v1/memberships/invitations/export.csv` für CSV-Export
+- Revierdaten-Endpunkt über `POST/PATCH /api/v1/reviere/active/setup` — aktives Revier und Setup-Konfiguration abschließen
 - Öffentliche Endpunkte über `POST /api/v1/public/register` — öffentliche Registrierung für neues Revier
 - S3-kompatible Storage-Schicht für lokales MinIO und Cloudflare R2 inklusive best-effort Rollback nach fehlgeschlagenem Medien-Insert
 - Seed-Skript auf Basis der bestehenden Demo-Daten
