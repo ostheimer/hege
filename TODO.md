@@ -70,6 +70,8 @@ Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zue
 
 ## Erledigt
 
+> **Hinweis:** Diese Items sind vollständig im CHANGELOG.md dokumentiert. Dieser Abschnitt ist redundant und wird in einer künftigen Bereinigung entfernt.
+
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und Revierkontext fuer Web und App umgesetzt.
 - Login in Web und App auf E-Mail- oder Benutzername plus vierstellige PIN umgestellt und den sichtbaren Demo-Konten-Block entfernt.
 - Public-Web-Block mit Landing auf `/`, Pricing-CTAs, Login-/Registrieren-Einstieg und Onboarding-Redirects fuer `/app` und `/app/setup` als Sprint-1.5-Strecke dokumentiert.
