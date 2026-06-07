@@ -33,7 +33,7 @@ export function getServerEnv(): ServerEnv {
   const databaseUrl = process.env.DATABASE_URL ?? LOCAL_DATABASE_URL;
   const migrationDatabaseUrl = process.env.DATABASE_URL_UNPOOLED ?? databaseUrl;
   const useDemoStore = process.env.HEGE_USE_DEMO_STORE === "true" || process.env.NODE_ENV === "test";
-  const authTokenSecret = process.env.AUTH_TOKEN_SECRET ?? fallbackAuthSecret();
+  const authTokenSecret = resolveOptionalEnv("AUTH_TOKEN_SECRET") ?? fallbackAuthSecret();
   const demoPassword = process.env.HEGE_DEMO_PASSWORD ?? LOCAL_DEMO_PASSWORD;
   const s3Endpoint = resolveStorageEnv("S3_ENDPOINT", LOCAL_S3_ENDPOINT);
   const s3Region = resolveStorageEnv("S3_REGION", LOCAL_S3_REGION);
