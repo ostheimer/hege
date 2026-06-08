@@ -23,7 +23,7 @@ const logoMark = require("../assets/logo-mark.png");
 // Release/Update manuell hochzaehlen. Bewusst eine statische Konstante
 // statt eines expo-updates-Zugriffs: das Lesen von Updates.channel im
 // OTA-Kontext hat einen nativen Crash ausgeloest.
-const BUILD_TAG = "0.1.0 · 2026-06-03.9";
+const BUILD_TAG = "0.1.0 · 2026-06-08.10";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -140,7 +140,7 @@ export default function LoginScreen() {
   const canUseDeviceUnlock = session.status === "locked" && deviceUnlock?.available && deviceUnlock.enabled;
 
   return (
-    <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
+    <LinearGradient colors={theme.backdropGradient} style={styles.root}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.card}>
           <View accessibilityLabel="hege" accessibilityRole="header" style={styles.brand}>
@@ -219,7 +219,7 @@ export default function LoginScreen() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <ActivityIndicator color={theme.surface} />
+                <ActivityIndicator color={theme.onAccent} />
               ) : (
                 <Text style={styles.primaryButtonText}>Anmelden</Text>
               )}
@@ -290,7 +290,7 @@ const createStyles = (theme: ThemeColors) =>
     gap: 10,
     padding: 14,
     borderRadius: radius.lg,
-    backgroundColor: "#f0eadc"
+    backgroundColor: theme.surfaceMuted
   },
   unlockTitle: {
     color: theme.ink,
@@ -318,7 +318,7 @@ const createStyles = (theme: ThemeColors) =>
     minHeight: 52,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#d9d2c4",
+    borderColor: theme.inputBorder,
     paddingHorizontal: 14,
     color: theme.ink,
     backgroundColor: theme.surface
@@ -339,7 +339,7 @@ const createStyles = (theme: ThemeColors) =>
     opacity: 0.7
   },
   primaryButtonText: {
-    color: theme.surface,
+    color: theme.onAccent,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -349,7 +349,7 @@ const createStyles = (theme: ThemeColors) =>
     justifyContent: "center",
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#cfc7b7",
+    borderColor: theme.inputBorder,
     backgroundColor: theme.surface
   },
   secondaryButtonText: {
