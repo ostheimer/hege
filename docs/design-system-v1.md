@@ -149,3 +149,29 @@ Erweiterungs-Trigger:
 - Brand-Voice-Beispiele → hier ergänzen, sobald Mikrocopy-Reviews stattfinden
 
 Nächste konkrete Schritte: siehe [UX-Roadmap v2](./ux-roadmap-v2.md).
+
+---
+
+## §10 Design-System-Erweiterungen (PRs #132–#159, Mai/Juni 2026)
+
+### Neue semantische Farb-Tokens (`packages/tokens`)
+- `onAccent` — Textfarbe auf Akzentflächen (PR #134, #146)
+- `onWarning` — Textfarbe auf Warnflächen (PR #152, #153)
+- `surfaceMuted` — gedämpfte Oberflächenfarbe (PR #134)
+
+### Neue Primitiven (`apps/mobile/src/components/`)
+- `<Badge tone>` — Status-Badge mit semantischen Tone-Varianten (`neutral`, `positive`, `warning`, `critical`) — PR #135
+- `<FeedbackBanner>` — Formular-Feedback-Komponente (Ansitze, Fallwild, Revierarbeit) — PR #144
+- `<StateView>` — Loading/Empty-State-Komponente (ersetzt manuelle Inline-States) — PR #132–#133
+
+### Neue Hilfsfunktionen
+- `cardSurface()` in `lib/surfaces.ts` — konsolidierter Card-Hintergrund-Token-Helper — PR #145
+- `eyebrowText()` in `lib/typography.ts` — konsolidierter Eyebrow/Section-Label-Helper — PR #141
+- `rnShadow.card` in `@hege/tokens` — Card-Schatten für Login und App-Loader — PR #156
+
+### Token-Adoption (Spacing/Radius)
+- 139 Hardcode-Stellen in 30 Dateien auf Design-Tokens migriert — PR #154
+- Alle Accent-Flächen auf `onAccent`-Token migriert (20 Stellen) — PR #146
+
+### iOS Dark Mode
+- `UIUserInterfaceStyle=Automatic` in `ios/hegeRevier/Info.plist` gesetzt — PR #159

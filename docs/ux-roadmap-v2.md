@@ -10,7 +10,7 @@ Drei aufeinander aufbauende Pfade nach dem [UI-Audit 2026-05-07](./ui-audit-2026
 |------|-------|--------|-------|
 | P2.1 | Mobile Map-First | ✅ als Toggle in Locations-Tabs (Map-First-Heute-Tab rückgaengig nach User-Feedback) | #58 (Skelett), #59 (Hotfix), #60-#63 (M1-M3), #76 (Compact Hero) |
 | P2.2 | Rollen-spezifische Dashboards | ✅ | #70 |
-| P2.3 | Notification-Center | ✅ Mobile + Web | #71, #73 |
+| P2.3 | Notification-Center | ✅ Mobile + Web *(Hinweis: Doppel-Header-Bug bei Benachrichtigungen-Screen noch offen — siehe mobile-ui-audit.md Painpoint C)* | #71, #73 |
 | P2.4 | Filter, Suche, Sortieren | ✅ Mobile (M1-M3) + Web (#75) | #60, #62, #63, #75 |
 | P2.5 | Onboarding-Flow | ✅ Web 4-Step-Wizard | #74 |
 | P2.6 | Smart Defaults | ✅ Fallwild-Form Mobile | #66 (Teil M4) |
@@ -27,10 +27,10 @@ Plus zehn autonom-gelieferte Features (M1-M5 + W1-W5) gemäß
 | P1.2 | Wortmarken-Logo (`@hege/icons`) | ✅ | #47 |
 | P1.3 | Quick-Win-Layout (4 Tabs + Mehr) | ✅ | (vor #45) |
 | P1.4 | StateView (Empty/Loading/Error) | ✅ | #45 |
-| P1.5 | Domain-Icon-Set | ✅ | #47 |
+| P1.5 | Domain-Icon-Set | ⏳ (packages/icons vorhanden, Mobile-Integration noch ausstehend — Commit #147) | #47 |
 | P1.6 | Mikrointeraktionen (Web View Transitions, Mobile Haptics + Pull-to-Refresh) | ✅ | #47, #48 |
 | P1.7 | Hero-Visuals (Live-CSS-Mockups) | ✅ | #50 |
-| P1.8 | Dark Mode Mobile (Token-Migration) | ✅ | #49 |
+| P1.8 | Dark Mode Mobile (Token-Migration) | ⏳ (Info.plist OK via PR #159, vollständige Token-Migration noch ausstehend) | #49 |
 | P1.9 | Lighthouse-Baseline (SEO + Performance) | ✅ | #51 |
 
 Verwandte Dokumente:

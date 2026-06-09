@@ -221,7 +221,7 @@
 
 - `pnpm test:e2e -- apps/web/e2e/ansitze.spec.ts apps/web/e2e/fallwild.spec.ts` ausfuehren
 - Erwartung: Desktop- und Mobile-Viewport stimmen mit den Snapshots ueberein
-- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
+- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
 
 ### TC-AUTO-WEB-04: Playwright fuer Leitstand, Reviereinrichtungen und Protokolle
 
@@ -570,3 +570,33 @@
 - `node apps/mobile/scripts/create-test-image.mjs` ausfuehren
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
 - Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
+
+## Fehlende Testabdeckung (Stand 2026-06-06)
+
+Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
+
+### Web-Screens ohne Test Cases
+- `/app/aufgaben` — Aufgaben-Verwaltung (Web-Backoffice)
+- `/app/reviermeldungen` — Reviermeldungen (Web-Backoffice)
+- `/app/benachrichtigungen` — Benachrichtigungen (Web)
+- `/app/kontakte` — Kontaktlisten (Web) *(implementiert, keine Web-TCs)*
+- `/einladung` — Mitglieder-Einladungsflow
+- `/app/mitglieder` — Mitgliederverwaltung
+
+### Mobile-Screens ohne Test Cases
+- Benachrichtigungen-Tab (`(tabs)/benachrichtigungen.tsx`)
+- `ueber-hege.tsx` Screen
+
+### API-Endpunkte ohne Test Cases
+- `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (DELETE), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
+- `/api/v1/reviere/active/setup` (POST/PATCH)
+- `/api/v1/public/register` (POST)
+
+### Rollen-/Berechtigungslogik
+- Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
+- Admin vs. Schriftführung vs. Mitglied Rechte-Übergänge
+
+### Dark Mode
+- Systemweites Dark-Mode-Verhalten (Tokens, Kontrast-Verhältnisse)
+
+*TODO: Test Cases für diese Bereiche hinzufügen*
