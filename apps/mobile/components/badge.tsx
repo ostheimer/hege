@@ -71,16 +71,16 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: radius.full
     },
     containerSuccess: {
-      backgroundColor: "#dde7cf"
+      backgroundColor: theme.successSurface
     },
     containerInfo: {
-      backgroundColor: "#dce6df"
+      backgroundColor: theme.infoSurface
     },
     containerWarning: {
-      backgroundColor: "#efe3d1"
+      backgroundColor: theme.warningSurface
     },
     containerDanger: {
-      backgroundColor: "#f0d9d4"
+      backgroundColor: theme.dangerSurface
     },
     containerNeutral: {
       backgroundColor: theme.surfaceMuted

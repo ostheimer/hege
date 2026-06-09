@@ -8,6 +8,8 @@ import {
 } from "@hege/tokens";
 import { useColorScheme } from "react-native";
 
+import { useThemeMode } from "./theme-mode";
+
 /**
  * Re-Exports der Token-Werte aus `@hege/tokens` (F-21).
  *
@@ -32,9 +34,14 @@ export interface ThemeColors extends SemanticColors {
   accentSoft: string;
   warning: string;
   danger: string;
+  /** Theme-abhaengiger Hero-/Backdrop-Verlauf (login, app-loader, screen-shell). */
+  backdropGradient: readonly [string, string];
 }
 
-function projectTokens(theme: TokensThemeColors, semantic: SemanticColors): ThemeColors {
+function projectTokens(
+  theme: TokensThemeColors,
+  semantic: SemanticColors
+): Omit<ThemeColors, "backdropGradient"> {
   return {
     background: theme.background,
     surface: theme.surfaceSoft,
@@ -49,8 +56,14 @@ function projectTokens(theme: TokensThemeColors, semantic: SemanticColors): Them
   };
 }
 
-export const lightColors: ThemeColors = projectTokens(tokensLightColors, tokensLightSemantic);
-export const darkColors: ThemeColors = projectTokens(tokensDarkColors, tokensDarkSemantic);
+export const lightColors: ThemeColors = {
+  ...projectTokens(tokensLightColors, tokensLightSemantic),
+  backdropGradient: ["#fff8ec", "#dde6c3"]
+};
+export const darkColors: ThemeColors = {
+  ...projectTokens(tokensDarkColors, tokensDarkSemantic),
+  backdropGradient: ["#15291f", "#1c352b"]
+};
 
 /**
  * Default token-Set, mit dem die meisten Screens heute statisch arbeiten.
@@ -68,5 +81,10 @@ export const colors = lightColors;
  */
 export function useThemeColors(): ThemeColors {
   const scheme = useColorScheme();
-  return scheme === "dark" ? darkColors : lightColors;
+  const mode = useThemeMode();
+  // In-App-Override (Mehr → Erscheinungsbild) gewinnt; "system" folgt dem
+  // iOS-Color-Scheme. Greift app-weit, weil useThemedStyles + alle direkten
+  // Konsumenten ueber diesen Hook laufen.
+  const effective = mode === "system" ? scheme : mode;
+  return effective === "dark" ? darkColors : lightColors;
 }

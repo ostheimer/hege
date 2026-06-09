@@ -26,7 +26,8 @@ const lightColors: ThemeColors = {
   accent: "#29503f",
   accentSoft: "#d6e1bf",
   warning: "#866323",
-  danger: "#96483d"
+  danger: "#96483d",
+  backdropGradient: ["#fff8ec", "#dde6c3"]
 };
 
 const darkColors: ThemeColors = {
@@ -39,7 +40,8 @@ const darkColors: ThemeColors = {
   accent: "#9db36f",
   accentSoft: "#3a5a47",
   warning: "#cdb069",
-  danger: "#d68a7d"
+  danger: "#d68a7d",
+  backdropGradient: ["#15291f", "#1c352b"]
 };
 
 describe("useThemedStyles", () => {

@@ -65,7 +65,7 @@ export function ScreenShell({
           ) : undefined
         }
       >
-        <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={[styles.hero, compactHero ? styles.heroCompact : null]}>
+        <LinearGradient colors={theme.backdropGradient} style={[styles.hero, compactHero ? styles.heroCompact : null]}>
           <View style={styles.heroHeaderRow}>
             <Text style={styles.eyebrow} numberOfLines={1}>
               {eyebrow}
