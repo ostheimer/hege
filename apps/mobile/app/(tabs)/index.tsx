@@ -5,6 +5,7 @@ import { Pressable, Text, View } from "react-native";
 import type { DashboardResponse } from "@hege/domain";
 
 import { ActivityFeed } from "../../components/activity-feed";
+import { InitialsAvatar } from "../../components/initials-avatar";
 import { MetricTile } from "../../components/metric-tile";
 import { QueueStatusPill } from "../../components/queue-status-pill";
 import { RoleHeadline } from "../../components/role-headline";
@@ -15,6 +16,7 @@ import {
   formatTodayLabel
 } from "../../lib/activity-feed.helpers";
 import { fetchDashboardSnapshot } from "../../lib/api";
+import { useSessionSnapshot } from "../../lib/session";
 import { computeRoleDashboard } from "../../lib/dashboard-role.helpers";
 import { firstName, formatApiErrorDescription } from "../../lib/format";
 import {
@@ -55,6 +57,7 @@ import { spacing, radius } from "@hege/tokens";
  */
 export default function HeuteScreen() {
   const router = useRouter();
+  const session = useSessionSnapshot();
   const queue = useOfflineQueueSnapshot();
   const styles = useThemedStyles(createStyles);
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
@@ -191,11 +194,21 @@ export default function HeuteScreen() {
         }
       }}
       aside={
-        <QueueStatusPill
-          count={queueCount}
-          failedCount={failedQueueCount}
-          apiOffline={Boolean(error)}
-        />
+        <View style={styles.asideRow}>
+          <QueueStatusPill
+            count={queueCount}
+            failedCount={failedQueueCount}
+            apiOffline={Boolean(error)}
+          />
+          {session.session ? (
+            <InitialsAvatar
+              name={session.session.user.name}
+              size={30}
+              accessibilityLabel="Profil öffnen"
+              onPress={() => router.push("/(tabs)/profil" as Parameters<typeof router.push>[0])}
+            />
+          ) : null}
+        </View>
       }
     >
       {!queueIsEmpty ? (
@@ -406,6 +419,11 @@ export default function HeuteScreen() {
 
 const createStyles = (theme: ThemeColors) =>
   ({
+    asideRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8
+    },
     toolbar: {
       flexDirection: "row",
       flexWrap: "wrap",
