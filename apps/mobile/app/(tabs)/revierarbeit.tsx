@@ -427,7 +427,7 @@ export default function RevierarbeitScreen() {
           onPress={() => void handleSubmit()}
           disabled={isSubmitting}
         >
-          {isSubmitting ? <ActivityIndicator color={theme.surface} /> : <Text style={styles.primaryButtonText}>Meldung speichern</Text>}
+          {isSubmitting ? <ActivityIndicator color={theme.onAccent} /> : <Text style={styles.primaryButtonText}>Meldung speichern</Text>}
         </Pressable>
       </View>
 
@@ -894,7 +894,7 @@ const createStyles = (theme: ThemeColors) =>
     fontWeight: "600"
   },
   chipTextActive: {
-    color: theme.surface
+    color: theme.onAccent
   },
   fieldRow: {
     flexDirection: "row",
@@ -916,7 +916,7 @@ const createStyles = (theme: ThemeColors) =>
     minHeight: 52,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#d9d2c4",
+    borderColor: theme.inputBorder,
     paddingHorizontal: 14,
     color: theme.ink,
     backgroundColor: theme.surface
@@ -935,7 +935,7 @@ const createStyles = (theme: ThemeColors) =>
     backgroundColor: theme.accent
   },
   primaryButtonText: {
-    color: theme.surface,
+    color: theme.onAccent,
     fontSize: 16,
     fontWeight: "700"
   },

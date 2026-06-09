@@ -6,9 +6,11 @@ import { useRouter } from "expo-router";
 import type { DashboardResponse } from "@hege/domain";
 
 import { ScreenShell } from "../../components/screen-shell";
+import { FilterChipRow } from "../../components/filter-chip-row";
 import { fetchDashboardSnapshot, logout } from "../../lib/api";
 import { countUnread, useReadNotificationIds } from "../../lib/notifications-read-state";
 import { useSessionSnapshot } from "../../lib/session";
+import { setThemeMode, useThemeMode, type ThemeMode } from "../../lib/theme-mode";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
 import { eyebrowText } from "../../lib/typography";
@@ -66,6 +68,7 @@ export default function MehrScreen() {
   const session = useSessionSnapshot();
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const themeMode = useThemeMode();
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -156,6 +159,26 @@ export default function MehrScreen() {
         <Text style={styles.profileMeta}>{snapshot?.revier.name ?? "Revier wird geladen..."}</Text>
       </View>
 
+      <View style={styles.appearanceCard}>
+        <Text style={styles.appearanceLabel}>Erscheinungsbild</Text>
+        <FilterChipRow<ThemeMode>
+          value={themeMode}
+          onChange={(mode) => {
+            void Haptics.selectionAsync();
+            void setThemeMode(mode);
+          }}
+          accessibilityLabel="Erscheinungsbild wählen"
+          options={[
+            { key: "system", label: "System" },
+            { key: "light", label: "Hell" },
+            { key: "dark", label: "Dunkel" }
+          ]}
+        />
+        <Text style={styles.appearanceHint}>
+          „System" folgt der iOS-Einstellung. „Hell"/„Dunkel" erzwingen das Erscheinungsbild in der App.
+        </Text>
+      </View>
+
       <View style={styles.linkList}>
         {MEHR_LINKS.map((entry) => {
           // Nur der Benachrichtigungen-Link bekommt einen Unread-Badge.
@@ -215,6 +238,13 @@ const createStyles = (theme: ThemeColors) =>
   ({
   profileCard: { ...cardSurface(theme), gap: 6 },
   profileLabel: { ...eyebrowText(theme) },
+  appearanceCard: { ...cardSurface(theme), gap: 10 },
+  appearanceLabel: { ...eyebrowText(theme) },
+  appearanceHint: {
+    fontSize: 13,
+    lineHeight: 18,
+    color: theme.muted
+  },
   profileName: {
     fontSize: 22,
     fontWeight: "700",
@@ -237,7 +267,7 @@ const createStyles = (theme: ThemeColors) =>
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(25, 57, 44, 0.08)"
+    borderBottomColor: theme.inputBorder
   },
   linkRowPressed: {
     backgroundColor: "rgba(25, 57, 44, 0.04)"
@@ -246,7 +276,7 @@ const createStyles = (theme: ThemeColors) =>
     width: 38,
     height: 38,
     borderRadius: radius.md,
-    backgroundColor: "rgba(157, 179, 111, 0.18)",
+    backgroundColor: theme.successSurface,
     alignItems: "center",
     justifyContent: "center"
   },

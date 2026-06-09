@@ -241,7 +241,7 @@ const createStyles = (theme: ThemeColors) =>
   },
   separator: {
     height: 1,
-    backgroundColor: "#e5dfd1",
+    backgroundColor: theme.surfaceMuted,
     marginVertical: spacing.xs
   },
   filterSection: {

@@ -437,7 +437,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 6,
       padding: 18,
       borderRadius: 22,
-      backgroundColor: "#efe3d1"
+      backgroundColor: theme.warningSurface
     },
     queueStateTitle: {
       fontSize: 18,
@@ -529,16 +529,16 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: radius.full
     },
     queueBadgePending: {
-      backgroundColor: "#dde7cf"
+      backgroundColor: theme.successSurface
     },
     queueBadgeFailed: {
-      backgroundColor: "#f0d9d4"
+      backgroundColor: theme.dangerSurface
     },
     queueBadgeConflict: {
-      backgroundColor: "#f4d9bf"
+      backgroundColor: theme.conflictSurface
     },
     queueBadgeUploading: {
-      backgroundColor: "#d8e4ee"
+      backgroundColor: theme.infoSurface
     },
     queueBadgeText: {
       fontWeight: "600",
@@ -562,7 +562,7 @@ const createStyles = (theme: ThemeColors) =>
     },
     retryButtonText: {
       fontWeight: "700",
-      color: theme.surface
+      color: theme.onAccent
     }
   }) as const;
 
