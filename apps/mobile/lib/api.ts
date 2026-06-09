@@ -7,6 +7,7 @@ import type {
   AuthContextResponse,
   AuthSessionResponse,
   BergungsStatus,
+  ChangePinPayload,
   ContactDirectoryResponse,
   ContactEntry,
   ContactList,
@@ -183,6 +184,17 @@ export async function loginWithCredentials(payload: LoginPayload): Promise<Login
 
   await saveSession(session);
   return session;
+}
+
+/**
+ * Setzt die Login-PIN neu (Profil → Sicherheit). Verlangt die aktuelle
+ * PIN als Besitznachweis; der Server antwortet bei falscher PIN mit 401.
+ */
+export async function changePin(payload: ChangePinPayload): Promise<void> {
+  await requestJson<{ ok: boolean }>("/v1/auth/change-pin", {
+    method: "POST",
+    body: payload
+  });
 }
 
 export async function refreshStoredSession() {

@@ -493,6 +493,11 @@ export interface LoginPayload {
   membershipId?: string;
 }
 
+export interface ChangePinPayload {
+  currentPin: string;
+  newPin: string;
+}
+
 export interface RefreshSessionPayload {
   refreshToken?: string;
   membershipId?: string;

@@ -1,6 +1,7 @@
 import type {
   AuthContextResponse,
   AuthSessionResponse,
+  ChangePinPayload,
   LoginPayload,
   Membership,
   MembershipSummary,
@@ -63,6 +64,30 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
     activeMembership,
     allMemberships: membershipsForUser
   });
+}
+
+/**
+ * Setzt die Login-PIN des angemeldeten Users neu. Verlangt die aktuelle
+ * PIN als Besitznachweis (gleiche Fehlermeldung-Semantik wie login: bei
+ * falscher PIN 401). Der Demo-Store ist read-only — dort lehnen wir ab,
+ * statt eine Aenderung vorzutaeuschen, die der naechste Prozess-Start
+ * verwirft.
+ */
+export async function changePin(userId: string, payload: ChangePinPayload): Promise<void> {
+  if (getServerEnv().useDemoStore) {
+    throw new RouteError("Die PIN-Änderung ist im Demo-Modus nicht verfügbar.", 400, "validation-error");
+  }
+
+  const user = await loadDbUserById(userId);
+
+  if (!user || !verifyPassword(payload.currentPin, user.passwordHash)) {
+    throw new RouteError("Die aktuelle PIN ist ungültig.", 401, "unauthenticated");
+  }
+
+  await getDb()
+    .update(users)
+    .set({ passwordHash: hashPassword(payload.newPin) })
+    .where(eq(users.id, user.id));
 }
 
 export async function refreshSession(payload: RefreshSessionPayload): Promise<AuthSessionResponse> {

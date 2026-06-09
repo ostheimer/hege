@@ -15,7 +15,9 @@ export function AppLoader() {
     <LinearGradient colors={theme.backdropGradient} style={styles.root}>
       <View style={styles.card}>
         <View accessibilityLabel="hege" accessibilityRole="image" style={styles.brand}>
-          <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
+          <View style={styles.logoChip}>
+            <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
+          </View>
           <Text style={styles.brandText}>ege</Text>
         </View>
         <Text style={styles.title}>Session wird geladen</Text>
@@ -49,6 +51,11 @@ const createStyles = (theme: ThemeColors) =>
       alignSelf: "center",
       justifyContent: "center",
       marginBottom: spacing.xs
+    },
+    logoChip: {
+      padding: 5,
+      borderRadius: radius.md,
+      backgroundColor: theme.logoChipBackground
     },
     logo: {
       width: 64,

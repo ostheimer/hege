@@ -10,6 +10,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; erlaubt die Wahl des Erscheinungsbilds unabhängig vom iOS-System. „System" folgt `useColorScheme()` (PR #165).
 - Mobile: **eigener Profil-Screen** (`(tabs)/profil`, erreichbar über die tappbare Profil-Zeile im Mehr-Tab und den neuen Initialen-Avatar im Heute-Hero): Identität (Avatar/Name/Rolle/Revier), Erscheinungsbild-Umschalter (Umzug aus Mehr), Face-ID-Entsperren als Schalter, Konto (Benutzername/E-Mail/Abmelden) und BUILD_TAG-Fußzeile; Mehr-Tab dadurch schlanker; OTA `0.1.0 · 2026-06-09.12` (PR #168).
+- **PIN ändern** (Profil → Sicherheit): neuer Endpunkt `POST /api/v1/auth/change-pin` (verlangt die aktuelle PIN als Besitznachweis, scrypt-Rehash; Demo-Store lehnt ab) + aufklappbares Formular im Mobile-Profil mit Client-Validierung; ersetzt den „bald"-Platzhalter; OTA `0.1.0 · 2026-06-10.13` (PR #169).
+- Mobile: **Logo-Chip im Dark Mode** — die Bildmarke (dunkelgrünes h mit weißem Reh, als Pixel nicht tintbar) sitzt im Dark Mode auf einem hellen Brand-Cream-Chip (`theme.logoChipBackground`, Light unverändert) auf Login + App-Loader (PR #169).
 
 ### Changed
 
