@@ -499,6 +499,7 @@ function ContactCard({
   actions?: ReactNode;
 }) {
   const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
   const roleOrFunction =
     "funktion" in contact && contact.funktion
       ? contact.funktion
@@ -512,7 +513,7 @@ function ContactCard({
     <View style={styles.contactCard}>
       <View style={styles.contactMain}>
         <View style={styles.contactIcon}>
-          <Ionicons name="call-outline" size={18} color="#fff8ec" />
+          <Ionicons name="call-outline" size={18} color={theme.onAccent} />
         </View>
         <View style={styles.contactCopy}>
           <Text style={styles.contactMeta}>{roleOrFunction}</Text>
@@ -576,6 +577,7 @@ function PrimaryButton({
   icon?: keyof typeof Ionicons.glyphMap;
 }) {
   const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
 
   return (
     <Pressable
@@ -585,7 +587,7 @@ function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [styles.primaryButton, disabled ? styles.disabled : null, pressed ? styles.pressed : null]}
     >
-      {icon ? <Ionicons color="#fff8ec" name={icon} size={17} /> : null}
+      {icon ? <Ionicons color={theme.onAccent} name={icon} size={17} /> : null}
       <Text style={styles.primaryButtonText}>{label}</Text>
     </Pressable>
   );
@@ -601,6 +603,7 @@ function SecondaryButton({
   icon?: keyof typeof Ionicons.glyphMap;
 }) {
   const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
 
   return (
     <Pressable
@@ -609,7 +612,7 @@ function SecondaryButton({
       onPress={onPress}
       style={({ pressed }) => [styles.secondaryButton, pressed ? styles.pressed : null]}
     >
-      {icon ? <Ionicons color="#19392c" name={icon} size={16} /> : null}
+      {icon ? <Ionicons color={theme.ink} name={icon} size={16} /> : null}
       <Text style={styles.secondaryButtonText}>{label}</Text>
     </Pressable>
   );
@@ -629,6 +632,7 @@ function IconButton({
   accent?: boolean;
 }) {
   const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
 
   return (
     <Pressable
@@ -643,7 +647,7 @@ function IconButton({
         pressed ? styles.pressed : null
       ]}
     >
-      <Ionicons color={accent ? "#fff8ec" : danger ? "#9d4a3f" : "#19392c"} name={icon} size={18} />
+      <Ionicons color={accent ? theme.onAccent : danger ? theme.danger : theme.ink} name={icon} size={18} />
     </Pressable>
   );
 }
@@ -747,7 +751,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingHorizontal: 9,
       paddingVertical: 5,
       borderRadius: radius.full,
-      backgroundColor: "rgba(157, 179, 111, 0.2)",
+      backgroundColor: theme.successSurface,
       color: theme.ink,
       fontWeight: "700",
       textAlign: "center"
@@ -759,9 +763,9 @@ const createStyles = (theme: ThemeColors) =>
       gap: 12,
       padding: 14,
       borderRadius: 18,
-      backgroundColor: "rgba(255, 255, 255, 0.54)",
+      backgroundColor: theme.surface,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(25, 57, 44, 0.12)"
+      borderColor: theme.inputBorder
     },
     listTitle: {
       marginTop: 3,
@@ -775,7 +779,7 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: 16,
       backgroundColor: theme.surface,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: "rgba(25, 57, 44, 0.1)"
+      borderColor: theme.inputBorder
     },
     contactMain: {
       flexDirection: "row",
@@ -842,7 +846,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingVertical: 10,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: "#d9d2c4",
+      borderColor: theme.inputBorder,
       backgroundColor: theme.surface,
       color: theme.ink,
       fontSize: 16
@@ -867,7 +871,7 @@ const createStyles = (theme: ThemeColors) =>
       backgroundColor: theme.accent
     },
     primaryButtonText: {
-      color: "#fff8ec",
+      color: theme.onAccent,
       fontSize: 14,
       fontWeight: "700"
     },
@@ -898,7 +902,7 @@ const createStyles = (theme: ThemeColors) =>
       backgroundColor: theme.accent
     },
     iconButtonDanger: {
-      backgroundColor: "rgba(157, 74, 63, 0.12)"
+      backgroundColor: theme.dangerSurface
     },
     disabled: {
       opacity: 0.55
@@ -910,7 +914,7 @@ const createStyles = (theme: ThemeColors) =>
       gap: 12,
       padding: 12,
       borderRadius: 16,
-      backgroundColor: "rgba(255, 255, 255, 0.7)"
+      backgroundColor: theme.surface
     },
     emptyInline: {
       fontSize: 14,
@@ -921,7 +925,7 @@ const createStyles = (theme: ThemeColors) =>
       padding: 12,
       borderRadius: 14,
       overflow: "hidden",
-      backgroundColor: "rgba(157, 179, 111, 0.18)",
+      backgroundColor: theme.successSurface,
       color: theme.ink,
       fontWeight: "700"
     },
@@ -929,7 +933,7 @@ const createStyles = (theme: ThemeColors) =>
       padding: 12,
       borderRadius: 14,
       overflow: "hidden",
-      backgroundColor: "rgba(157, 74, 63, 0.12)",
+      backgroundColor: theme.dangerSurface,
       color: theme.danger,
       fontWeight: "700"
     },

@@ -574,7 +574,7 @@ export default function FallwildScreen() {
             disabled={isResolvingLocation || isSubmitting}
           >
             {isResolvingLocation ? (
-              <ActivityIndicator color={theme.surface} />
+              <ActivityIndicator color={theme.onAccent} />
             ) : (
               <Text style={styles.locationButtonText}>Standort automatisch erfassen</Text>
             )}
@@ -709,7 +709,7 @@ export default function FallwildScreen() {
               disabled={attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting}
             >
               {isPickingPhotos ? (
-                <ActivityIndicator color={theme.surface} />
+                <ActivityIndicator color={theme.onAccent} />
               ) : (
                 <Text style={styles.photoCameraButtonText}>
                   {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Foto aufnehmen"}
@@ -785,7 +785,7 @@ export default function FallwildScreen() {
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <ActivityIndicator color={theme.surface} />
+              <ActivityIndicator color={theme.onAccent} />
             ) : (
               <Text style={styles.primaryButtonText}>Fallwild speichern</Text>
             )}
@@ -1185,7 +1185,7 @@ const createStyles = (theme: ThemeColors) =>
     gap: spacing.xs,
     padding: 14,
     borderRadius: 16,
-    backgroundColor: "rgba(157, 179, 111, 0.18)",
+    backgroundColor: theme.successSurface,
     borderWidth: 1,
     borderColor: "rgba(36, 73, 58, 0.18)",
     marginTop: spacing.xs
@@ -1232,7 +1232,7 @@ const createStyles = (theme: ThemeColors) =>
     gap: spacing.sm,
     padding: 14,
     borderRadius: 18,
-    backgroundColor: "#f3ecdf"
+    backgroundColor: theme.surfaceMuted
   },
   locationButton: {
     minHeight: 48,
@@ -1243,7 +1243,7 @@ const createStyles = (theme: ThemeColors) =>
     backgroundColor: theme.accent
   },
   locationButtonText: {
-    color: theme.surface,
+    color: theme.onAccent,
     fontSize: 14,
     fontWeight: "700"
   },
@@ -1278,7 +1278,7 @@ const createStyles = (theme: ThemeColors) =>
     minHeight: 52,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#d9d2c4",
+    borderColor: theme.inputBorder,
     paddingHorizontal: 14,
     color: theme.ink,
     backgroundColor: theme.surface
@@ -1312,7 +1312,7 @@ const createStyles = (theme: ThemeColors) =>
     backgroundColor: theme.accent
   },
   photoCameraButtonText: {
-    color: theme.surface,
+    color: theme.onAccent,
     fontSize: 14,
     fontWeight: "700"
   },
@@ -1340,13 +1340,13 @@ const createStyles = (theme: ThemeColors) =>
     gap: 12,
     padding: 12,
     borderRadius: 18,
-    backgroundColor: "#f3ecdf"
+    backgroundColor: theme.surfaceMuted
   },
   photoPreviewImage: {
     width: 68,
     height: 68,
     borderRadius: 14,
-    backgroundColor: "#d5cbb8"
+    backgroundColor: theme.surfaceMutedStrong
   },
   photoPreviewMeta: {
     flex: 1,
@@ -1389,7 +1389,7 @@ const createStyles = (theme: ThemeColors) =>
     backgroundColor: theme.accent
   },
   primaryButtonText: {
-    color: theme.surface,
+    color: theme.onAccent,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -1454,7 +1454,7 @@ const createStyles = (theme: ThemeColors) =>
     backgroundColor: theme.accent
   },
   retryButtonText: {
-    color: theme.surface,
+    color: theme.onAccent,
     fontSize: 12,
     fontWeight: "700"
   },

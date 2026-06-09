@@ -98,4 +98,11 @@ describe("server env", () => {
     expect(env.s3AccessKey).toBeUndefined();
     expect(env.s3SecretKey).toBeUndefined();
   });
+
+  it("behandelt ein leeres Auth-Secret in Vercel als fehlende Pflichtkonfiguration", () => {
+    process.env.VERCEL_ENV = "production";
+    process.env.AUTH_TOKEN_SECRET = " \n";
+
+    expect(() => getServerEnv()).toThrow("AUTH_TOKEN_SECRET muss für Preview- und Production-Deployments gesetzt sein.");
+  });
 });
