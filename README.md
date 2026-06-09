@@ -45,8 +45,10 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Playwright-E2E- und Visual-Regression-Tests für Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
 - Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
+- Kontaktlisten v1: `GET/POST /api/v1/contact-lists` und `PATCH/DELETE /api/v1/contact-lists/:listId`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü
+- Mobile Dark Mode aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt
 
-Rollen, Aufgaben und Nachrichten werden als nächste fachliche Erweiterung geplant, mit späterer Anbindung an Messenger-Kanäle wie WhatsApp und Telegram.
+Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
 
 ## Zielbetrieb
 
