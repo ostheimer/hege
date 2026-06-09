@@ -36,12 +36,19 @@ export interface ThemeColors extends SemanticColors {
   danger: string;
   /** Theme-abhaengiger Hero-/Backdrop-Verlauf (login, app-loader, screen-shell). */
   backdropGradient: readonly [string, string];
+  /**
+   * Flaeche hinter der Logo-Bildmarke. Das Mark-PNG ist dunkelgruen mit
+   * weissem Reh (weisse Pixel, keine Transparenz) — tintColor wuerde das
+   * Reh ausloeschen. Im Dark Mode bekommt es deshalb einen hellen
+   * Brand-Cream-Chip, im Light Mode bleibt die Flaeche transparent.
+   */
+  logoChipBackground: string;
 }
 
 function projectTokens(
   theme: TokensThemeColors,
   semantic: SemanticColors
-): Omit<ThemeColors, "backdropGradient"> {
+): Omit<ThemeColors, "backdropGradient" | "logoChipBackground"> {
   return {
     background: theme.background,
     surface: theme.surfaceSoft,
@@ -58,11 +65,13 @@ function projectTokens(
 
 export const lightColors: ThemeColors = {
   ...projectTokens(tokensLightColors, tokensLightSemantic),
-  backdropGradient: ["#fff8ec", "#dde6c3"]
+  backdropGradient: ["#fff8ec", "#dde6c3"],
+  logoChipBackground: "transparent"
 };
 export const darkColors: ThemeColors = {
   ...projectTokens(tokensDarkColors, tokensDarkSemantic),
-  backdropGradient: ["#15291f", "#1c352b"]
+  backdropGradient: ["#15291f", "#1c352b"],
+  logoChipBackground: "#fff9ef"
 };
 
 /**

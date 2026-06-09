@@ -1,13 +1,14 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Pressable, Switch, Text, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, Switch, Text, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
 import type { DashboardResponse } from "@hege/domain";
 
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { InitialsAvatar } from "../../components/initials-avatar";
 import { ScreenShell } from "../../components/screen-shell";
-import { fetchDashboardSnapshot, logout } from "../../lib/api";
+import { changePin, fetchDashboardSnapshot, logout } from "../../lib/api";
 import { BUILD_TAG } from "../../lib/build-tag";
 import {
   disableDeviceUnlock,
@@ -46,6 +47,13 @@ export default function ProfilScreen() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [deviceUnlock, setDeviceUnlock] = useState<DeviceUnlockState | null>(null);
   const [isTogglingUnlock, setIsTogglingUnlock] = useState(false);
+  const [isPinFormOpen, setIsPinFormOpen] = useState(false);
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [isSavingPin, setIsSavingPin] = useState(false);
+  const [pinError, setPinError] = useState<string | null>(null);
+  const [pinSuccess, setPinSuccess] = useState<string | null>(null);
 
   const user = session.session?.user ?? null;
 
@@ -115,6 +123,41 @@ export default function ProfilScreen() {
       setDeviceUnlock(await getDeviceUnlockState().catch(() => null));
     } finally {
       setIsTogglingUnlock(false);
+    }
+  }
+
+  async function handleChangePin() {
+    if (isSavingPin) {
+      return;
+    }
+    setPinError(null);
+    setPinSuccess(null);
+
+    if (!/^\d{4}$/.test(currentPin) || !/^\d{4}$/.test(newPin)) {
+      setPinError("Die PIN muss vierstellig sein.");
+      return;
+    }
+    if (newPin !== confirmPin) {
+      setPinError("Die Bestätigung stimmt nicht mit der neuen PIN überein.");
+      return;
+    }
+    if (newPin === currentPin) {
+      setPinError("Die neue PIN muss sich von der aktuellen unterscheiden.");
+      return;
+    }
+
+    setIsSavingPin(true);
+    try {
+      await changePin({ currentPin, newPin });
+      setPinSuccess("PIN geändert. Ab jetzt mit der neuen PIN anmelden.");
+      setCurrentPin("");
+      setNewPin("");
+      setConfirmPin("");
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      setPinError(error instanceof Error ? error.message : "PIN-Änderung fehlgeschlagen.");
+    } finally {
+      setIsSavingPin(false);
     }
   }
 
@@ -199,15 +242,91 @@ export default function ProfilScreen() {
             onValueChange={(next) => void handleToggleUnlock(next)}
           />
         </View>
-        <View style={[styles.settingRow, styles.settingRowDisabled]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="PIN ändern"
+          accessibilityState={{ expanded: isPinFormOpen }}
+          onPress={() => {
+            setIsPinFormOpen((open) => !open);
+            setPinError(null);
+            setPinSuccess(null);
+          }}
+          style={({ pressed }) => [styles.settingRow, pressed ? styles.settingRowPressed : null]}
+        >
           <View style={styles.settingCopy}>
-            <Text style={styles.settingTitleMuted}>PIN ändern</Text>
-            <Text style={styles.settingDescription}>Kommt mit der Kontoverwaltung.</Text>
+            <Text style={styles.settingTitle}>PIN ändern</Text>
+            <Text style={styles.settingDescription}>Vierstellige Login-PIN neu setzen.</Text>
           </View>
-          <View style={styles.soonPill}>
-            <Text style={styles.soonPillText}>bald</Text>
+          <Ionicons color={theme.muted} name={isPinFormOpen ? "chevron-up" : "chevron-down"} size={18} />
+        </Pressable>
+        {isPinFormOpen ? (
+          <View style={styles.pinForm}>
+            <View style={styles.pinField}>
+              <Text style={styles.pinLabel}>Aktuelle PIN</Text>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
+                maxLength={4}
+                placeholder="4-stellige PIN"
+                placeholderTextColor={theme.muted}
+                secureTextEntry
+                style={styles.pinInput}
+                value={currentPin}
+                onChangeText={setCurrentPin}
+              />
+            </View>
+            <View style={styles.pinField}>
+              <Text style={styles.pinLabel}>Neue PIN</Text>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
+                maxLength={4}
+                placeholder="4-stellige PIN"
+                placeholderTextColor={theme.muted}
+                secureTextEntry
+                style={styles.pinInput}
+                value={newPin}
+                onChangeText={setNewPin}
+              />
+            </View>
+            <View style={styles.pinField}>
+              <Text style={styles.pinLabel}>Neue PIN bestätigen</Text>
+              <TextInput
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
+                maxLength={4}
+                placeholder="4-stellige PIN"
+                placeholderTextColor={theme.muted}
+                secureTextEntry
+                style={styles.pinInput}
+                value={confirmPin}
+                onChangeText={setConfirmPin}
+              />
+            </View>
+            {pinError ? <Text style={styles.pinError}>{pinError}</Text> : null}
+            {pinSuccess ? <Text style={styles.pinSuccess}>{pinSuccess}</Text> : null}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Neue PIN speichern"
+              onPress={() => void handleChangePin()}
+              disabled={isSavingPin}
+              style={({ pressed }) => [
+                styles.pinSubmit,
+                pressed ? styles.settingRowPressed : null,
+                isSavingPin ? styles.pinSubmitDisabled : null
+              ]}
+            >
+              {isSavingPin ? (
+                <ActivityIndicator color={theme.onAccent} />
+              ) : (
+                <Text style={styles.pinSubmitText}>Neue PIN speichern</Text>
+              )}
+            </Pressable>
           </View>
-        </View>
+        ) : null}
       </View>
 
       <View style={styles.sectionCard}>
@@ -284,8 +403,8 @@ const createStyles = (theme: ThemeColors) =>
       alignItems: "center",
       gap: 12
     },
-    settingRowDisabled: {
-      opacity: 0.75
+    settingRowPressed: {
+      opacity: 0.85
     },
     settingCopy: {
       flex: 1,
@@ -296,26 +415,58 @@ const createStyles = (theme: ThemeColors) =>
       fontWeight: "600",
       color: theme.ink
     },
-    settingTitleMuted: {
-      fontSize: 15,
-      fontWeight: "600",
-      color: theme.muted
-    },
     settingDescription: {
       fontSize: 13,
       lineHeight: 18,
       color: theme.muted
     },
-    soonPill: {
-      paddingHorizontal: 10,
-      paddingVertical: spacing.xs,
-      borderRadius: radius.full,
-      backgroundColor: theme.surfaceMuted
+    pinForm: {
+      gap: 10,
+      paddingTop: spacing.xs
     },
-    soonPillText: {
+    pinField: {
+      gap: spacing.xs
+    },
+    pinLabel: {
       fontSize: 12,
-      fontWeight: "700",
+      textTransform: "uppercase",
+      letterSpacing: 1.1,
       color: theme.muted
+    },
+    pinInput: {
+      minHeight: 48,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: theme.inputBorder,
+      paddingHorizontal: 14,
+      color: theme.ink,
+      backgroundColor: theme.surface
+    },
+    pinError: {
+      fontSize: 13,
+      lineHeight: 18,
+      color: theme.danger
+    },
+    pinSuccess: {
+      fontSize: 13,
+      lineHeight: 18,
+      fontWeight: "600",
+      color: theme.accent
+    },
+    pinSubmit: {
+      minHeight: 48,
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: radius.md,
+      backgroundColor: theme.accent
+    },
+    pinSubmitDisabled: {
+      opacity: 0.7
+    },
+    pinSubmitText: {
+      fontSize: 15,
+      fontWeight: "700",
+      color: theme.onAccent
     },
     accountKey: {
       flex: 1,

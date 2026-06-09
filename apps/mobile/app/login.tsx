@@ -138,7 +138,9 @@ export default function LoginScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
         <View style={styles.card}>
           <View accessibilityLabel="hege" accessibilityRole="header" style={styles.brand}>
-            <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
+            <View style={styles.logoChip}>
+              <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
+            </View>
             <Text style={styles.brandText}>hege</Text>
           </View>
           <Text style={styles.title}>Anmelden und Revierkontext laden</Text>
@@ -255,6 +257,11 @@ const createStyles = (theme: ThemeColors) =>
     justifyContent: "center",
     gap: 12,
     marginBottom: spacing.xs
+  },
+  logoChip: {
+    padding: 5,
+    borderRadius: radius.md,
+    backgroundColor: theme.logoChipBackground
   },
   logo: {
     width: 56,

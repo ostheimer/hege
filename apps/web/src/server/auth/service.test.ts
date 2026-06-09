@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { login } from "./service";
+import { parseChangePinPayload } from "./schemas";
+import { changePin, login } from "./service";
 
 describe("auth service", () => {
   it("logs Andreas Ostheimer in as seeded Ausgeher with username and pin", async () => {
@@ -48,6 +49,43 @@ describe("auth service", () => {
     ).rejects.toMatchObject({
       code: "unauthenticated",
       status: 401
+    });
+  });
+});
+
+describe("parseChangePinPayload", () => {
+  it("accepts two distinct four-digit pins", () => {
+    expect(parseChangePinPayload({ currentPin: "9526", newPin: "4711" })).toEqual({
+      currentPin: "9526",
+      newPin: "4711"
+    });
+  });
+
+  it("rejects non-four-digit pins", () => {
+    expect(() => parseChangePinPayload({ currentPin: "9526", newPin: "12345" })).toThrowError(
+      /vierstellige PIN/
+    );
+    expect(() => parseChangePinPayload({ currentPin: "abcd", newPin: "4711" })).toThrowError(
+      /vierstellige PIN/
+    );
+    expect(() => parseChangePinPayload({ newPin: "4711" })).toThrowError(/vierstellige PIN/);
+  });
+
+  it("rejects a new pin equal to the current pin", () => {
+    expect(() => parseChangePinPayload({ currentPin: "9526", newPin: "9526" })).toThrowError(
+      /unterscheiden/
+    );
+  });
+});
+
+describe("changePin", () => {
+  it("is rejected in demo-store mode instead of pretending to persist", async () => {
+    // Tests laufen mit NODE_ENV=test -> useDemoStore. Der produktive
+    // DB-Pfad (verify + scrypt-Rehash + update) haengt an einer echten
+    // Datenbank und wird ueber den Preview-Smoke abgedeckt.
+    await expect(changePin("u-andreas", { currentPin: "9526", newPin: "4711" })).rejects.toMatchObject({
+      status: 400,
+      code: "validation-error"
     });
   });
 });

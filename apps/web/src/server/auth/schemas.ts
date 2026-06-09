@@ -1,4 +1,5 @@
 import type {
+  ChangePinPayload,
   CompleteRevierSetupPayload,
   LoginPayload,
   PublicRegistrationPayload,
@@ -17,6 +18,18 @@ export function parseLoginPayload(body: unknown): LoginPayload {
     pin,
     membershipId: parseOptionalString(data.membershipId, "membershipId")
   };
+}
+
+export function parseChangePinPayload(body: unknown): ChangePinPayload {
+  const data = ensureRecord(body, "Der Request-Body muss ein Objekt sein.");
+  const currentPin = parsePin(data.currentPin);
+  const newPin = parsePin(data.newPin);
+
+  if (currentPin === newPin) {
+    throw validationError("Die neue PIN muss sich von der aktuellen unterscheiden.");
+  }
+
+  return { currentPin, newPin };
 }
 
 export function parseRefreshPayload(body: unknown): RefreshSessionPayload {
