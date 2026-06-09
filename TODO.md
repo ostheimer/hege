@@ -65,7 +65,7 @@ Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zue
 - [ ] P1.5 — Custom Domain-Iconographie: `packages/icons` (`@hege/icons`) als Workspace-Package erstellt und im Repo vorhanden. *`apps/mobile` hat noch keine `@hege/icons`-Abhängigkeit — Mobile-Integration ausstehend.*
 - [ ] P1.6 — Mikrointeraktionen: Web View Transitions, Hover/Press-Feedback; Mobile Sheet-Slides + Reanimated Pressable-Skalierung + Haptik bei Save/Send/Discard.
 - [ ] P1.7 — Hero-Visuals auf Public-Landing: Backoffice-Mockup mit echter Karte und iPhone-Mock mit Fallwild-Form als statische Assets in `apps/web/public/landing/`.
-- [ ] P1.8 — Dark Mode Mobile: Basis aktiviert — `UIUserInterfaceStyle` auf `Automatic` umgestellt (PR #159), §10-Tokens (`onAccent`, `onWarning`, `surfaceMuted`) eingeführt. Offen: vollständige `colors.x → useThemeColors()`-Migration; `colors = lightColors` bleibt bewusst als statischer Fallback erhalten.
+- [x] P1.8 — Dark Mode Mobile vollständig umgesetzt (PR #165): In-App-Umschalter (System/Hell/Dunkel) unter Mehr → Erscheinungsbild, persistiert via `lib/theme-mode.ts`; `useThemeColors()` respektiert Override; app-weite `colors.x → useThemeColors()`-Migration abgeschlossen; iOS-Simulator-verifiziert (OTA BUILD_TAG 0.1.0 · 2026-06-08).
 - [ ] P1.9 — Lighthouse 95+ auf Public-Landing, Login und Backoffice-Dashboard, Audit + Maßnahmen.
 
 ## Erledigt
