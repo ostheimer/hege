@@ -6,13 +6,19 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ## [Unreleased]
 
+### Added
+
+- Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; erlaubt die Wahl des Erscheinungsbilds unabhängig vom iOS-System. „System" folgt `useColorScheme()` (PR #165).
+
 ### Changed
 
 - Mobile: **Dark Mode aktiviert** — `ios/hegeRevier/Info.plist` `UIUserInterfaceStyle` von `Light` auf `Automatic` umgestellt; die App folgt jetzt dem System-Erscheinungsbild (bare/prebuild-Projekt, daher gewinnt der native Wert über `app.json`). Zusammen mit den §10-Kontrast-Fixes (`onAccent`/`onWarning`) ist Dark Mode durchgängig lesbar (PR #159).
+- Mobile Design-System §10: app-weite Dark-Mode-Adaption — hartkodierte helle Farben auf Theme-Tokens umgestellt (neuer `theme.backdropGradient` für Hero/Backdrop in login/app-loader/screen-shell, Status-Flächen → `*Surface`, Borders → `inputBorder`, Login-Panel/Muted-Flächen → `surfaceMuted/-Strong`, Text/Spinner auf Accent → `onAccent`, `select-field` ActionSheet scheme-aware); Dark Mode app-weit kontraststark; OTA `0.1.0 · 2026-06-08.10` (PR #165).
 
 ### Fixed
 
 - Auth: Leere `AUTH_TOKEN_SECRET`-Zeichenkette wird jetzt wie ein fehlender Wert behandelt — `env.ts` wertet `?? fallbackAuthSecret()` aus, das bei leerem String nicht greift; die Sicherung verhindert nun einen ungültigen HMAC-Key in lokaler Entwicklung und auf Preview/Production (PR #161).
+- Mobile: der native iOS-ActionSheet im `SelectField` respektiert jetzt den In-App-Theme-Umschalter — neue getestete `resolveEffectiveThemeScheme(mode, scheme)` (genutzt in `useThemeColors` + `SelectField`) statt nur `useColorScheme`; vorher blieb das Sheet bei In-App-„Dunkel" auf hellem System hell; OTA `0.1.0 · 2026-06-08.11` (PR #166).
 
 ## [0.1.0] - 2026-06-03
 
