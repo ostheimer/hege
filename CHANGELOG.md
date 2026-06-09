@@ -9,6 +9,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 ### Added
 
 - Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; erlaubt die Wahl des Erscheinungsbilds unabhängig vom iOS-System. „System" folgt `useColorScheme()` (PR #165).
+- Mobile: **eigener Profil-Screen** (`(tabs)/profil`, erreichbar über die tappbare Profil-Zeile im Mehr-Tab und den neuen Initialen-Avatar im Heute-Hero): Identität (Avatar/Name/Rolle/Revier), Erscheinungsbild-Umschalter (Umzug aus Mehr), Face-ID-Entsperren als Schalter, Konto (Benutzername/E-Mail/Abmelden) und BUILD_TAG-Fußzeile; Mehr-Tab dadurch schlanker; OTA `0.1.0 · 2026-06-09.12` (PR #168).
 
 ### Changed
 

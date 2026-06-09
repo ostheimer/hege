@@ -1,3 +1,5 @@
+import type { DashboardResponse } from "@hege/domain";
+
 const dateTimeFormatter = new Intl.DateTimeFormat("de-AT", {
   day: "2-digit",
   month: "2-digit",
@@ -60,4 +62,26 @@ export function firstName(fullName: string): string {
   }
   const [first] = trimmed.split(/\s+/);
   return first ?? trimmed;
+}
+
+/**
+ * Deutsches Anzeige-Label fuer Mitgliedschafts-Rollen (Mehr-Zeile +
+ * Profil-Screen). Unbekannte Rollen fallen auf den Rohwert zurueck,
+ * damit neue Backend-Rollen nicht als leerer String enden.
+ */
+export function formatRoleLabel(role: DashboardResponse["membership"]["role"]): string {
+  switch (role) {
+    case "revier-admin":
+      return "Admin";
+    case "schriftfuehrer":
+      return "Schriftführung";
+    case "jaeger":
+      return "Jäger";
+    case "ausgeher":
+      return "Ausgeher";
+    case "platform-admin":
+      return "Plattform";
+    default:
+      return role;
+  }
 }

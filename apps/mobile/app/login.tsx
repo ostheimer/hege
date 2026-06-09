@@ -5,6 +5,7 @@ import { Redirect, useRouter } from "expo-router";
 
 import { AppLoader } from "../components/app-loader";
 import { loginWithCredentials, MobileApiError } from "../lib/api";
+import { BUILD_TAG } from "../lib/build-tag";
 import {
   authenticateDeviceUnlock,
   enableDeviceUnlock,
@@ -17,13 +18,6 @@ import { useThemedStyles } from "../lib/use-themed-styles";
 import { spacing, radius, rnShadow } from "@hege/tokens";
 
 const logoMark = require("../assets/logo-mark.png");
-
-// Sichtbarer Build-Marker auf dem Login-Screen, damit man am Geraet
-// erkennt, welche Version/welcher OTA-Push gerade laeuft. Bei jedem
-// Release/Update manuell hochzaehlen. Bewusst eine statische Konstante
-// statt eines expo-updates-Zugriffs: das Lesen von Updates.channel im
-// OTA-Kontext hat einen nativen Crash ausgeloest.
-const BUILD_TAG = "0.1.0 · 2026-06-08.11";
 
 export default function LoginScreen() {
   const router = useRouter();

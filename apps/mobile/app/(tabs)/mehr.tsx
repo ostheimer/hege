@@ -1,19 +1,18 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import type { DashboardResponse } from "@hege/domain";
 
+import { InitialsAvatar } from "../../components/initials-avatar";
 import { ScreenShell } from "../../components/screen-shell";
-import { FilterChipRow } from "../../components/filter-chip-row";
-import { fetchDashboardSnapshot, logout } from "../../lib/api";
+import { fetchDashboardSnapshot } from "../../lib/api";
+import { formatRoleLabel } from "../../lib/format";
 import { countUnread, useReadNotificationIds } from "../../lib/notifications-read-state";
 import { useSessionSnapshot } from "../../lib/session";
-import { setThemeMode, useThemeMode, type ThemeMode } from "../../lib/theme-mode";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { cardSurface } from "../../lib/surfaces";
-import { eyebrowText } from "../../lib/typography";
 import { useThemedStyles } from "../../lib/use-themed-styles";
 import { spacing, radius } from "@hege/tokens";
 
@@ -68,9 +67,7 @@ export default function MehrScreen() {
   const session = useSessionSnapshot();
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
-  const themeMode = useThemeMode();
   const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const readIds = useReadNotificationIds();
   const unreadCount = useMemo(() => {
@@ -120,20 +117,7 @@ export default function MehrScreen() {
     }
   }
 
-  async function handleLogout() {
-    if (isLoggingOut) {
-      return;
-    }
-
-    setIsLoggingOut(true);
-
-    try {
-      await logout();
-      router.replace("/login");
-    } finally {
-      setIsLoggingOut(false);
-    }
-  }
+  const profileName = snapshot?.user.name ?? session.session?.user.name ?? "";
 
   return (
     <ScreenShell
@@ -148,36 +132,23 @@ export default function MehrScreen() {
         }
       }}
     >
-      <View style={styles.profileCard}>
-        <Text style={styles.profileLabel}>Angemeldet als</Text>
-        <Text style={styles.profileName}>{snapshot?.user.name ?? "Wird geladen..."}</Text>
-        <Text style={styles.profileMeta}>
-          {snapshot
-            ? `${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
-            : "Rolle wird geladen..."}
-        </Text>
-        <Text style={styles.profileMeta}>{snapshot?.revier.name ?? "Revier wird geladen..."}</Text>
-      </View>
-
-      <View style={styles.appearanceCard}>
-        <Text style={styles.appearanceLabel}>Erscheinungsbild</Text>
-        <FilterChipRow<ThemeMode>
-          value={themeMode}
-          onChange={(mode) => {
-            void Haptics.selectionAsync();
-            void setThemeMode(mode);
-          }}
-          accessibilityLabel="Erscheinungsbild wählen"
-          options={[
-            { key: "system", label: "System" },
-            { key: "light", label: "Hell" },
-            { key: "dark", label: "Dunkel" }
-          ]}
-        />
-        <Text style={styles.appearanceHint}>
-          „System" folgt der iOS-Einstellung. „Hell"/„Dunkel" erzwingen das Erscheinungsbild in der App.
-        </Text>
-      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Profil öffnen"
+        onPress={() => router.push("/(tabs)/profil" as Parameters<typeof router.push>[0])}
+        style={({ pressed }) => [styles.profileRow, pressed ? styles.profileRowPressed : null]}
+      >
+        <InitialsAvatar name={profileName} size={42} />
+        <View style={styles.profileCopy}>
+          <Text style={styles.profileName}>{profileName || "Wird geladen..."}</Text>
+          <Text style={styles.profileMeta}>
+            {snapshot
+              ? `${formatRoleLabel(snapshot.membership.role)} · ${snapshot.revier.name}`
+              : "Profil, Erscheinungsbild und Sicherheit"}
+          </Text>
+        </View>
+        <Ionicons color={theme.muted} name="chevron-forward" size={20} />
+      </Pressable>
 
       <View style={styles.linkList}>
         {MEHR_LINKS.map((entry) => {
@@ -216,43 +187,33 @@ export default function MehrScreen() {
           );
         })}
       </View>
-
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Abmelden"
-        onPress={() => void handleLogout()}
-        disabled={isLoggingOut}
-        style={[styles.logoutButton, isLoggingOut ? styles.logoutDisabled : null]}
-      >
-        {isLoggingOut ? (
-          <ActivityIndicator color={theme.ink} />
-        ) : (
-          <Text style={styles.logoutText}>Abmelden</Text>
-        )}
-      </Pressable>
     </ScreenShell>
   );
 }
 
 const createStyles = (theme: ThemeColors) =>
   ({
-  profileCard: { ...cardSurface(theme), gap: 6 },
-  profileLabel: { ...eyebrowText(theme) },
-  appearanceCard: { ...cardSurface(theme), gap: 10 },
-  appearanceLabel: { ...eyebrowText(theme) },
-  appearanceHint: {
-    fontSize: 13,
-    lineHeight: 18,
-    color: theme.muted
+  profileRow: {
+    ...cardSurface(theme),
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12
+  },
+  profileRowPressed: {
+    opacity: 0.85
+  },
+  profileCopy: {
+    flex: 1,
+    gap: 2
   },
   profileName: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: "700",
     color: theme.ink
   },
   profileMeta: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     color: theme.muted
   },
   linkList: {
@@ -307,37 +268,5 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.onAccent,
     fontSize: 12,
     fontWeight: "700"
-  },
-  logoutButton: {
-    minHeight: 52,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 18,
-    backgroundColor: theme.surfaceMuted
-  },
-  logoutDisabled: {
-    opacity: 0.7
-  },
-  logoutText: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: theme.ink
   }
 }) as const;
-
-function formatRoleLabel(role: DashboardResponse["membership"]["role"]) {
-  switch (role) {
-    case "revier-admin":
-      return "Admin";
-    case "schriftfuehrer":
-      return "Schriftführung";
-    case "jaeger":
-      return "Jäger";
-    case "ausgeher":
-      return "Ausgeher";
-    case "platform-admin":
-      return "Plattform";
-    default:
-      return role;
-  }
-}
