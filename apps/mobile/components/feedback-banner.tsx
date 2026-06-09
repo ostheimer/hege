@@ -62,13 +62,13 @@ const createStyles = (theme: ThemeColors) =>
       borderRadius: 22
     },
     surfaceSuccess: {
-      backgroundColor: "#e3ecd7"
+      backgroundColor: theme.successSurface
     },
     surfaceWarning: {
-      backgroundColor: "#efe3d1"
+      backgroundColor: theme.warningSurface
     },
     surfaceDanger: {
-      backgroundColor: "#f0d9d4"
+      backgroundColor: theme.dangerSurface
     },
     title: {
       fontSize: 18,

@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
-import { ActionSheetIOS, Modal, Platform, Pressable, Text, View } from "react-native";
+import { ActionSheetIOS, Modal, Platform, Pressable, Text, useColorScheme, View } from "react-native";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
@@ -30,6 +30,7 @@ export function SelectField<T extends string>({
   const selected = options.find((entry) => entry.value === value);
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const scheme = useColorScheme();
 
   function open() {
     if (Platform.OS === "ios") {
@@ -39,7 +40,7 @@ export function SelectField<T extends string>({
           title: label,
           options: [...options.map((entry) => entry.label), "Abbrechen"],
           cancelButtonIndex: cancelIndex,
-          userInterfaceStyle: "light"
+          userInterfaceStyle: scheme === "dark" ? "dark" : "light"
         },
         (selectedIndex) => {
           if (selectedIndex === cancelIndex || selectedIndex < 0 || selectedIndex >= options.length) {
@@ -105,7 +106,7 @@ export function SelectField<T extends string>({
                   <Text style={[styles.sheetOptionLabel, isActive ? styles.sheetOptionLabelActive : null]}>
                     {option.label}
                   </Text>
-                  {isActive ? <Ionicons color={theme.surface} name="checkmark" size={18} /> : null}
+                  {isActive ? <Ionicons color={theme.onAccent} name="checkmark" size={18} /> : null}
                 </Pressable>
               );
             })}
@@ -143,7 +144,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingHorizontal: 14,
       borderRadius: 16,
       borderWidth: 1,
-      borderColor: "#d9d2c4",
+      borderColor: theme.inputBorder,
       backgroundColor: theme.surface
     },
     triggerPressed: {
@@ -186,7 +187,7 @@ const createStyles = (theme: ThemeColors) =>
       paddingHorizontal: 14,
       paddingVertical: 14,
       borderRadius: 14,
-      backgroundColor: "#f4ecdb"
+      backgroundColor: theme.surfaceMuted
     },
     sheetOptionActive: {
       backgroundColor: theme.accent
@@ -200,7 +201,7 @@ const createStyles = (theme: ThemeColors) =>
       fontWeight: "600"
     },
     sheetOptionLabelActive: {
-      color: theme.surface
+      color: theme.onAccent
     },
     sheetCancel: {
       alignItems: "center",

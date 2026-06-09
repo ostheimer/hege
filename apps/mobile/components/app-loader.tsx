@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Image, Platform, Text, View } from "react-native";
 
-import type { ThemeColors } from "../lib/theme";
+import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
 import { spacing, radius, rnShadow } from "@hege/tokens";
 
@@ -9,9 +9,10 @@ const logoMark = require("../assets/logo-mark.png");
 
 export function AppLoader() {
   const styles = useThemedStyles(createStyles);
+  const theme = useThemeColors();
 
   return (
-    <LinearGradient colors={["#fff8ec", "#dde6c3"]} style={styles.root}>
+    <LinearGradient colors={theme.backdropGradient} style={styles.root}>
       <View style={styles.card}>
         <View accessibilityLabel="hege" accessibilityRole="image" style={styles.brand}>
           <Image accessibilityIgnoresInvertColors source={logoMark} style={styles.logo} />
