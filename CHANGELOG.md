@@ -10,6 +10,10 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Mobile: **Dark Mode aktiviert** — `ios/hegeRevier/Info.plist` `UIUserInterfaceStyle` von `Light` auf `Automatic` umgestellt; die App folgt jetzt dem System-Erscheinungsbild (bare/prebuild-Projekt, daher gewinnt der native Wert über `app.json`). Zusammen mit den §10-Kontrast-Fixes (`onAccent`/`onWarning`) ist Dark Mode durchgängig lesbar (PR #159).
 
+### Fixed
+
+- Auth: Leere `AUTH_TOKEN_SECRET`-Zeichenkette wird jetzt wie ein fehlender Wert behandelt — `env.ts` wertet `?? fallbackAuthSecret()` aus, das bei leerem String nicht greift; die Sicherung verhindert nun einen ungültigen HMAC-Key in lokaler Entwicklung und auf Preview/Production (PR #161).
+
 ## [0.1.0] - 2026-06-03
 
 ### Added
