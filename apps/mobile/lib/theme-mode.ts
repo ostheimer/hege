@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
  */
 
 export type ThemeMode = "system" | "light" | "dark";
+export type EffectiveThemeScheme = "light" | "dark";
 
 const STORAGE_KEY = "@hege/theme/mode";
 
@@ -26,6 +27,17 @@ let hydrated = false;
 
 function isThemeMode(value: unknown): value is ThemeMode {
   return value === "system" || value === "light" || value === "dark";
+}
+
+export function resolveEffectiveThemeScheme(
+  mode: ThemeMode,
+  systemScheme: EffectiveThemeScheme | null | undefined
+): EffectiveThemeScheme {
+  if (mode === "light" || mode === "dark") {
+    return mode;
+  }
+
+  return systemScheme === "dark" ? "dark" : "light";
 }
 
 async function loadThemeMode(): Promise<ThemeMode> {
