@@ -8,7 +8,7 @@ import {
 } from "@hege/tokens";
 import { useColorScheme } from "react-native";
 
-import { useThemeMode } from "./theme-mode";
+import { resolveEffectiveThemeScheme, useThemeMode } from "./theme-mode";
 
 /**
  * Re-Exports der Token-Werte aus `@hege/tokens` (F-21).
@@ -85,6 +85,6 @@ export function useThemeColors(): ThemeColors {
   // In-App-Override (Mehr → Erscheinungsbild) gewinnt; "system" folgt dem
   // iOS-Color-Scheme. Greift app-weit, weil useThemedStyles + alle direkten
   // Konsumenten ueber diesen Hook laufen.
-  const effective = mode === "system" ? scheme : mode;
+  const effective = resolveEffectiveThemeScheme(mode, scheme);
   return effective === "dark" ? darkColors : lightColors;
 }

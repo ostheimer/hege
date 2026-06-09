@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ActionSheetIOS, Modal, Platform, Pressable, Text, useColorScheme, View } from "react-native";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
+import { resolveEffectiveThemeScheme, useThemeMode } from "../lib/theme-mode";
 import { useThemedStyles } from "../lib/use-themed-styles";
 import { spacing } from "@hege/tokens";
 
@@ -30,7 +31,9 @@ export function SelectField<T extends string>({
   const selected = options.find((entry) => entry.value === value);
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const themeMode = useThemeMode();
   const scheme = useColorScheme();
+  const actionSheetUserInterfaceStyle = resolveEffectiveThemeScheme(themeMode, scheme);
 
   function open() {
     if (Platform.OS === "ios") {
@@ -40,7 +43,7 @@ export function SelectField<T extends string>({
           title: label,
           options: [...options.map((entry) => entry.label), "Abbrechen"],
           cancelButtonIndex: cancelIndex,
-          userInterfaceStyle: scheme === "dark" ? "dark" : "light"
+          userInterfaceStyle: actionSheetUserInterfaceStyle
         },
         (selectedIndex) => {
           if (selectedIndex === cancelIndex || selectedIndex < 0 || selectedIndex >= options.length) {
