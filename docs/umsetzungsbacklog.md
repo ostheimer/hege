@@ -45,7 +45,7 @@ Die späteren Sprints bleiben vorerst auf Roadmap-Niveau und werden erst detaill
 - Sprint 2: Jäger-App Kern
 - Sprint 3: Fallwild produktiv inkl. Offline-Sync und Medien-/Queue-v2
 - Sprint 4: Reviermeldungen und Aufgaben v1, begonnen mit Backend-/Mobile-Slice und lokal bestandenem iPhone-Smoke für `Meldungen`
-- Sprint 5: Reviereinrichtungen, Karten und weitere Härtung
+- ~~Sprint 5: Reviereinrichtungen, Karten und weitere Härtung~~ — aufgelöst: Karten sind in Web (Google Maps) und Mobile (react-native-maps) produktiv; der verbleibende Einrichtungs-Ausbau (Kontroll-Erfassung) wird separat getrackt
 
 ## Definition of Ready für neue Sprint-Backlogs
 
