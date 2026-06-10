@@ -1,4 +1,5 @@
 import { exportSitzungenCsv } from "../../../../../server/modules/sitzungen/queries";
+import { jsonError } from "../../../../../server/http/responses";
 
 export const dynamic = "force-dynamic";
 
@@ -8,10 +9,14 @@ export const dynamic = "force-dynamic";
  * (Jahresueberblick, Praesenz, Beschluss-Anzahl).
  */
 export async function GET() {
-  return new Response(await exportSitzungenCsv(), {
-    headers: {
-      "content-type": "text/csv; charset=utf-8",
-      "content-disposition": "attachment; filename=sitzungen.csv"
-    }
-  });
+  try {
+    return new Response(await exportSitzungenCsv(), {
+      headers: {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition": "attachment; filename=sitzungen.csv"
+      }
+    });
+  } catch (error) {
+    return jsonError(error);
+  }
 }

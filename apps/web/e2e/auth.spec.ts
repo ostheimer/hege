@@ -50,7 +50,9 @@ test.describe("Auth und geschuetzte Routen", () => {
     await loginAs(page, "jaeger");
     await page.goto("/app/sitzungen");
 
-    await expect(page).toHaveURL(/\/app$/);
-    await expect(page.getByRole("heading", { name: "Was jetzt deine Aufmerksamkeit braucht." })).toBeVisible();
+    // requirePageRoles leitet sichtbar auf das Dashboard mit Forbidden-Banner um.
+    await expect(page).toHaveURL(/\/app\?error=keine-berechtigung&path=%2Fapp%2Fsitzungen$/);
+    await expect(page.getByRole("alert").filter({ hasText: "Keine Berechtigung" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Weidmannsheil/ })).toBeVisible();
   });
 });

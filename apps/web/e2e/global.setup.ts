@@ -7,7 +7,12 @@ import { getPnpmCommand, runCommand } from "./support/run-command";
 const LOCAL_ADMIN_DATABASE_URL = "postgresql://hege:hege@127.0.0.1:5432/postgres";
 
 setup("bootstrap local e2e database", async () => {
-  runCommand("docker", ["compose", "up", "-d", "postgres"]);
+  if (!(await isPostgresReachable())) {
+    // Nur starten, wenn nicht schon ein lokaler Postgres laeuft: in Git-Worktrees
+    // gehoert der Container `hege-postgres` sonst einem anderen Compose-Projekt
+    // und `docker compose up` bricht mit einem Namenskonflikt ab.
+    runCommand("docker", ["compose", "up", "-d", "postgres"]);
+  }
   await waitForPostgres();
   await createDatabaseIfMissing(e2eDatabaseName);
 
@@ -17,6 +22,21 @@ setup("bootstrap local e2e database", async () => {
   runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:seed"], env);
   runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:check"], env);
 });
+
+async function isPostgresReachable(): Promise<boolean> {
+  const client = new Client({
+    connectionString: LOCAL_ADMIN_DATABASE_URL
+  });
+
+  try {
+    await client.connect();
+    return true;
+  } catch {
+    return false;
+  } finally {
+    await client.end().catch(() => undefined);
+  }
+}
 
 async function waitForPostgres() {
   let lastError: unknown;

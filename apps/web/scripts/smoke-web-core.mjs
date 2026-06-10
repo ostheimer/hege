@@ -95,12 +95,8 @@ export async function runSmoke(baseUrl, options = {}) {
     await checkHtmlPage(baseUrl, "/app/setup", {
       label: "/app/setup",
       headers: browserHeaders,
-      expectedText: [
-        "Das Revier ist noch nicht vollständig eingerichtet.",
-        "Bitte Revierdaten vervollständigen",
-        "Setup abschließen",
-        me.revier.name
-      ]
+      // Setup ist seit P2.5 (#74) ein vierschrittiger Wizard.
+      expectedText: ["Willkommen,", "Revierdaten vervollständigen", me.revier.name]
     });
   } else {
     await checkHtmlPage(baseUrl, "/app", {
