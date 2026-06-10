@@ -10,7 +10,7 @@ Drei aufeinander aufbauende Pfade nach dem [UI-Audit 2026-05-07](./ui-audit-2026
 |------|-------|--------|-------|
 | P2.1 | Mobile Map-First | ✅ als Toggle in Locations-Tabs (Map-First-Heute-Tab rückgaengig nach User-Feedback) | #58 (Skelett), #59 (Hotfix), #60-#63 (M1-M3), #76 (Compact Hero) |
 | P2.2 | Rollen-spezifische Dashboards | ✅ | #70 |
-| P2.3 | Notification-Center | ✅ Mobile + Web *(Hinweis: Doppel-Header-Bug bei Benachrichtigungen-Screen noch offen — siehe mobile-ui-audit.md Painpoint C)* | #71, #73 |
+| P2.3 | Notification-Center | ✅ Mobile + Web *(Doppel-Header-Bug bei Benachrichtigungen-Screen seit PR #122 gefixt)* | #71, #73 |
 | P2.4 | Filter, Suche, Sortieren | ✅ Mobile (M1-M3) + Web (#75) | #60, #62, #63, #75 |
 | P2.5 | Onboarding-Flow | ✅ Web 4-Step-Wizard | #74 |
 | P2.6 | Smart Defaults | ✅ Fallwild-Form Mobile | #66 (Teil M4) |
@@ -22,15 +22,15 @@ Plus zehn autonom-gelieferte Features (M1-M5 + W1-W5) gemäß
 
 | Item | Titel | Status | PR |
 |------|-------|--------|-----|
-| P1.0 | EAS-Preview-Build | offen (User-seitig) | – |
+| P1.0 | EAS-Preview-Build | ✅ (EAS-Build e6667820 vom 2026-06-05, Internal Distribution/USB statt TestFlight, OTA-Kanal `preview` aktiv) | – |
 | P1.1 | Demo-Daten-Volumina | ✅ | #46 |
 | P1.2 | Wortmarken-Logo (`@hege/icons`) | ✅ | #47 |
-| P1.3 | Quick-Win-Layout (4 Tabs + Mehr) | ✅ | (vor #45) |
+| P1.3 | Quick-Win-Layout (4 Tabs + Mehr) | ✅ | #44, Verfeinerungen #76/#122 |
 | P1.4 | StateView (Empty/Loading/Error) | ✅ | #45 |
 | P1.5 | Domain-Icon-Set | ⏳ (packages/icons vorhanden, Mobile-Integration noch ausstehend — Commit #147) | #47 |
-| P1.6 | Mikrointeraktionen (Web View Transitions, Mobile Haptics + Pull-to-Refresh) | ✅ | #47, #48 |
+| P1.6 | Mikrointeraktionen (Web View Transitions, Mobile Haptics + Pull-to-Refresh) | ✅ (Web komplett; Mobile-Haptik in Save-Handlern seit PR #172; Reanimated-Skalierung bewusst verworfen — native Dependency lohnt keinen EAS-Build) | #47, #48, #172 |
 | P1.7 | Hero-Visuals (Live-CSS-Mockups) | ✅ | #50 |
-| P1.8 | Dark Mode Mobile (Token-Migration) | ⏳ (Info.plist OK via PR #159, vollständige Token-Migration noch ausstehend) | #49 |
+| P1.8 | Dark Mode Mobile (Token-Migration) | ✅ | #159, #165, #166, #169 |
 | P1.9 | Lighthouse-Baseline (SEO + Performance) | ✅ | #51 |
 
 Verwandte Dokumente:
@@ -45,6 +45,8 @@ Verwandte Dokumente:
 Sichtbare Aufwertung, kein Architektur-Risiko. Jede Iteration ist ein eigener PR.
 
 ### P1.0 — Vorbedingung: EAS-Preview-Build aufstellen
+
+> **Erledigt:** EAS-Build e6667820 vom 2026-06-05, Verteilung via Internal Distribution/USB statt TestFlight, OTA-Kanal `preview` aktiv.
 
 Der iPhone-Build, der aktuell auf dem Test-Gerät installiert ist, läuft auf einem Code-Stand vor PR #36 — sechs Tabs, alter Logout-Button, „Queue synchronisieren". Damit der bisherige Audit-Polish überhaupt sichtbar wird, muss ein neuer Build über EAS auf TestFlight gepusht werden.
 
@@ -165,7 +167,9 @@ Aufwand: 0,5 Tag.
 
 ### P1.8 — Dark Mode Mobile durchziehen
 
-Tokens sind bereit (`darkColors` in `@hege/tokens`), `userInterfaceStyle: automatic` ist gesetzt — aber die Components nutzen statisch `colors.x` statt `useThemeColors()`. Dadurch bleibt die App in Light, egal was iOS-Setting sagt.
+> **Erledigt** (PRs #159/#165/#166/#169).
+
+~~Tokens sind bereit (`darkColors` in `@hege/tokens`), `userInterfaceStyle: automatic` ist gesetzt — aber die Components nutzen statisch `colors.x` statt `useThemeColors()`. Dadurch bleibt die App in Light, egal was iOS-Setting sagt.~~ *(Überholt — Migration abgeschlossen.)*
 
 Migration in Schritten:
 - Komponenten-Inventur: welche `apps/mobile/components/*.tsx` und `apps/mobile/app/**/*.tsx` nutzen `colors`?

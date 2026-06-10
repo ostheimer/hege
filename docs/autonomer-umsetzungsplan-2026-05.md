@@ -32,6 +32,8 @@ Die Reihenfolge priorisiert zuerst belastbare Abnahme und Karten, danach Rollen/
 
 ## A0 - Release- und Smoke-Basis stabilisieren
 
+> **Status 2026-06-10: erledigt.** Die Baseline ist grün (Typecheck 9/9, Tests web/mobile) und die Release-Strecke ist in aktivem, verifiziertem Betrieb: EAS-Channels development/preview/production stehen, OTA-Pushes laufen regelmäßig (zuletzt `0.1.0 · 2026-06-10.14`), Preview-Smoke + Release-Check sichern Deployments ab, und die Domain-Promotion von `hege.app` ist nach jedem main-Merge verifiziert (Release-Check-Dispatch-Playbook). Die downstream-Items A2/A3 (Karten) sind längst geliefert. Die gitignorierten `… 2`-Duplikatdateien sind dokumentiert und bewusst unangetastet. Offener Mini-Rest (nicht blockierend): Kontakte- und Karten-Checklisten in `docs/mobile-smoke-ios.md` ergänzen.
+
 ### Ziel
 
 Die Test- und Deploy-Strecke muss zuverlässig sein, bevor neue größere Features gebaut werden.
@@ -63,6 +65,8 @@ Die Test- und Deploy-Strecke muss zuverlässig sein, bevor neue größere Featur
 - Kein neues Feature beginnt auf ungeklärtem Release-Zustand.
 
 ## A1 - Production-iPhone-Smoke abschließen
+
+> **Status 2026-06-10: technisch entblockt, Session ausstehend.** Alle Voraussetzungen sind produktiv (Google-Server-Key, gebündelter GIP-Index, R2-Foto-Upload, Kontaktlisten-API, Queue v2); das iPhone hat den aktuellen OTA-Stand. Es fehlt nur die manuelle Geräte-Session nach `docs/mobile-smoke-ios.md` plus Ergebnis-Doku (Datum/Gerät/Build) — sie schließt die ROADMAP-Fokuspunkte 1, 2 und 4 auf einmal.
 
 ### Ziel
 

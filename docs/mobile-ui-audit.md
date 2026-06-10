@@ -61,6 +61,8 @@ Identisch zur Kontakte-Vorgeschichte. `apps/mobile/app/_layout.tsx:42` setzt `he
 
 [19-ueber-hege.png](mobile-ui-audit/19-ueber-hege.png) hat keinen LinearGradient, sondern eine flache Card mit `theme.card`-Hintergrund. Optisch fremd gegenüber allen Tab-Hero. Stack-Header oben + Eyebrow + großer „hege"-Titel duplizieren auch hier.
 
+→ ✅ **Erledigt** (PR #131, gepflegt durch #141/#154).
+
 ### E. **Kontakte: Kontakte-Korrektur ist drin** ✅
 
 [16-kontakte.png](mobile-ui-audit/16-kontakte.png) bestätigt die vorherige Korrektur: kein Stack-Header mit „(tabs)" + „Kontakte" mehr, Tab-Bar unten sichtbar. Aber wegen Painpoint A wirkt der Title „Telefonlisten" trotzdem kleiner als der Subtitle.
@@ -261,6 +263,8 @@ Drei Patches angewendet und im Simulator verifiziert.
 - `kontakte.tsx:644`: hardcoded `#9d4a3f` als Danger-Icon-Farbe ≠ `tokens.lightColors.danger` (`#96483d`).
 - Gradient `["#fff8ec","#dde6c3"]` doppelt in `screen-shell.tsx:67` und `login.tsx:135` — beim Anpassen muss man zwei Stellen ändern.
 
+→ ✅ **Erledigt** (PR #165).
+
 ---
 
 ## 5. ScreenShell-Nutzung
@@ -311,6 +315,8 @@ Drei Patches angewendet und im Simulator verifiziert.
 
 **Painpoint:** Der Hero-Eyebrow von ScreenShell wirkt "weicher" als die Inline-Eyebrows in den Cards, weil ihm `fontWeight: 700` fehlt, dafür `letterSpacing: 1.5` (alle anderen 1.1/1.2).
 
+→ ✅ **Erledigt** (PR #141; eine eigene `<Eyebrow>`-Komponente wurde bewusst verworfen, dokumentiert in `lib/typography.ts`).
+
 ---
 
 ## 8. Badges — 5 verschiedene Padding-Sets
@@ -344,6 +350,8 @@ Alle 5 Forms (Login/Ansitze/Fallwild/Revierarbeit) nutzen `minHeight: 52, border
 
 Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize 34 für den Wert. Heute nutzt stattdessen den `QueueStatusPill`-Component. → 4× verschiedene Pattern für dasselbe Konzept "Hero-Aside-Anzeige".
 
+→ ✅ **Erledigt:** kompakte Pills statt Cards, einheitlich über alle Screens.
+
 ---
 
 ## 10. Empfehlung: Konsolidierung
@@ -355,7 +363,7 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
    - `successSurface`, `warningSurface`, `dangerSurface`, `infoSurface`, `conflictSurface`
    - _Status: ✅ erstellt (#134), erweitert um `onWarning` (#152). Adoptiert: `StateView` (#134), `<Badge>`/Status-Surfaces (#135/#136), Muted-Buttons (#142), `<FeedbackBanner>` (#144), `onAccent` auf Akzent-Flächen + Map-Fallbacks (#146/#148), `onWarning` auf Status-Pills/-Badges (#152). Text-auf-farbiger-Fläche ist im Dark Mode jetzt durchgehend kontraststark._
 
-2. **Spacing-Tokens tatsächlich nutzen.** Ersetze 6/10/12/14/18/22 durch `tokens.spacing.xs/sm/md/lg`. → ✅ exact-match (4/8/16/24/32) adoptiert (#154); off-scale (6/10/12/14/18/22) bewusst belassen — die App nutzt ein feineres Raster als die Skala, Snapping wäre ein sichtbarer Eingriff (separate Design-Entscheidung).
+2. **Spacing-Tokens tatsächlich nutzen.** Ersetze 6/10/12/14/18/22 durch `tokens.spacing.xs/sm/md/lg`. → ✅ exact-match (4/8/16/24/32) adoptiert (#154); off-scale (6/10/12/14/18/22) bewusst belassen — die App nutzt ein feineres Raster als die Skala, Snapping wäre ein sichtbarer Eingriff. **Entschieden:** kein Snapping — sichtbare Änderungen an ~270 Stellen ohne User-Nutzen, die Off-Scale-Werte bleiben bewusst bestehen.
 
 3. **Radius-Mapping:**
    - `radius.sm` (6) → Channel-Pills
@@ -363,7 +371,7 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
    - `radius.lg` (20) → State-Cards, Filter-Sections (statt 18/22)
    - `radius.xl` (28) → Hero, Login-Card (statt 24/28)
    - `radius.full` (999) → Pills/Badges
-   - _Status: ✅ exact-match (12/20/28/999) adoptiert (#154); off-scale (14/16/18/22/24) bewusst belassen._
+   - _Status: ✅ exact-match (12/20/28/999) adoptiert (#154); off-scale (14/16/18/22/24) bewusst belassen. **Entschieden:** kein Snapping — sichtbare Änderungen ohne User-Nutzen, die Off-Scale-Werte bleiben bewusst bestehen (siehe Punkt 2)._
 
 4. **Style-Primitive-Komponenten** (`apps/mobile/components/ui/`):
    - `<PrimaryButton>` mit Größen `default | small | pill`
@@ -374,9 +382,9 @@ Ansitze/Fallwild/Revierarbeit rendern in `aside` eigene `queueCard` mit fontSize
    - `<FilterSection>` wrapper für SearchInput + ChipRows + Reset
    - Pflicht: `<StateView>` statt Inline-`stateCard`/`errorCard`/`infoCard`/`feedbackCard*`.
 
-5. **`rnShadow.card` aus Tokens importieren** — entweder in Login + Hero-Aside einsetzen oder Token entfernen.
+5. **`rnShadow.card` aus Tokens importieren** — entweder in Login + Hero-Aside einsetzen oder Token entfernen. → ✅ erledigt: `rnShadow.card` adoptiert, die bespoke Komponenten-Schatten bleiben bewusst bestehen.
 
-6. **ScreenShell für alle Routes:** Login und Über-hege migrieren (`compactHero` und `topSafeArea` existieren genau dafür).
+6. **ScreenShell für alle Routes:** Login und Über-hege migrieren (`compactHero` und `topSafeArea` existieren genau dafür). → Vermerk: Pull-to-Refresh-Vereinheitlichung (Protokolle + getintete RefreshControls) wurde in PR #172 geliefert; die Login-auf-ScreenShell-Migration ist verworfen (ScreenShell ist für Tab-Screens gebaut, das Gradient-Duplikat ist seit #165 per Token gelöst).
 
 ### Geschätzter Aufwand (reine Konsolidierung, keine UX-Änderung)
 
