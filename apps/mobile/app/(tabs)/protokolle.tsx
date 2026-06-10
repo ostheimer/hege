@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import type { ProtokollDetail, ProtokollListItem } from "@hege/domain";
@@ -29,6 +30,7 @@ export default function ProtokolleScreen() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<ProtokollDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<ProtokollFilterState>(DEFAULT_PROTOKOLL_FILTER);
@@ -43,8 +45,12 @@ export default function ProtokolleScreen() {
     void loadProtokolle();
   }, []);
 
-  async function loadProtokolle() {
-    setIsLoading(true);
+  async function loadProtokolle(options?: { refreshing?: boolean }) {
+    if (options?.refreshing) {
+      setIsRefreshing(true);
+    } else {
+      setIsLoading(true);
+    }
     setError(null);
 
     try {
@@ -63,6 +69,7 @@ export default function ProtokolleScreen() {
       setError(fetchError instanceof Error ? fetchError.message : "Unbekannter Fehler");
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }
 
@@ -84,6 +91,13 @@ export default function ProtokolleScreen() {
       eyebrow="Protokolle"
       title="Beschlüsse und Sitzungsunterlagen immer dabei."
       subtitle="Freigegebene Protokolle bleiben mobil lesbar, Entwürfe sind fürs Backoffice reserviert."
+      refresh={{
+        refreshing: isRefreshing,
+        onRefresh: () => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          void loadProtokolle({ refreshing: true });
+        }
+      }}
     >
       {isLoading ? (
         <StateView

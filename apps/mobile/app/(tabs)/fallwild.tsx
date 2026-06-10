@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -251,6 +252,7 @@ export default function FallwildScreen() {
       setAttachments([]);
       setForm(DEFAULT_FORM);
       setLocationHint(null);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       if (result.mode === "queued") {
         setFeedback({
@@ -267,7 +269,7 @@ export default function FallwildScreen() {
           title: "Fallwild gespeichert",
           copy:
             result.queuedCount > 0
-              ? `${formatPhotoCount(result.uploadedCount)} hochgeladen, ${formatPhotoCount(result.queuedCount)} ${formatPhotoVerb(result.queuedCount)} in die Queue gelegt.`
+              ? `${formatPhotoCount(result.uploadedCount)} hochgeladen, ${formatPhotoCount(result.queuedCount)} ${formatPhotoVerb(result.queuedCount)} in die Warteschlange gelegt.`
               : `${formatPhotoCount(result.uploadedCount)} ${formatPhotoVerb(result.uploadedCount)} hochgeladen.`
         });
       } else {
@@ -305,7 +307,7 @@ export default function FallwildScreen() {
         copy:
           remaining.length === 0
             ? "Alle Einträge wurden verarbeitet."
-            : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
+            : `${remaining.length} Einträge warten weiter in der Warteschlange.`
       });
       await loadFallwild({ refreshing: true });
     } catch (syncError) {
@@ -327,7 +329,7 @@ export default function FallwildScreen() {
         copy:
           remaining.length === 0
             ? "Alle Einträge wurden verarbeitet."
-            : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
+            : `${remaining.length} Einträge warten weiter in der Warteschlange.`
       });
       await loadFallwild({ refreshing: true });
     } catch (retryError) {
@@ -936,7 +938,7 @@ export default function FallwildScreen() {
             </View>
           ))}
           {queueEntries.length > 3 ? (
-            <Text style={styles.queueRowCopy}>{`${queueEntries.length - 3} weitere Einträge in der Queue.`}</Text>
+            <Text style={styles.queueRowCopy}>{`${queueEntries.length - 3} weitere Einträge in der Warteschlange.`}</Text>
           ) : null}
         </View>
       ) : null}
@@ -962,6 +964,8 @@ export default function FallwildScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={() => void loadFallwild({ refreshing: true })}
+              tintColor={theme.accent}
+              colors={[theme.accent]}
             />
           }
           contentContainerStyle={styles.listContent}

@@ -1,4 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
+import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -215,6 +216,7 @@ export default function RevierarbeitScreen() {
 
     try {
       await createReviermeldung(buildReviermeldungPayload(form));
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setMessage("Reviermeldung gespeichert.");
       setForm(DEFAULT_FORM);
       await loadRevierarbeit({ refreshing: true });
@@ -232,6 +234,7 @@ export default function RevierarbeitScreen() {
 
     try {
       await updateAufgabe(aufgabeId, { status });
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setMessage(status === "erledigt" ? "Aufgabe erledigt." : "Aufgabe aktualisiert.");
       await loadRevierarbeit({ refreshing: true });
     } catch (updateError) {
@@ -495,7 +498,12 @@ export default function RevierarbeitScreen() {
         <ScrollView
           nestedScrollEnabled
           refreshControl={
-            <RefreshControl refreshing={isRefreshing} onRefresh={() => void loadRevierarbeit({ refreshing: true })} />
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={() => void loadRevierarbeit({ refreshing: true })}
+              tintColor={theme.accent}
+              colors={[theme.accent]}
+            />
           }
           contentContainerStyle={styles.listContent}
           style={styles.listScroll}

@@ -64,7 +64,11 @@ export default async function ProtokollDetailPage({ params }: ProtokollDetailPag
         <header className="section-header">
           <div>
             <p className="eyebrow">Versionen</p>
-            <h2>{protokoll.versions.length} gespeicherte Stände</h2>
+            <h2>
+              {protokoll.versions.length === 1
+                ? "1 gespeicherte Version"
+                : `${protokoll.versions.length} gespeicherte Versionen`}
+            </h2>
           </div>
         </header>
 

@@ -36,8 +36,8 @@ export function QueueBadge({ count, failedCount, onPress, topOffset = 132 }: Que
   const isFailed = failedCount > 0;
   const label = isFailed ? `${failedCount}` : `${count}`;
   const accessibility = isFailed
-    ? `${failedCount} Queue-Einträge mit Fehler. Tippen für Tagesübersicht.`
-    : `${count} Queue-Einträge offen. Tippen für Tagesübersicht.`;
+    ? `${failedCount} Einträge mit Fehler in der Warteschlange. Tippen für Tagesübersicht.`
+    : `${count} Einträge in der Warteschlange offen. Tippen für Tagesübersicht.`;
 
   return (
     <View pointerEvents="box-none" style={[styles.wrapper, { top: topOffset }]}>

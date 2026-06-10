@@ -10,6 +10,7 @@ import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { formatRoleLabel } from "../../../lib/labels";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
 interface MembershipOption {
@@ -492,7 +493,7 @@ export function AufgabenClient({ aufgaben, memberships }: AufgabenClientProps) {
               <option value="">— Nicht zuweisen —</option>
               {memberships.map((entry) => (
                 <option key={entry.membershipId} value={entry.membershipId}>
-                  {entry.userName} ({entry.role} · {entry.jagdzeichen})
+                  {entry.userName} ({formatRoleLabel(entry.role)} · {entry.jagdzeichen})
                 </option>
               ))}
             </select>

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
+import { formatEinrichtungZustand } from "../../../lib/labels";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
 type TypFilter = "alle" | EinrichtungTyp;
@@ -190,7 +191,7 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
                     entry.status === "gut" ? "status-pill status-ok" : "status-pill status-warning"
                   }
                 >
-                  {entry.status}
+                  {formatEinrichtungZustand(entry.status)}
                 </span>
               </div>
 

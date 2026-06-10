@@ -4,6 +4,8 @@ import type { AnsitzSession, FallwildVorgang, GeoPoint, Reviereinrichtung } from
 import { APIProvider, AdvancedMarker, Map, Pin } from "@vis.gl/react-google-maps";
 import { useMemo, useState } from "react";
 
+import { formatEinrichtungZustand } from "../lib/labels";
+
 const MAP_ID_FALLBACK = "hege-revier-map";
 const FALLBACK_CENTER = { lat: 48.339, lng: 16.72 };
 
@@ -52,7 +54,7 @@ export function TerritoryMap({
           description: entry.beschreibung ?? entry.location.label,
           meta: [
             { label: "Typ", value: formatEinrichtungType(entry.type) },
-            { label: "Status", value: formatEinrichtungStatus(entry.status) },
+            { label: "Status", value: formatEinrichtungZustand(entry.status) },
             { label: "Offene Wartungen", value: `${entry.wartung.filter((item) => item.status === "offen").length}` }
           ],
           href: "/app/reviereinrichtungen"
@@ -273,17 +275,6 @@ function formatEinrichtungType(type: Reviereinrichtung["type"]) {
       return "Wildkamera";
     case "wildacker":
       return "Wildacker";
-  }
-}
-
-function formatEinrichtungStatus(status: Reviereinrichtung["status"]) {
-  switch (status) {
-    case "gut":
-      return "gut";
-    case "wartung-faellig":
-      return "Wartung fällig";
-    case "gesperrt":
-      return "gesperrt";
   }
 }
 

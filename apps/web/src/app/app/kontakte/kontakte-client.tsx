@@ -13,6 +13,7 @@ import { useMemo, useState, useTransition } from "react";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { formatRoleLabel } from "../../../lib/labels";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
 interface KontakteClientProps {
@@ -687,22 +688,6 @@ async function requestJson(path: string, options: { method: string; body?: unkno
   return response.json();
 }
 
-function formatRoleLabel(role: RegisteredContact["role"]) {
-  switch (role) {
-    case "revier-admin":
-      return "Admin";
-    case "schriftfuehrer":
-      return "Schriftführung";
-    case "jaeger":
-      return "Jäger";
-    case "ausgeher":
-      return "Ausgeher";
-    case "platform-admin":
-      return "Plattform";
-    default:
-      return role;
-  }
-}
 
 function toTelHref(phone: string) {
   const normalized = phone.replace(/[^\d+]/g, "");

@@ -3,12 +3,12 @@ import { Modal, Pressable, SafeAreaView, ScrollView, Text, View } from "react-na
 import type {
   AnsitzSession,
   EinrichtungTyp,
-  EinrichtungZustand,
   FallwildVorgang,
   Reviermeldung,
   Reviereinrichtung
 } from "@hege/domain";
 
+import { formatEinrichtungZustand } from "../lib/format";
 import {
   formatReviermeldungCategoryLabel,
   formatReviermeldungStatusLabel,
@@ -385,18 +385,6 @@ function formatEinrichtungTyp(type: EinrichtungTyp): string {
   }
 }
 
-function formatEinrichtungZustand(zustand: EinrichtungZustand): string {
-  switch (zustand) {
-    case "gut":
-      return "Gut";
-    case "wartung-faellig":
-      return "Wartung fällig";
-    case "gesperrt":
-      return "Gesperrt";
-    default:
-      return zustand;
-  }
-}
 
 const createStyles = (theme: ThemeColors) =>
   ({
