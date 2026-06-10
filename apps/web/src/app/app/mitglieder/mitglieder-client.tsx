@@ -13,6 +13,7 @@ import { useMemo, useState, useTransition } from "react";
 import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { formatRoleLabel } from "../../../lib/labels";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 import { StateView } from "../../../components/state-view";
 
@@ -512,22 +513,6 @@ function formatStatus(status: MemberInvitation["status"]): string {
   }
 }
 
-function formatRoleLabel(role: Role): string {
-  switch (role) {
-    case "revier-admin":
-      return "Admin";
-    case "schriftfuehrer":
-      return "Schriftführung";
-    case "jaeger":
-      return "Jäger";
-    case "ausgeher":
-      return "Ausgeher";
-    case "platform-admin":
-      return "Plattform";
-    default:
-      return role;
-  }
-}
 
 function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat("de-AT", {

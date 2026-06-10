@@ -12,6 +12,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../../../lib/api-error";
+import { formatRoleLabel } from "../../../../lib/labels";
 
 interface EditFormState {
   title: string;
@@ -184,7 +185,7 @@ export function AufgabeDetailClient({
   // z.B. weil der User das Revier verlassen hat).
   const assigneeNames = aufgabe.assigneeMembershipIds.map((membershipId) => {
     const entry = memberships.find((m) => m.membershipId === membershipId);
-    return entry ? `${entry.userName} (${entry.role} · ${entry.jagdzeichen})` : membershipId;
+    return entry ? `${entry.userName} (${formatRoleLabel(entry.role)} · ${entry.jagdzeichen})` : membershipId;
   });
 
   async function updateStatus(status: AufgabeStatus) {
@@ -304,7 +305,7 @@ export function AufgabeDetailClient({
                 <option value="">— Niemand zugewiesen —</option>
                 {memberships.map((entry) => (
                   <option key={entry.membershipId} value={entry.membershipId}>
-                    {entry.userName} ({entry.role} · {entry.jagdzeichen})
+                    {entry.userName} ({formatRoleLabel(entry.role)} · {entry.jagdzeichen})
                   </option>
                 ))}
               </select>

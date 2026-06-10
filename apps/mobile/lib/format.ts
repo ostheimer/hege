@@ -1,4 +1,4 @@
-import type { DashboardResponse } from "@hege/domain";
+import type { DashboardResponse, EinrichtungZustand } from "@hege/domain";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("de-AT", {
   day: "2-digit",
@@ -83,5 +83,23 @@ export function formatRoleLabel(role: DashboardResponse["membership"]["role"]): 
       return "Plattform";
     default:
       return role;
+  }
+}
+
+/**
+ * Deutsches Anzeige-Label fuer den Einrichtungs-Zustand (F-07).
+ * Genutzt in Listenkarten, Pin-Subtitles und dem Pin-Detail-Sheet,
+ * damit nirgends der rohe Identifier ("wartung-faellig") erscheint.
+ */
+export function formatEinrichtungZustand(zustand: EinrichtungZustand): string {
+  switch (zustand) {
+    case "gut":
+      return "Gut";
+    case "wartung-faellig":
+      return "Wartung fällig";
+    case "gesperrt":
+      return "Gesperrt";
+    default:
+      return zustand;
   }
 }

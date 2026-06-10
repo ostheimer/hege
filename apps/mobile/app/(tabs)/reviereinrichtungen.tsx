@@ -11,7 +11,7 @@ import { SearchInput } from "../../components/search-input";
 import { StateView } from "../../components/state-view";
 import { ViewToggle } from "../../components/view-toggle";
 import { fetchReviereinrichtungenList } from "../../lib/api";
-import { formatDateTime } from "../../lib/format";
+import { formatDateTime, formatEinrichtungZustand } from "../../lib/format";
 import {
   applyReviereinrichtungFilter,
   DEFAULT_REVIEREINRICHTUNG_FILTER,
@@ -88,7 +88,7 @@ export default function ReviereinrichtungenScreen() {
         kind: "einrichtung",
         location: entry.location,
         title: entry.name,
-        subtitle: `${entry.type} · ${entry.status}`
+        subtitle: `${entry.type} · ${formatEinrichtungZustand(entry.status)}`
       })),
     [visibleEntries]
   );
@@ -233,7 +233,7 @@ export default function ReviereinrichtungenScreen() {
                   <Text style={styles.title}>{entry.name}</Text>
                 </View>
                 <Text style={entry.status === "gut" ? styles.okText : styles.warningText}>
-                  {entry.status}
+                  {formatEinrichtungZustand(entry.status)}
                 </Text>
               </View>
               <Text style={styles.copy}>{entry.beschreibung ?? "Keine Beschreibung"}</Text>

@@ -7,6 +7,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { useMemo, useRef, useState, useTransition } from "react";
 
 import { readApiErrorMessage } from "../../../lib/api-error";
+import { formatRoleLabel } from "../../../lib/labels";
 import { buildVersionTimeline } from "../../../lib/version-timeline";
 
 interface MembershipOption {
@@ -376,7 +377,7 @@ export function SitzungDetailClient({ sitzung, memberships, canApprove }: Sitzun
                   />
                   <div>
                     <strong>{entry.userName}</strong>
-                    <span>{`${entry.role} · ${entry.jagdzeichen}`}</span>
+                    <span>{`${formatRoleLabel(entry.role)} · ${entry.jagdzeichen}`}</span>
                   </div>
                 </label>
               ))}

@@ -9,6 +9,7 @@ import { useMemo, useState, useTransition } from "react";
 import { ListFilterChips } from "../../components/list-filter-chips";
 import { ListSearchBar } from "../../components/list-search-bar";
 import { readApiErrorMessage } from "../../lib/api-error";
+import { formatRoleLabel } from "../../lib/labels";
 import { filterBySearch, hasActiveSearch } from "../../lib/list-search";
 import { StateView } from "../../components/state-view";
 
@@ -300,7 +301,7 @@ export function SitzungenClient({ entries, memberships }: SitzungenClientProps) 
                   />
                   <div>
                     <strong>{entry.userName}</strong>
-                    <span>{`${entry.role} · ${entry.jagdzeichen}`}</span>
+                    <span>{`${formatRoleLabel(entry.role)} · ${entry.jagdzeichen}`}</span>
                   </div>
                 </label>
               ))}

@@ -141,7 +141,7 @@ export default function HeuteScreen() {
       setQueueMessage(
         remaining.length === 0
           ? "Eintrag erfolgreich synchronisiert."
-          : `${remaining.length} Queue-Einträge warten weiter auf Synchronisierung.`
+          : `${remaining.length} Einträge warten weiter in der Warteschlange.`
       );
       await loadDashboard({ refreshing: true });
     } catch (retryError) {
@@ -249,7 +249,7 @@ export default function HeuteScreen() {
 
       {queueMessage ? (
         <View style={styles.queueStateCard}>
-          <Text style={styles.queueStateTitle}>Queue-Status</Text>
+          <Text style={styles.queueStateTitle}>Warteschlangen-Status</Text>
           <Text style={styles.queueStateCopy}>{queueMessage}</Text>
         </View>
       ) : null}

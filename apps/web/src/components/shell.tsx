@@ -19,6 +19,7 @@ import {
   getReadNotificationIds,
   subscribeReadIds
 } from "../lib/notifications-read-state";
+import { formatRoleLabel } from "../lib/labels";
 
 /**
  * Sidebar-Icons stammen entweder aus `@hege/icons` (Domain-Icons) oder aus
@@ -185,19 +186,3 @@ export function Shell({ children, viewer, notificationIds }: ShellProps) {
   );
 }
 
-function formatRoleLabel(role: AuthContextResponse["membership"]["role"]) {
-  switch (role) {
-    case "revier-admin":
-      return "Admin";
-    case "schriftfuehrer":
-      return "Schriftführung";
-    case "jaeger":
-      return "Jäger";
-    case "ausgeher":
-      return "Ausgeher";
-    case "platform-admin":
-      return "Plattform";
-    default:
-      return role;
-  }
-}

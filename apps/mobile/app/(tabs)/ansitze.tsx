@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -152,6 +153,7 @@ export default function AnsitzeScreen() {
     try {
       const payload = buildAnsitzPayload(form);
       const result = await submitAnsitzWithOfflineFallback(payload);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       setMessage(
         result.mode === "sent"
@@ -421,6 +423,8 @@ export default function AnsitzeScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={() => void loadAnsitze({ refreshing: true })}
+              tintColor={theme.accent}
+              colors={[theme.accent]}
             />
           }
           contentContainerStyle={styles.listContent}
