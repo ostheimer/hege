@@ -20,7 +20,8 @@ test.describe("Public web and onboarding contracts", () => {
         name: "Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche."
       })
     ).toBeVisible();
-    await expect(page.locator('a[href="/login"]')).toHaveCount(5);
+    // 4 statische Links + je 1 "Bereits Kunde?" pro Self-Serve-Plan (starter, revier).
+    await expect(page.locator('a[href="/login"]')).toHaveCount(6);
     await expect(page.locator('a[href="/registrieren?plan=starter"]')).toBeVisible();
     await expect(page.locator('a[href="/registrieren?plan=revier"]')).toBeVisible();
     await expect(page.locator('a[href="mailto:info@hege.app?subject=hege%20Organisation"]')).toBeVisible();
@@ -54,6 +55,18 @@ test.describe("Public web and onboarding contracts", () => {
     await page.getByRole("button", { name: "Revier anlegen" }).click();
 
     await expect(page).toHaveURL(/\/app\/setup$/);
-    await expect(page.getByRole("button", { name: "Setup abschließen" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Willkommen, Maria Tester." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Revierdaten vervollständigen" })).toBeVisible();
+
+    // Pflicht-Schritt 1 ueber die UI abschliessen — die Registrierung legt das
+    // Revier mit Flaeche 0 an, der Wizard verlangt > 0.
+    await page.locator("#setup-flaeche").fill("850");
+    await page.getByRole("button", { name: "Weiter" }).click();
+    await expect(page.getByRole("heading", { name: "Reviereinrichtungen erfassen" })).toBeVisible();
+
+    // Nach Schritt 1 ist das Setup-Gate offen: /app leitet nicht mehr zurueck.
+    await page.goto("/app");
+    await expect(page).toHaveURL(/\/app$/);
+    await expect(page.getByRole("heading", { name: /^Weidmannsheil/ })).toBeVisible();
   });
 });

@@ -17,7 +17,7 @@ test.describe("Leitstand und Protokolle", () => {
   test("renders the dashboard on desktop and mobile", async ({ page }, testInfo) => {
     await page.goto("/app");
 
-    await expect(page.getByRole("heading", { name: "Was jetzt deine Aufmerksamkeit braucht." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^Weidmannsheil/ })).toBeVisible();
     await expect(page.locator("main")).toHaveScreenshot("dashboard-overview.png", visualSnapshotOptions);
 
     if (testInfo.project.name === "mobile-chromium") {
@@ -44,7 +44,7 @@ test.describe("Leitstand und Protokolle", () => {
 
     await expect(page.getByRole("heading", { name: "Freigegebene Protokolle und Beschlüsse" })).toBeVisible();
     await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toBeVisible();
-    await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toHaveText("Dokument oeffnen");
+    await expect(page.locator('a[href="/api/v1/documents/document-sitzung-2/download"]')).toHaveText("Dokument öffnen");
     await expect(page.locator("main")).toHaveScreenshot("protokolle-overview.png", visualSnapshotOptions);
 
     if (testInfo.project.name === "mobile-chromium") {
