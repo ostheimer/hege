@@ -109,7 +109,7 @@ Der aktuelle Stand wird auf einem echten iPhone gegen Production geprüft: Konta
 
 ## A2 - Echte Karten im Web
 
-> **Status 2026-06-10: erledigt.** Backoffice-Kartenlage auf echte Google Maps umgestellt via `@vis.gl/react-google-maps`; klickbare Marker für Einrichtungen, Ansitze, Fallwild und Reviermeldungen auf dem Dashboard aktiv (PR #50).
+> **Status 2026-06-10: erledigt.** Backoffice-Kartenlage auf echte Google Maps umgestellt via `@vis.gl/react-google-maps`; klickbare Marker für Einrichtungen, Ansitze und Fallwild auf dem Dashboard (`TerritoryPanel`) aktiv; Reviermeldungen-Karte separat unter `/app/reviermeldungen` (PR #50).
 
 ### Ziel
 
