@@ -234,7 +234,7 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 ## Naechste technische Ausbaustufe
 
 1. Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
-2. Google-Maps-Karten auf echte Daten umstellen (Backoffice-Dashboard und Mobile-MapPreview)
+2. ~~Google-Maps-Karten auf echte Daten umstellen (Backoffice-Dashboard und Mobile-MapPreview)~~ ✅ erledigt (PR #50, @vis.gl/react-google-maps + react-native-maps)
 3. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
 4. Android-Emulator-Smoke als Zweitpfad vorbereiten
 5. PDF-Erzeugung weiter haerten

@@ -109,6 +109,8 @@ Der aktuelle Stand wird auf einem echten iPhone gegen Production geprüft: Konta
 
 ## A2 - Echte Karten im Web
 
+> **Status 2026-06-10: erledigt.** Backoffice-Kartenlage auf echte Google Maps umgestellt via `@vis.gl/react-google-maps`; klickbare Marker für Einrichtungen, Ansitze, Fallwild und Reviermeldungen auf dem Dashboard aktiv (PR #50).
+
 ### Ziel
 
 Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf eine echte, Google-Maps-orientierte Karte umgestellt.
@@ -165,6 +167,8 @@ Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf ein
 - Production-Route ist nach Deploy per Browser geprüft.
 
 ## A3 - Echte Karten in der iPhone-App
+
+> **Status 2026-06-10: im Kern erledigt.** `react-native-maps` 1.20.1 mit tappbaren Pins in allen Locations-Tabs eingeführt (PR #50). Kleiner offener Rest: Mein-Standort-Button + explizite Standortfreigabe-Zustände in `EntityMap`; tote `map-preview.tsx`/`map-stage.tsx` entfernen.
 
 ### Ziel
 

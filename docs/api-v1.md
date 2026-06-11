@@ -22,12 +22,21 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - `POST /api/v1/auth/refresh`
 - `POST /api/v1/auth/logout`
 - `GET /api/v1/me`
+- `POST /api/v1/auth/change-pin`
 
 `POST /api/v1/auth/login` akzeptiert:
 
 - `identifier` als E-Mail oder Benutzername
 - `pin` als vierstellige Zeichenkette
 - optional `membershipId`
+
+`POST /api/v1/auth/change-pin` ändert die PIN des authentifizierten Nutzers:
+
+- `currentPin` zur Verifikation verpflichtend
+- `newPin` als neue vierstellige PIN verpflichtend
+- erfordert aktive Sitzung
+- führt Scrypt-Rehash der neuen PIN durch
+- Demo-Store lehnt die Anfrage ab
 
 ### Revier-Scope
 

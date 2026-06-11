@@ -41,7 +41,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Web-Mitgliederverwaltung `/app/mitglieder` — Mitgliederliste, Rollen-Zuweisung und Einladungsstatus im Backoffice
 - Public Landing, Login, Registrierung und Setup-Flow mit neuem `hege`-Logo; die Website ist auf `https://hege.app` produktiv geprüft
 - Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
-- Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
+- Mobile-Screen `Meldungen` für Reviermeldungen und Aufgaben (erreichbar über das Mehr-Menü, implementiert in `revierarbeit.tsx`): Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
 - lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads
 - dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert

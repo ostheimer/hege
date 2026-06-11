@@ -208,8 +208,10 @@ Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps.
 - Dashboard, Ansitze und Fallwild nutzen bereits denselben Vercel-native API-Pfad unter `https://hege.app/api/v1`
 - Nach erfolgreichem PIN-Login kann eine gespeicherte Sitzung lokal per Face ID, Touch ID oder Geräteprüfung entsperrt werden; der iPhone-Flow wurde am 2026-05-06 bestätigt.
 - Fallwild-Fotos nutzen Queue v2 mit separaten Upload-Einträgen, Retry-Backoff, Konfliktstatus und manuellen Aktionen fuer problematische Eintraege
-- Reviermeldungen und Aufgaben nutzen den Mobile-Tab `Meldungen`; dort koennen Meldungen erfasst, Aufgaben gelesen und Aufgabenstatus geaendert werden
+- Die aktuelle Tab-Struktur (PR #168) umfasst vier sichtbare Tabs: **Heute**, **Ansitze**, **Fallwild**, **Mehr**. Über das Mehr-Sheet erreichbar: Reviereinrichtungen, Protokolle, Kontakte, Meldungen/Revierarbeit, Benachrichtigungen und Profil.
+- Reviermeldungen und Aufgaben sind über das Mehr-Menü unter `Meldungen` erreichbar (`revierarbeit.tsx`); dort können Meldungen erfasst, Aufgaben gelesen und Aufgabenstatus geändert werden.
 - Der lokale iPhone-Smoke vom 2026-05-05 bestätigt für `Meldungen` Login, Listenladen, Statusänderung auf `In Arbeit` und Speichern einer Reviermeldung gegen den lokalen API-Stand.
+- Der **Profil-Screen** ist über die tappbare Profilzeile im Mehr-Tab erreichbar (`(tabs)/profil.tsx`) und enthält PIN-Änderung, Face-ID-Toggle, Avatar, Erscheinungsbild-Umschalter (Dark/Light/System) und Konto-Verwaltung.
 - Manuelle Aktualisierung und Pull-to-Refresh bleiben der verbindliche Aktualisierungspfad fuer v1
 
 ## Native Abnahme
