@@ -10,6 +10,7 @@ import { SearchInput } from "../../components/search-input";
 import { StateView } from "../../components/state-view";
 import { formatDateTime } from "../../lib/format";
 import { fetchProtokollDetail, fetchProtokolleList } from "../../lib/api";
+import { resolveSelectedProtokollId } from "../../lib/protokoll-selection.helpers";
 import {
   applyProtokollFilter,
   DEFAULT_PROTOKOLL_FILTER,
@@ -57,8 +58,9 @@ export default function ProtokolleScreen() {
       const entries = await fetchProtokolleList();
       setProtokolle(entries);
 
-      if (entries.length > 0) {
-        const nextSelected = selectedId ?? entries[0].id;
+      const nextSelected = resolveSelectedProtokollId(entries, selectedId);
+
+      if (nextSelected) {
         setSelectedId(nextSelected);
         await loadDetail(nextSelected);
       } else {
