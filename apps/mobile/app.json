@@ -32,8 +32,11 @@
       "runtimeVersion": "1.0.1",
       "infoPlist": {
         "CFBundleDevelopmentRegion": "de",
-        "CFBundleLocalizations": ["de"],
+        "CFBundleLocalizations": [
+          "de"
+        ],
         "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "hege nutzt die Kamera, um Fallwild direkt vor Ort zu fotografieren.",
         "NSFaceIDUsageDescription": "hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren.",
         "NSLocationWhenInUseUsageDescription": "hege nutzt den Standort nur, um Fallwild-Vorgänge im Revier zu dokumentieren.",
         "NSPhotoLibraryUsageDescription": "hege benötigt Zugriff auf deine Fotos, um Fallwild-Fotos auszuwählen."

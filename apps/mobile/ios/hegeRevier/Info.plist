@@ -61,6 +61,8 @@
     <string>Allow $(PRODUCT_NAME) to access your location</string>
     <key>NSLocationAlwaysUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your location</string>
+    <key>NSCameraUsageDescription</key>
+    <string>hege nutzt die Kamera, um Fallwild direkt vor Ort zu fotografieren.</string>
     <key>NSFaceIDUsageDescription</key>
     <string>hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
