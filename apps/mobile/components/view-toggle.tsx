@@ -19,6 +19,12 @@ interface ViewToggleProps<K extends string> {
   options: ReadonlyArray<ViewToggleOption<K>>;
   onChange: (key: K) => void;
   accessibilityLabel?: string;
+  /**
+   * Volle Breite statt links-buendiger Pill. Fuer einen primaeren
+   * Section-Switch (z.B. "Erfassen | Bestand"), der die Seite gliedert —
+   * die Segmente teilen sich dann gleichmaessig die Zeile.
+   */
+  block?: boolean;
 }
 
 /**
@@ -38,7 +44,8 @@ export function ViewToggle<K extends string>({
   value,
   options,
   onChange,
-  accessibilityLabel
+  accessibilityLabel,
+  block = false
 }: ViewToggleProps<K>) {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
@@ -47,7 +54,7 @@ export function ViewToggle<K extends string>({
     <View
       accessibilityRole="tablist"
       accessibilityLabel={accessibilityLabel}
-      style={styles.bar}
+      style={[styles.bar, block ? styles.barBlock : null]}
     >
       {options.map((option) => {
         const isActive = option.key === value;
@@ -67,6 +74,7 @@ export function ViewToggle<K extends string>({
             }}
             style={({ pressed }) => [
               styles.segment,
+              block ? styles.segmentBlock : null,
               isActive ? styles.segmentActive : null,
               pressed && !isActive ? styles.segmentPressed : null
             ]}
@@ -100,6 +108,9 @@ const createStyles = (theme: ThemeColors) =>
       // hairline-Look durch low-Opacity-Muted-Rand.
       alignSelf: "flex-start"
     },
+    barBlock: {
+      alignSelf: "stretch"
+    },
     segment: {
       flexDirection: "row",
       alignItems: "center",
@@ -108,6 +119,10 @@ const createStyles = (theme: ThemeColors) =>
       paddingHorizontal: 14,
       borderRadius: radius.full,
       backgroundColor: "transparent"
+    },
+    segmentBlock: {
+      flex: 1,
+      justifyContent: "center"
     },
     segmentActive: {
       backgroundColor: theme.card,
