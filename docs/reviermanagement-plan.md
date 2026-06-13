@@ -133,19 +133,27 @@ Details:
 Bereits vorhanden:
 
 - Shared Domain Package mit Typen, Demo-Daten und Fachregeln
-- sichtbares Web-Grundgeruest fuer Dashboard und Fachseiten
-- sichtbare Mobile-App mit Kernscreens
-- Demo-API mit REST-Ressourcen als Uebergangspfad
-- lokale Infrastrukturdefinition fuer PostGIS und MinIO
+- sichtbares Web-Backoffice fuer Dashboard und alle Fachseiten
+- sichtbare Mobile-App mit Kernscreens und nativer Kartenintegration
+- produktive API unter `apps/web` (Vercel-native Route Handler)
+- Cloudflare R2 fuer Medien-Uploads
+
+Umgesetzt (Stand 2026-06-13):
+
+- produktive Persistenz: Drizzle + Neon PostgreSQL, Cloudflare R2
+- Authentifizierung und Rollenpruefung: PIN-Login, JWT-Sessions, serverseitige Guards
+- Medien-Uploads und PDF-Generierung: R2-Foto-Upload mit Queue v2, PDF-Download fuer Protokolle
+- produktionsreife Offline-Synchronisierung: Queue v2 fuer Ansitz und Fallwild (Retry-Backoff, Konfliktstatus, manuelle Aktionen)
+- echte Kartenintegration: Google Maps (`@vis.gl/react-google-maps`) im Web, `react-native-maps` in der Mobile-App
+- Reviermeldungen und Aufgaben v1: CRUD, Rollen-Sichtbarkeit, Mobile-Tab `Meldungen`
 
 Noch offen:
 
-- produktive Persistenz
-- Authentifizierung und Rollenpruefung
-- Medien-Uploads und PDF-Generierung
-- produktionsreife Offline-Synchronisierung
-- echte Kartenintegration
-- fachlich ausgearbeitetes Modell fuer Reviermeldungen, Aufgaben, Veranstaltungen und zielgruppenbasierte Kommunikation
+- zentrale Rollen-Matrix in `packages/domain` extrahieren
+- Veranstaltungsmodul mit Ankuendigung, Treffpunkt, Erinnerungen und Teilnahmebestaetigung
+- zielgruppenbasierte Kommunikation (Nachrichten nach Rollen und Empfaengergruppen)
+- WhatsApp-Anstoss als optionaler Ausleitungskanal
+- Passkeys/WebAuthn fuer serverseitigen Login
 
 ## Umsetzung
 

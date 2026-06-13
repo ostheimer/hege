@@ -36,14 +36,14 @@ Server-Seitige Rollen-Guards: [apps/web/src/server/auth/guards.ts:25-36](../apps
 | `/app/sitzungen` | `schriftfuehrer`, `revier-admin` |
 | `/app/sitzungen/[id]` | `schriftfuehrer`, `revier-admin` |
 
-**Hinweis:** Die Sidebar zeigt aktuell auch nicht-erlaubte Links. Nicht autorisierte Rollen werden bei Zugriff still auf `/app` redirected. Siehe [ui-audit-2026-05-07.md F-01](./ui-audit-2026-05-07.md#f-01-sidebar-zeigt-rollenfremde-links-und-redirected-stillschweigend--kritisch).
+**Hinweis (aktualisiert 2026-06-13):** Rollen-Guard leitet seit PR #171 sichtbar auf `/app?error=keine-berechtigung` mit Forbidden-Banner um (e2e-abgesichert). Offener Rest: zentrale Rollen-Matrix in `packages/domain` extrahieren (löst auch die `platform-admin`-Inkonsistenz bei Aufgaben/Reviermeldungen). Siehe [ui-audit-2026-05-07.md F-01](./ui-audit-2026-05-07.md#f-01-sidebar-zeigt-rollenfremde-links-und-redirected-stillschweigend--kritisch).
 
 ## Mutationen je Rolle
 
 Aus [apps/web/src/server/modules/sitzungen/service.ts:48-159](../apps/web/src/server/modules/sitzungen/service.ts#L48-L159):
 
 | Aktion | Erlaubt |
-|--------|---------|
+|--------|----------|
 | Sitzung anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Version anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Freigeben | `revier-admin` |

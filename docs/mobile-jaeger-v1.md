@@ -14,7 +14,7 @@ Die App ist in v1 ein Einsatz- und Erfassungswerkzeug, kein vollstaendiges Jagdp
 ## In Scope fuer v1
 
 - Login und Revier-Auswahl
-- lokales Entsperren einer gespeicherten Sitzung per Face ID, Touch ID oder Geräteprüfung
+- lokales Entsperren einer gespeicherten Sitzung per Face ID, Touch ID oder Geraetepruefung
 - Startseite `Heute im Revier`
 - Ansitz starten und beenden
 - Liste aktiver Ansitze mit manueller Aktualisierung
@@ -28,10 +28,10 @@ Die App ist in v1 ein Einsatz- und Erfassungswerkzeug, kein vollstaendiges Jagdp
 ## Nicht in Scope fuer v1
 
 - komplexe Wartungsplanung
-- vollstaendiges Aufgabenmanagement
+- vollstaendiges Aufgabenmanagement (Basisversion mit Mobile-Tab `Meldungen` umgesetzt; erweiterte Priorisierung, Kalenderansicht und Empfaengergruppenmodell folgen spaeter)
 - Gastjaeger-Verwaltung
 - tiefe Kartenbearbeitung
-- generische Offline-Synchronisierung fuer alle Module
+- generische Offline-Synchronisierung fuer alle Module (Queue v2 deckt Ansitz und Fallwild ab; weitere Module folgen in Ausbaustufen)
 
 ## Hauptscreens
 
@@ -206,10 +206,10 @@ Kartenfunktionen in der mobilen App orientieren sich verbindlich an Google Maps.
 ## Technischer Stand
 
 - Dashboard, Ansitze und Fallwild nutzen bereits denselben Vercel-native API-Pfad unter `https://hege.app/api/v1`
-- Nach erfolgreichem PIN-Login kann eine gespeicherte Sitzung lokal per Face ID, Touch ID oder Geräteprüfung entsperrt werden; der iPhone-Flow wurde am 2026-05-06 bestätigt.
-- Fallwild-Fotos nutzen Queue v2 mit separaten Upload-Einträgen, Retry-Backoff, Konfliktstatus und manuellen Aktionen fuer problematische Eintraege
+- Nach erfolgreichem PIN-Login kann eine gespeicherte Sitzung lokal per Face ID, Touch ID oder Geraetepruefung entsperrt werden; der iPhone-Flow wurde am 2026-05-06 bestaetigt.
+- Fallwild-Fotos nutzen Queue v2 mit separaten Upload-Eintraegen, Retry-Backoff, Konfliktstatus und manuellen Aktionen fuer problematische Eintraege
 - Reviermeldungen und Aufgaben nutzen den Mobile-Tab `Meldungen`; dort koennen Meldungen erfasst, Aufgaben gelesen und Aufgabenstatus geaendert werden
-- Der lokale iPhone-Smoke vom 2026-05-05 bestätigt für `Meldungen` Login, Listenladen, Statusänderung auf `In Arbeit` und Speichern einer Reviermeldung gegen den lokalen API-Stand.
+- Der lokale iPhone-Smoke vom 2026-05-05 bestaetigt fuer `Meldungen` Login, Listenladen, Statusaenderung auf `In Arbeit` und Speichern einer Reviermeldung gegen den lokalen API-Stand.
 - Manuelle Aktualisierung und Pull-to-Refresh bleiben der verbindliche Aktualisierungspfad fuer v1
 
 ## Native Abnahme
