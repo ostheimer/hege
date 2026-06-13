@@ -62,6 +62,8 @@ import { useThemedStyles } from "../../lib/use-themed-styles";
 import { spacing, radius } from "@hege/tokens";
 
 type ViewMode = "liste" | "karte";
+/** Oberste Gliederung des Screens: Formular vs. vorhandene Eintraege. */
+type CaptureSection = "erfassen" | "bestand";
 const MAP_HEIGHT = 380;
 
 interface ReviermeldungFormState {
@@ -139,6 +141,7 @@ export default function RevierarbeitScreen() {
   const [updatingMeldungStatusId, setUpdatingMeldungStatusId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [section, setSection] = useState<CaptureSection>("erfassen");
   const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [aufgabeFilter, setAufgabeFilter] = useState<AufgabeFilterState>(DEFAULT_AUFGABE_FILTER);
@@ -342,7 +345,28 @@ export default function RevierarbeitScreen() {
           </View>
         )
       }
+      refresh={{ refreshing: isRefreshing, onRefresh: () => void loadRevierarbeit({ refreshing: true }) }}
     >
+      <ViewToggle<CaptureSection>
+        block
+        value={section}
+        onChange={setSection}
+        accessibilityLabel="Zwischen Erfassen und Bestand umschalten"
+        options={[
+          { key: "erfassen", label: "Erfassen", icon: "add-circle-outline" },
+          { key: "bestand", label: "Bestand", icon: "albums-outline" }
+        ]}
+      />
+
+      {message ? (
+        <FeedbackBanner tone="info" title="Status" description={message} />
+      ) : null}
+
+      {error ? (
+        <FeedbackBanner tone="danger" title="Revierarbeit nicht verfügbar" description={error} />
+      ) : null}
+
+      {section === "erfassen" ? (
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neue Reviermeldung</Text>
         <Text style={styles.sectionCopy}>Kurztext reicht. Standort ist optional; Fotos folgen im nächsten Medien-Slice.</Text>
@@ -433,35 +457,19 @@ export default function RevierarbeitScreen() {
           {isSubmitting ? <ActivityIndicator color={theme.onAccent} /> : <Text style={styles.primaryButtonText}>Meldung speichern</Text>}
         </Pressable>
       </View>
-
-      <View style={styles.toolbar}>
-        <ViewToggle<ViewMode>
-          value={mode}
-          onChange={setMode}
-          accessibilityLabel="Anzeige umschalten"
-          options={[
-            { key: "liste", label: "Liste", icon: "list" },
-            { key: "karte", label: "Karte", icon: "map" }
-          ]}
-        />
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Revierarbeit aktualisieren"
-          style={[styles.refreshButton, isRefreshing ? styles.buttonDisabled : null]}
-          onPress={() => void loadRevierarbeit({ refreshing: true })}
-          disabled={isRefreshing}
-        >
-          {isRefreshing ? <ActivityIndicator color={theme.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
-        </Pressable>
-      </View>
-
-      {message ? (
-        <FeedbackBanner tone="info" title="Status" description={message} />
       ) : null}
 
-      {error ? (
-        <FeedbackBanner tone="danger" title="Revierarbeit nicht verfügbar" description={error} />
-      ) : null}
+      {section === "bestand" ? (
+      <View style={styles.bestandStack}>
+      <ViewToggle<ViewMode>
+        value={mode}
+        onChange={setMode}
+        accessibilityLabel="Liste oder Karte anzeigen"
+        options={[
+          { key: "liste", label: "Liste", icon: "list" },
+          { key: "karte", label: "Karte", icon: "map" }
+        ]}
+      />
 
       {isLoading ? (
         <StateView
@@ -705,12 +713,15 @@ export default function RevierarbeitScreen() {
           ))}
         </ScrollView>
       ) : null}
+      </View>
+      ) : null}
 
       <PinDetailSheet
         pin={selectedPin}
         onClose={() => setSelectedPin(null)}
         onOpenDetails={() => {
           setSelectedPin(null);
+          setSection("bestand");
           setMode("liste");
         }}
       />
@@ -811,6 +822,9 @@ const createStyles = (theme: ThemeColors) =>
     gap: 12,
     paddingBottom: spacing.lg
   },
+  bestandStack: {
+    gap: 12
+  },
   filterSection: {
     gap: 10,
     padding: 14,
@@ -859,22 +873,6 @@ const createStyles = (theme: ThemeColors) =>
   },
   statPillLabelMuted: {
     color: theme.accent
-  },
-  toolbar: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-end",
-    gap: 10
-  },
-  refreshButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: radius.full,
-    backgroundColor: theme.card
-  },
-  refreshButtonText: {
-    color: theme.ink,
-    fontWeight: "600"
   },
   formCard: { ...cardSurface(theme), gap: 14 },
   sectionLabel: { ...eyebrowText(theme) },

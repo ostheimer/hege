@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -135,6 +136,8 @@ type FeedbackState = {
 } | null;
 
 type ViewMode = "liste" | "karte";
+/** Oberste Gliederung des Screens: Formular vs. vorhandene Eintraege. */
+type CaptureSection = "erfassen" | "bestand";
 const MAP_HEIGHT = 380;
 
 export default function FallwildScreen() {
@@ -154,6 +157,7 @@ export default function FallwildScreen() {
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [locationHint, setLocationHint] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [section, setSection] = useState<CaptureSection>("erfassen");
   const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<FallwildFilterState>(DEFAULT_FALLWILD_FILTER);
@@ -203,7 +207,7 @@ export default function FallwildScreen() {
         kind: "fallwild",
         location: entry.location,
         title: entry.gemeinde ?? entry.location.label ?? "Fallwild",
-        subtitle: `${entry.wildart} · ${entry.bergungsStatus}`
+        subtitle: `${entry.wildart} · ${formatBergungsStatusLabel(entry.bergungsStatus)}`
       })),
     [visibleFallwild]
   );
@@ -509,6 +513,7 @@ export default function FallwildScreen() {
     (entry) => entry.kind === "fallwild-create" || entry.kind === "fallwild-photo-upload"
   );
   const queueSummary = summarizeOfflineQueue(queueEntries);
+  const photosDisabled = attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting;
 
   return (
     <ScreenShell
@@ -516,7 +521,20 @@ export default function FallwildScreen() {
       title="Fallwild mobil erfassen."
       subtitle="Zeitpunkt, GPS, Wildart und bis zu drei Bibliotheksfotos werden direkt oder offline erfasst."
       aside={<QueueStatusPill count={queueSummary.totalCount} failedCount={queueSummary.failedCount} />}
+      refresh={{ refreshing: isRefreshing, onRefresh: () => void loadFallwild({ refreshing: true }) }}
     >
+      <ViewToggle<CaptureSection>
+        block
+        value={section}
+        onChange={setSection}
+        accessibilityLabel="Zwischen Erfassen und Bestand umschalten"
+        options={[
+          { key: "erfassen", label: "Erfassen", icon: "add-circle-outline" },
+          { key: "bestand", label: "Bestand", icon: "albums-outline" }
+        ]}
+      />
+
+      {section === "erfassen" ? (
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neuer Fallwild-Vorgang</Text>
         <Text style={styles.sectionCopy}>Die Erfassung bleibt im Feld schnell bedienbar; bei Verbindungsproblemen werden Vorgänge vorgemerkt und automatisch nachgereicht.</Text>
@@ -695,49 +713,48 @@ export default function FallwildScreen() {
           <View>
             <Text style={styles.label}>Fotos</Text>
             <Text style={styles.helperCopy}>
-              Vor Ort aufnehmen oder aus der Bibliothek wählen, Qualität 0,7, maximal {MAX_FALLWILD_PHOTOS} Bilder.
+              Direkt fotografieren oder aus der Mediathek wählen — bis zu {MAX_FALLWILD_PHOTOS} Fotos.
             </Text>
           </View>
-          <View style={styles.photoActionsRow}>
+          <View style={styles.photoTilesRow}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Foto aufnehmen"
               testID="fallwild-photo-camera-button"
-              style={[
-                styles.photoCameraButton,
-                attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting ? styles.buttonDisabled : null
-              ]}
+              style={[styles.photoTile, photosDisabled ? styles.buttonDisabled : null]}
               onPress={() => void handleCapturePhoto()}
-              disabled={attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting}
+              disabled={photosDisabled}
             >
               {isPickingPhotos ? (
-                <ActivityIndicator color={theme.onAccent} />
+                <ActivityIndicator color={theme.accent} />
               ) : (
-                <Text style={styles.photoCameraButtonText}>
-                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Foto aufnehmen"}
-                </Text>
+                <>
+                  <Ionicons name="camera" size={26} color={theme.accent} />
+                  <Text style={styles.photoTileText}>Foto aufnehmen</Text>
+                </>
               )}
             </Pressable>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Aus Bibliothek wählen"
+              accessibilityLabel="Aus Mediathek wählen"
               testID="fallwild-photo-picker-button"
-              style={[
-                styles.photoPickerButton,
-                attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting ? styles.buttonDisabled : null
-              ]}
+              style={[styles.photoTile, photosDisabled ? styles.buttonDisabled : null]}
               onPress={() => void handleAddPhotos()}
-              disabled={attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting}
+              disabled={photosDisabled}
             >
               {isPickingPhotos ? (
                 <ActivityIndicator color={theme.ink} />
               ) : (
-                <Text style={styles.photoPickerButtonText}>
-                  {attachments.length >= MAX_FALLWILD_PHOTOS ? "Maximal erreicht" : "Aus Bibliothek"}
-                </Text>
+                <>
+                  <Ionicons name="images-outline" size={26} color={theme.ink} />
+                  <Text style={styles.photoTileText}>Mediathek</Text>
+                </>
               )}
             </Pressable>
           </View>
+          {attachments.length >= MAX_FALLWILD_PHOTOS ? (
+            <Text style={styles.helperCopy}>Maximal {MAX_FALLWILD_PHOTOS} Fotos erreicht.</Text>
+          ) : null}
 
           {attachments.length > 0 ? (
             <View style={styles.photoPreviewList}>
@@ -781,53 +798,24 @@ export default function FallwildScreen() {
           <FeedbackBanner tone="danger" title="Fallwild nicht verfügbar" description={error} />
         ) : null}
 
-        <View style={styles.actionRow}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Fallwild speichern"
-            style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
-            onPress={() => void handleSubmit()}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <ActivityIndicator color={theme.onAccent} />
-            ) : (
-              <Text style={styles.primaryButtonText}>Fallwild speichern</Text>
-            )}
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Fallwild-Warteschlange senden"
-            style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
-            onPress={() => void handleQueueSync()}
-            disabled={queue.isSyncing}
-          >
-            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Warteschlange senden"}</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={styles.toolbar}>
-        <ViewToggle<ViewMode>
-          value={mode}
-          onChange={setMode}
-          accessibilityLabel="Anzeige umschalten"
-          options={[
-            { key: "liste", label: "Liste", icon: "list" },
-            { key: "karte", label: "Karte", icon: "map" }
-          ]}
-        />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Fallwild aktualisieren"
-          style={[styles.refreshButton, isRefreshing ? styles.buttonDisabled : null]}
-          onPress={() => void loadFallwild({ refreshing: true })}
-          disabled={isRefreshing}
+          accessibilityLabel="Fallwild speichern"
+          style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
+          onPress={() => void handleSubmit()}
+          disabled={isSubmitting}
         >
-          {isRefreshing ? <ActivityIndicator color={theme.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
+          {isSubmitting ? (
+            <ActivityIndicator color={theme.onAccent} />
+          ) : (
+            <Text style={styles.primaryButtonText}>Fallwild speichern</Text>
+          )}
         </Pressable>
       </View>
+      ) : null}
 
+      {section === "bestand" ? (
+      <View style={styles.bestandStack}>
       <View style={styles.filterSection}>
         <SearchInput
           value={filter.search}
@@ -892,6 +880,16 @@ export default function FallwildScreen() {
         ) : null}
       </View>
 
+      <ViewToggle<ViewMode>
+        value={mode}
+        onChange={setMode}
+        accessibilityLabel="Liste oder Karte anzeigen"
+        options={[
+          { key: "liste", label: "Liste", icon: "list" },
+          { key: "karte", label: "Karte", icon: "map" }
+        ]}
+      />
+
       {isLoading ? (
         <StateView
           mode="loading"
@@ -903,6 +901,18 @@ export default function FallwildScreen() {
       {queueEntries.length > 0 ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Offline-Vormerkungen</Text>
+          <Text style={styles.queueRowCopy}>
+            Diese Vorgänge sind gespeichert und werden automatisch gesendet, sobald wieder Verbindung besteht.
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Warteschlange jetzt senden"
+            style={[styles.queueSyncButton, queue.isSyncing ? styles.buttonDisabled : null]}
+            onPress={() => void handleQueueSync()}
+            disabled={queue.isSyncing}
+          >
+            <Text style={styles.queueSyncButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Jetzt senden"}</Text>
+          </Pressable>
           {queueEntries.slice(0, 3).map((entry) => (
             <View key={entry.id} style={styles.queueRow}>
               <Text style={styles.queueRowTitle}>{entry.title}</Text>
@@ -1017,12 +1027,15 @@ export default function FallwildScreen() {
           ))}
         </ScrollView>
       ) : null}
+      </View>
+      ) : null}
 
       <PinDetailSheet
         pin={selectedPin}
         onClose={() => setSelectedPin(null)}
         onOpenDetails={() => {
           setSelectedPin(null);
+          setSection("bestand");
           setMode("liste");
         }}
       />
@@ -1147,8 +1160,14 @@ function formatAltersklasseLabel(value: CreateFallwildRequest["altersklasse"]) {
 
 function formatBergungsStatusLabel(value: CreateFallwildRequest["bergungsStatus"]) {
   switch (value) {
+    case "erfasst":
+      return "Erfasst";
+    case "geborgen":
+      return "Geborgen";
+    case "entsorgt":
+      return "Entsorgt";
     case "an-behoerde-gemeldet":
-      return "an Behörde gemeldet";
+      return "An Behörde gemeldet";
     default:
       return value;
   }
@@ -1158,13 +1177,6 @@ const createStyles = (theme: ThemeColors) =>
   ({
   listScroll: {
     maxHeight: 520
-  },
-  toolbar: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10
   },
   filterSection: {
     gap: 10,
@@ -1214,21 +1226,8 @@ const createStyles = (theme: ThemeColors) =>
     lineHeight: 18,
     color: theme.muted
   },
-  refreshButton: {
-    minWidth: 132,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: radius.full,
-    backgroundColor: theme.card
-  },
   buttonDisabled: {
     opacity: 0.7
-  },
-  refreshButtonText: {
-    color: theme.ink,
-    fontWeight: "600"
   },
   listContent: {
     gap: 12,
@@ -1299,42 +1298,44 @@ const createStyles = (theme: ThemeColors) =>
     gap: 10,
     paddingTop: spacing.xs
   },
-  photoActionsRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10
-  },
   helperCopy: {
     fontSize: 13,
     lineHeight: 18,
     color: theme.muted
   },
-  photoCameraButton: {
+  bestandStack: {
+    gap: 12
+  },
+  photoTilesRow: {
+    flexDirection: "row",
+    gap: 10
+  },
+  photoTile: {
     flex: 1,
-    minHeight: 48,
-    paddingHorizontal: 14,
+    minHeight: 86,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: radius.full,
-    backgroundColor: theme.accent
-  },
-  photoCameraButtonText: {
-    color: theme.onAccent,
-    fontSize: 14,
-    fontWeight: "700"
-  },
-  photoPickerButton: {
-    flex: 1,
-    minWidth: 138,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radius.full,
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 18,
     backgroundColor: theme.surfaceMuted
   },
-  photoPickerButtonText: {
-    color: theme.ink,
+  photoTileText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: theme.ink
+  },
+  queueSyncButton: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 14,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+    backgroundColor: theme.accent,
+    marginBottom: spacing.xs
+  },
+  queueSyncButtonText: {
+    color: theme.onAccent,
     fontSize: 13,
     fontWeight: "700"
   },
@@ -1382,11 +1383,6 @@ const createStyles = (theme: ThemeColors) =>
     fontSize: 12,
     fontWeight: "700"
   },
-  actionRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10
-  },
   primaryButton: {
     minHeight: 52,
     paddingHorizontal: 18,
@@ -1399,19 +1395,6 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.onAccent,
     fontSize: 16,
     fontWeight: "700"
-  },
-  secondaryButton: {
-    minHeight: 52,
-    paddingHorizontal: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 16,
-    backgroundColor: theme.surfaceMuted
-  },
-  secondaryButtonText: {
-    color: theme.ink,
-    fontSize: 15,
-    fontWeight: "600"
   },
   stateCard: { ...cardSurface(theme), gap: 6 },
   stateTitle: {

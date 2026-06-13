@@ -48,6 +48,8 @@ import { useThemedStyles } from "../../lib/use-themed-styles";
 import { spacing, radius } from "@hege/tokens";
 
 type ViewMode = "liste" | "karte";
+/** Oberste Gliederung des Screens: Formular vs. vorhandene Eintraege. */
+type CaptureSection = "erfassen" | "bestand";
 const MAP_HEIGHT = 380;
 
 interface AnsitzFormState {
@@ -77,6 +79,7 @@ export default function AnsitzeScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [section, setSection] = useState<CaptureSection>("erfassen");
   const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<AnsitzFilterState>(DEFAULT_ANSITZ_FILTER);
@@ -203,7 +206,20 @@ export default function AnsitzeScreen() {
       title="Ansitz mobil erfassen."
       subtitle="Standort, Koordinaten und Notiz werden online direkt an die API gesendet oder offline vorgemerkt."
       aside={<QueueStatusPill count={queueEntries.length} failedCount={failedQueueCount} />}
+      refresh={{ refreshing: isRefreshing, onRefresh: () => void loadAnsitze({ refreshing: true }) }}
     >
+      <ViewToggle<CaptureSection>
+        block
+        value={section}
+        onChange={setSection}
+        accessibilityLabel="Zwischen Erfassen und Bestand umschalten"
+        options={[
+          { key: "erfassen", label: "Erfassen", icon: "add-circle-outline" },
+          { key: "bestand", label: "Bestand", icon: "albums-outline" }
+        ]}
+      />
+
+      {section === "erfassen" ? (
       <View style={styles.formCard}>
         <Text style={styles.sectionLabel}>Neuer Ansitz</Text>
         <Text style={styles.sectionCopy}>Die Erfassung bleibt bewusst knapp und funktioniert auch bei schlechter Verbindung.</Text>
@@ -276,49 +292,20 @@ export default function AnsitzeScreen() {
           <FeedbackBanner tone="danger" title="Ansitz nicht verfügbar" description={error} />
         ) : null}
 
-        <View style={styles.actionRow}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ansitz speichern"
-            style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
-            onPress={() => void handleSubmit()}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? <ActivityIndicator color={theme.onAccent} /> : <Text style={styles.primaryButtonText}>Ansitz speichern</Text>}
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Ansitz-Warteschlange senden"
-            style={[styles.secondaryButton, queue.isSyncing ? styles.buttonDisabled : null]}
-            onPress={() => void handleQueueSync()}
-            disabled={queue.isSyncing}
-          >
-            <Text style={styles.secondaryButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Warteschlange senden"}</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      <View style={styles.toolbar}>
-        <ViewToggle<ViewMode>
-          value={mode}
-          onChange={setMode}
-          accessibilityLabel="Anzeige umschalten"
-          options={[
-            { key: "liste", label: "Liste", icon: "list" },
-            { key: "karte", label: "Karte", icon: "map" }
-          ]}
-        />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Ansitze aktualisieren"
-          style={[styles.refreshButton, isRefreshing ? styles.buttonDisabled : null]}
-          onPress={() => void loadAnsitze({ refreshing: true })}
-          disabled={isRefreshing}
+          accessibilityLabel="Ansitz speichern"
+          style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
+          onPress={() => void handleSubmit()}
+          disabled={isSubmitting}
         >
-          {isRefreshing ? <ActivityIndicator color={theme.ink} /> : <Text style={styles.refreshButtonText}>Aktualisieren</Text>}
+          {isSubmitting ? <ActivityIndicator color={theme.onAccent} /> : <Text style={styles.primaryButtonText}>Ansitz speichern</Text>}
         </Pressable>
       </View>
+      ) : null}
 
+      {section === "bestand" ? (
+      <View style={styles.bestandStack}>
       <View style={styles.filterSection}>
         <SearchInput
           value={filter.search}
@@ -379,6 +366,16 @@ export default function AnsitzeScreen() {
         ) : null}
       </View>
 
+      <ViewToggle<ViewMode>
+        value={mode}
+        onChange={setMode}
+        accessibilityLabel="Liste oder Karte anzeigen"
+        options={[
+          { key: "liste", label: "Liste", icon: "list" },
+          { key: "karte", label: "Karte", icon: "map" }
+        ]}
+      />
+
       {isLoading ? (
         <StateView
           mode="loading"
@@ -390,6 +387,18 @@ export default function AnsitzeScreen() {
       {queueEntries.length > 0 ? (
         <View style={styles.stateCard}>
           <Text style={styles.stateTitle}>Offline-Vormerkungen</Text>
+          <Text style={styles.queueRowCopy}>
+            Diese Ansitze sind gespeichert und werden automatisch gesendet, sobald wieder Verbindung besteht.
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Warteschlange jetzt senden"
+            style={[styles.queueSyncButton, queue.isSyncing ? styles.buttonDisabled : null]}
+            onPress={() => void handleQueueSync()}
+            disabled={queue.isSyncing}
+          >
+            <Text style={styles.queueSyncButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Jetzt senden"}</Text>
+          </Pressable>
           {queueEntries.slice(0, 2).map((entry) => (
             <View key={entry.id} style={styles.queueRow}>
               <Text style={styles.queueRowTitle}>{entry.title}</Text>
@@ -461,6 +470,8 @@ export default function AnsitzeScreen() {
           ))}
         </ScrollView>
       ) : null}
+      </View>
+      ) : null}
 
       <PinDetailSheet
         pin={selectedPin}
@@ -468,6 +479,7 @@ export default function AnsitzeScreen() {
         // Detail-Tap aus dem Pin-Sheet: zurueck zur Liste, das Sheet zu.
         onOpenDetails={() => {
           setSelectedPin(null);
+          setSection("bestand");
           setMode("liste");
         }}
       />
@@ -504,13 +516,6 @@ const createStyles = (theme: ThemeColors) =>
   listScroll: {
     maxHeight: 520
   },
-  toolbar: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 10
-  },
   filterSection: {
     gap: 10,
     padding: 14,
@@ -533,22 +538,28 @@ const createStyles = (theme: ThemeColors) =>
     fontWeight: "700",
     color: theme.onAccent
   },
-  refreshButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: radius.full,
-    backgroundColor: theme.card
-  },
-  refreshButtonText: {
-    color: theme.ink,
-    fontWeight: "600"
-  },
   buttonDisabled: {
     opacity: 0.7
   },
   listContent: {
     gap: 12,
     paddingBottom: spacing.lg
+  },
+  bestandStack: {
+    gap: 12
+  },
+  queueSyncButton: {
+    alignSelf: "flex-start",
+    paddingHorizontal: 14,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.full,
+    backgroundColor: theme.accent,
+    marginBottom: spacing.xs
+  },
+  queueSyncButtonText: {
+    color: theme.onAccent,
+    fontSize: 13,
+    fontWeight: "700"
   },
   formCard: { ...cardSurface(theme), gap: 14 },
   sectionLabel: { ...eyebrowText(theme) },
@@ -587,11 +598,6 @@ const createStyles = (theme: ThemeColors) =>
     paddingTop: 12,
     textAlignVertical: "top"
   },
-  actionRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10
-  },
   primaryButton: {
     minHeight: 52,
     paddingHorizontal: 18,
@@ -604,19 +610,6 @@ const createStyles = (theme: ThemeColors) =>
     color: theme.onAccent,
     fontSize: 16,
     fontWeight: "700"
-  },
-  secondaryButton: {
-    minHeight: 52,
-    paddingHorizontal: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 16,
-    backgroundColor: theme.surfaceMuted
-  },
-  secondaryButtonText: {
-    color: theme.ink,
-    fontSize: 15,
-    fontWeight: "600"
   },
   stateCard: { ...cardSurface(theme), gap: 6 },
   stateTitle: {
