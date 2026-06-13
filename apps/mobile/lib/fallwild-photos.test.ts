@@ -36,6 +36,25 @@ describe("fallwild photo helpers", () => {
     });
   });
 
+  it("replaces technical asset names with a readable title, keeps human names", () => {
+    const uuid = normalizePickedFallwildPhoto(
+      { uri: "file:///tmp/6FEB0C11-F30E-4D74-BAC1-227679F474AB.jpg" },
+      0
+    );
+    const counter = normalizePickedFallwildPhoto(
+      { uri: "file:///tmp/IMG_1234.jpg", fileName: "IMG_1234.jpg" },
+      1
+    );
+    const human = normalizePickedFallwildPhoto(
+      { uri: "file:///tmp/Rehbock an der B8.jpg", fileName: "Rehbock an der B8.jpg" },
+      2
+    );
+
+    expect(uuid?.title).toBe("Fallwild-Foto 1");
+    expect(counter?.title).toBe("Fallwild-Foto 2");
+    expect(human?.title).toBe("Rehbock an der B8");
+  });
+
   it("falls back to jpeg unless png is explicit or inferred", () => {
     expect(normalizeFallwildPhotoMimeType({ uri: "file:///tmp/foto.jpg" })).toBe("image/jpeg");
     expect(normalizeFallwildPhotoMimeType({ uri: "file:///tmp/foto.png" })).toBe("image/png");
