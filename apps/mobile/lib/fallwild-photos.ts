@@ -127,11 +127,23 @@ function normalizeFallwildPhotoFileName(
   return `${stem}.${extension}`;
 }
 
+/**
+ * Technische Asset-Namen, die als Titel nur Rauschen waeren: iOS-UUIDs
+ * (Kamera/Picker), Kamera-Zaehler (IMG_1234, DSC0001) und reine
+ * Hex-Bezeichner. Menschlich vergebene Namen bleiben erhalten.
+ */
+const GENERIC_PHOTO_NAME_PATTERN =
+  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|img[-_ ]?\d+|dsc[-_ ]?\d*|image[-_ ]?\d*|photo[-_ ]?\d*|[0-9a-f]{16,})$/i;
+
 function normalizeFallwildPhotoTitle(asset: PickedFallwildPhotoAsset, index: number) {
   const sourceName = getSourceFileName(asset);
   const title = sourceName ? stripFileExtension(sourceName).trim() : "";
 
-  return title || `Fallwild-Foto ${index + 1}`;
+  if (!title || GENERIC_PHOTO_NAME_PATTERN.test(title)) {
+    return `Fallwild-Foto ${index + 1}`;
+  }
+
+  return title;
 }
 
 function createFallwildPhotoId(asset: PickedFallwildPhotoAsset, index: number) {

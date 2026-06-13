@@ -743,14 +743,17 @@ export default function FallwildScreen() {
             <View style={styles.photoPreviewList}>
               {attachments.map((photo, index) => (
                 <View key={photo.id} style={styles.photoPreviewCard}>
-                  <Image accessibilityLabel={`Vorschau ${photo.fileName}`} source={{ uri: photo.uri }} style={styles.photoPreviewImage} />
+                  <Image
+                    accessibilityLabel={`Vorschau ${photo.title ?? `Foto ${index + 1}`}`}
+                    source={{ uri: photo.uri }}
+                    style={styles.photoPreviewImage}
+                  />
                   <View style={styles.photoPreviewMeta}>
                     <Text style={styles.photoPreviewTitle}>{photo.title ?? `Foto ${index + 1}`}</Text>
-                    <Text style={styles.photoPreviewCopy}>{photo.fileName}</Text>
                   </View>
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Foto entfernen: ${photo.fileName}`}
+                    accessibilityLabel={`Foto entfernen: ${photo.title ?? `Foto ${index + 1}`}`}
                     testID={`fallwild-photo-remove-${photo.id}`}
                     style={styles.photoRemoveButton}
                     onPress={removeAttachment(setAttachments, photo.id)}
