@@ -51,7 +51,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
 - Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
 - Kontaktlisten v1: `GET/POST /api/v1/contact-lists` und `PATCH/DELETE /api/v1/contact-lists/:listId`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü
-- Mobile Dark Mode aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt
+- Mobile Dark Mode vollständig aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt. **Hinweis Web-Dark-Mode:** Im Web ist Dark Mode noch nicht vollständig implementiert — die semantischen Tokens in `globals.css` sind noch nicht migriert. Mobile Dark Mode ist durchgängig nutzbar; Web-Dark-Mode bleibt eine offene Aufgabe (Token-Migration erforderlich).
 
 Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
 
@@ -124,6 +124,29 @@ Wichtige Env-Variablen:
 - `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150` als Standard-Suchradius für den lokalen GIP-Index
 - ohne expliziten GIP-Index nutzt das Backend einen gebündelten regionalen Gänserndorf-Index aus dem offiziellen GIP-OGD-Referenzexport
 
+## Projektstruktur (Auszug)
+
+```
+apps/
+  web/
+    src/
+      app/api/v1/       # Vercel-native Route Handler (produktive API-Linie)
+      server/           # Drizzle ORM, Queries, Services
+    e2e/                # Playwright E2E-Tests
+  mobile/
+    app/
+      (tabs)/
+        profil.tsx      # Profil-Tab (neu in PR #168)
+    lib/
+      offline-queue.ts  # Offline-Queue mit vollständigen Vitest-Tests
+      device-unlock.ts  # Face ID / Touch ID Entsperrung
+  api/                  # NestJS (Referenz/Übergangspfad)
+packages/
+  domain/               # Gemeinsame Typen, Demo-Daten, Fachregeln
+  tokens/               # Design-Tokens für Web und Mobile
+  icons/                # Icon-Assets für Web und Mobile
+```
+
 ## Workspace-Befehle
 
 ```bash
@@ -155,6 +178,7 @@ Wichtige Testwege:
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten
 - Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+- Web-Dark-Mode: semantische Token-Migration in `globals.css` abschließen
 
 ## Dokumentation
 
