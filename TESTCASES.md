@@ -749,6 +749,7 @@
 
 ### TC-API-INV-02: Einladung anlegen
 
+- `revier-admin`-Session setzen (z. B. via `POST /api/v1/auth/login`)
 - `POST /api/v1/memberships/invitations` mit Pflichtfeldern `firstName`, `lastName`, `role`, `jagdzeichen` aufrufen (E-Mail ist optional)
 - Erwartung: der Endpunkt antwortet mit `201`
 - Erwartung: die Einladung erscheint in `GET /api/v1/memberships/invitations`
@@ -789,6 +790,7 @@
 
 ### TC-API-SETUP-02: Revier-Setup erstmalig abschliessen
 
+- `revier-admin`-Session setzen (z. B. via `POST /api/v1/auth/login`)
 - `POST /api/v1/reviere/active/setup` mit gueltigen Setup-Daten fuer ein noch nicht abgeschlossenes Revier aufrufen
 - Erwartung: der Endpunkt antwortet mit `200` oder `201`
 - Erwartung: `setupCompletedAt` wird im Revier gesetzt
@@ -815,9 +817,10 @@
 - Erwartung: der Endpunkt antwortet mit `422`
 - Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
 
-### TC-API-REG-03: Ungueltiger Body liefert `400`
+### TC-API-REG-03: Fehlendes Pflichtfeld liefert `400`
 
-- `POST /api/v1/public/register` ohne Body oder mit fehlendem Pflichtfeld aufrufen
+- `POST /api/v1/public/register` mit gueltigem JSON-Body aufrufen, bei dem ein Pflichtfeld fehlt (z. B. kein `firstName`)
+- Hinweis: ein leerer Body oder fehlender Content-Type fuehrt zu einem Parse-Fehler, der als `500` zurueckgegeben wird, nicht als `400`
 - Erwartung: der Endpunkt antwortet mit `400`
 
 ## Rollen- und Berechtigungslogik
