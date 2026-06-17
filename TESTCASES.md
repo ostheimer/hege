@@ -348,7 +348,7 @@
 
 - Web-App lokal starten
 - Seite `/app/sitzungen` ohne Session oeffnen
-- Erwartung: die App leitet auf `/login?next=/app/sitzungen`
+- Erwartung: die App leitet auf `/login?next=%2Fapp%2Fsitzungen`
 
 ### TC-WEB-REVIER-01: Reviereinrichtungen lesen im Web
 
@@ -600,7 +600,7 @@
 
 - Web-App lokal ohne Session starten
 - Seite `/app/aufgaben` direkt aufrufen
-- Erwartung: Weiterleitung auf `/login?next=/app/aufgaben`
+- Erwartung: Weiterleitung auf `/login?next=%2Fapp%2Faufgaben`
 
 ## Web Reviermeldungen
 
@@ -617,13 +617,14 @@
 - Seite `/app/reviermeldungen` oeffnen
 - Hinweis: die Seite stellt kein Formular zum Anlegen neuer Meldungen bereit; sie listet, filtert, aendert Status und ermoeglicht das Umwandeln einer Meldung in eine Aufgabe
 - Eine vorhandene Meldung auswaehlen und in eine Aufgabe umwandeln
-- Erwartung: die Meldung wechselt den Status oder erscheint in `/app/aufgaben`
+- Erwartung: ein Erfolgsbanner erscheint auf der Seite
+- Erwartung: die neue Aufgabe ist anschliessend in `/app/aufgaben` sichtbar
 - Erwartung: kein `500`-Fehler tritt auf
 
 ### TC-WEB-REVMELD-03: Zugriffsschutz fuer Gaeste
 
 - Seite `/app/reviermeldungen` ohne Session aufrufen
-- Erwartung: Weiterleitung auf `/login?next=/app/reviermeldungen`
+- Erwartung: Weiterleitung auf `/login?next=%2Fapp%2Freviermeldungen`
 
 ## Web Benachrichtigungen
 
@@ -652,7 +653,7 @@
 ### TC-WEB-KONTAKTE-02: Zugriffsschutz fuer Gaeste
 
 - Seite `/app/kontakte` ohne Session aufrufen
-- Erwartung: Weiterleitung auf `/login?next=/app/kontakte`
+- Erwartung: Weiterleitung auf `/login?next=%2Fapp%2Fkontakte`
 
 ## Web Einladungsflow
 
@@ -675,7 +676,9 @@
 ### TC-WEB-EINLADUNG-03: Abgelaufenes Token liefert Fehlermeldung
 
 - Einladungs-URL mit abgelaufenem oder ungueltigem Token oeffnen
-- Erwartung: die Seite zeigt eine verstaendliche Fehlermeldung
+- Hinweis: die Seite rendert generisch das PIN-Formular; die Token-Pruefung erfolgt erst beim Absenden an `POST /api/v1/memberships/invitations/accept`
+- Vierstellige PIN eingeben und Formular absenden
+- Erwartung: die Antwort liefert einen Fehler und die Seite zeigt eine verstaendliche Fehlermeldung
 - Erwartung: kein `500`-Fehler
 
 ## Web Mitgliederverwaltung
@@ -731,7 +734,7 @@
 ### TC-MOB-UEBER-01: Ueber-hege-Screen oeffnen
 
 - App oeffnen
-- Screen `ueber-hege` aufrufen (z. B. ueber Profil oder Einstellungen)
+- Mehr-Screen oeffnen und den Eintrag `Ueber hege` antippen (der Screen ist nur ueber `(tabs)/mehr.tsx` erreichbar, nicht ueber den Profil-Screen)
 - Erwartung: App-Version, Lizenzhinweise und Kontaktinformationen werden angezeigt
 - Erwartung: der Screen rendert ohne Absturz
 
@@ -758,7 +761,8 @@
 
 ### TC-API-INV-04: Einladung annehmen
 
-- `POST /api/v1/memberships/invitations/accept` mit gueltigem Token aufrufen
+- `POST /api/v1/memberships/invitations/accept` mit `{ token: "<gueltiger-token>", pin: "<vierstellige-pin>" }` aufrufen
+- Hinweis: das Feld `pin` (vierstellig) ist Pflicht; ein Aufruf ohne `pin` antwortet mit `400`
 - Erwartung: der Endpunkt antwortet mit `201`
 - Erwartung: der neue Nutzer erscheint als Mitglied im Revier
 
@@ -801,7 +805,7 @@
 
 ### TC-API-REG-01: Neues Revier registrieren
 
-- `POST /api/v1/public/register` mit gueltigen Daten (Reviername, Kennung, PIN) aufrufen
+- `POST /api/v1/public/register` mit allen Pflichtfeldern aufrufen: `firstName`, `lastName`, `email`, `username` (Kennung), `phone`, `pin` (vierstellig), `jagdzeichen`, `revierName`, `bundesland`, `bezirk`, `planKey`
 - Erwartung: der Endpunkt antwortet mit `201`
 - Erwartung: der neue Nutzer kann sich anschliessend per `POST /api/v1/auth/login` anmelden
 
@@ -822,7 +826,7 @@
 
 - Web-App mit `jaeger`-Session starten
 - Sidebar pruefen
-- Erwartung: administrative Menupunkte (Mitglieder, Einladungen, Reviereinstellungen) sind nicht sichtbar
+- Erwartung: der administrative Menupunkt `Mitglieder` ist nicht sichtbar (die Web-Shell-Navigation definiert nur `Mitglieder` als admin-beschraenkten Eintrag; separate `Einladungen`- und `Reviereinstellungen`-Eintraege existieren nicht)
 - Web-App mit `revier-admin`-Session starten
 - Erwartung: alle Menupunkte sind sichtbar
 
