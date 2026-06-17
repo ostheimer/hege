@@ -571,32 +571,289 @@
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
 - Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
 
-## Fehlende Testabdeckung (Stand 2026-06-06)
+## Web Aufgaben
 
-Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
+### TC-WEB-AUFG-01: Aufgabenliste anzeigen
 
-### Web-Screens ohne Test Cases
-- `/app/aufgaben` — Aufgaben-Verwaltung (Web-Backoffice)
-- `/app/reviermeldungen` — Reviermeldungen (Web-Backoffice)
-- `/app/benachrichtigungen` — Benachrichtigungen (Web)
-- `/app/kontakte` — Kontaktlisten (Web) *(implementiert, keine Web-TCs)*
-- `/einladung` — Mitglieder-Einladungsflow
-- `/app/mitglieder` — Mitgliederverwaltung
+- Web-App lokal starten
+- Seite `/app/aufgaben` oeffnen
+- Erwartung: die Liste zeigt vorhandene Aufgaben aus der Server-Schicht
+- Erwartung: Titel, Faelligkeit, Status und zugewiesene Rolle sind sichtbar
+- Erwartung: die Seite rendert ohne Serverfehler
 
-### Mobile-Screens ohne Test Cases
-- Benachrichtigungen-Tab (`(tabs)/benachrichtigungen.tsx`)
-- `ueber-hege.tsx` Screen
+### TC-WEB-AUFG-02: Neue Aufgabe anlegen
 
-### API-Endpunkte ohne Test Cases
-- `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (DELETE), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
-- `/api/v1/reviere/active/setup` (POST/PATCH)
-- `/api/v1/public/register` (POST)
+- Web-App mit aktiver DB und `revier-admin`-Session starten
+- Formular fuer neue Aufgabe ausfuellen (Titel, Faelligkeit, Zustaendige/r)
+- Ausloesen
+- Erwartung: die Aufgabe erscheint in der Liste
+- Erwartung: der API-Aufruf antwortet mit `201`
 
-### Rollen-/Berechtigungslogik
-- Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
-- Admin vs. Schriftführung vs. Mitglied Rechte-Übergänge
+### TC-WEB-AUFG-03: Aufgabe als erledigt markieren
 
-### Dark Mode
-- Systemweites Dark-Mode-Verhalten (Tokens, Kontrast-Verhältnisse)
+- Web-App mit bestehender Aufgabe starten
+- Aufgabe als erledigt markieren
+- Erwartung: Status wechselt zu erledigt
+- Erwartung: Statusaenderung erfolgt per PATCH-Aufruf
 
-*TODO: Test Cases für diese Bereiche hinzufügen*
+### TC-WEB-AUFG-04: Zugriffsschutz fuer Gaeste
+
+- Web-App lokal ohne Session starten
+- Seite `/app/aufgaben` direkt aufrufen
+- Erwartung: Weiterleitung auf `/login?next=/app/aufgaben`
+
+## Web Reviermeldungen
+
+### TC-WEB-REVMELD-01: Reviermeldungsliste anzeigen
+
+- Web-App lokal starten
+- Seite `/app/reviermeldungen` oeffnen
+- Erwartung: vorhandene Reviermeldungen werden aus der Server-Schicht geladen
+- Erwartung: Titel, Datum und Typ sind sichtbar
+
+### TC-WEB-REVMELD-02: Neue Reviermeldung anlegen
+
+- Web-App mit aktiver DB starten
+- Formular ausfuellen und absenden
+- Erwartung: die neue Meldung erscheint in der Liste
+- Erwartung: `POST /api/v1/reviermeldungen` antwortet mit `201`
+
+### TC-WEB-REVMELD-03: Zugriffsschutz fuer Gaeste
+
+- Seite `/app/reviermeldungen` ohne Session aufrufen
+- Erwartung: Weiterleitung auf `/login?next=/app/reviermeldungen`
+
+## Web Benachrichtigungen
+
+### TC-WEB-BENACHRICHT-01: Benachrichtigungsliste anzeigen
+
+- Web-App lokal starten
+- Seite `/app/benachrichtigungen` oeffnen
+- Erwartung: ungelesene und gelesene Benachrichtigungen werden angezeigt
+- Erwartung: die Seite rendert ohne Serverfehler
+
+### TC-WEB-BENACHRICHT-02: Benachrichtigung als gelesen markieren
+
+- Seite `/app/benachrichtigungen` mit ungelesener Benachrichtigung oeffnen
+- Benachrichtigung antippen oder markieren
+- Erwartung: Status wechselt zu gelesen
+
+## Web Kontakte
+
+### TC-WEB-KONTAKTE-01: Kontaktliste anzeigen
+
+- Web-App lokal starten
+- Seite `/app/kontakte` oeffnen
+- Erwartung: die Kontakte des Reviers werden aus der Server-Schicht geladen
+- Erwartung: Name, Rolle und Kontaktdaten sind sichtbar
+
+### TC-WEB-KONTAKTE-02: Zugriffsschutz fuer Gaeste
+
+- Seite `/app/kontakte` ohne Session aufrufen
+- Erwartung: Weiterleitung auf `/login?next=/app/kontakte`
+
+## Web Einladungsflow
+
+### TC-WEB-EINLADUNG-01: Einladungs-Link oeffnen
+
+- Web-App lokal starten
+- Einladungs-URL `/einladung?token=<gueltigesToken>` oeffnen
+- Erwartung: die Einladungsseite zeigt Reviername und einladende Person
+- Erwartung: ein Formular zur Registrierung oder Annahme ist sichtbar
+
+### TC-WEB-EINLADUNG-02: Einladung annehmen (neuer Nutzer)
+
+- Einladungs-URL oeffnen
+- Registrierungsformular mit Kennung und PIN ausfuellen und absenden
+- Erwartung: `POST /api/v1/memberships/invitations/accept` antwortet mit `200`
+- Erwartung: Nutzer ist anschliessend eingeloggt und im Revier als Mitglied sichtbar
+
+### TC-WEB-EINLADUNG-03: Abgelaufenes Token liefert Fehlermeldung
+
+- Einladungs-URL mit abgelaufenem oder ungueltigem Token oeffnen
+- Erwartung: die Seite zeigt eine verstaendliche Fehlermeldung
+- Erwartung: kein `500`-Fehler
+
+## Web Mitgliederverwaltung
+
+### TC-WEB-MITGL-01: Mitgliederliste anzeigen
+
+- Web-App lokal starten
+- Seite `/app/mitglieder` oeffnen
+- Erwartung: alle Mitglieder des Reviers werden mit Rolle und Status aufgelistet
+- Erwartung: die Daten kommen aus der Server-Schicht
+
+### TC-WEB-MITGL-02: Mitglied einladen
+
+- Web-App mit `revier-admin`-Session starten
+- Einladungsformular mit E-Mail-Adresse ausfuellen
+- Erwartung: `POST /api/v1/memberships/invitations` antwortet mit `201`
+- Erwartung: die Einladung erscheint in der Liste der ausstehenden Einladungen
+
+### TC-WEB-MITGL-03: Einladung zurueckziehen
+
+- Ausstehende Einladung aus der Liste waehlen und loeschen
+- Erwartung: `DELETE /api/v1/memberships/invitations/:id` antwortet mit `200`
+- Erwartung: die Einladung verschwindet aus der Liste
+
+### TC-WEB-MITGL-04: Zugriffsschutz fuer nicht-Admins
+
+- Seite `/app/mitglieder` mit `jaeger`-Session oeffnen
+- Erwartung: Schreibaktionen (Einladen, Loeschen) sind nicht verfuegbar oder gesperrt
+
+## Mobile Benachrichtigungen
+
+### TC-MOB-BENACHRICHT-01: Benachrichtigungen-Tab oeffnen
+
+- App oeffnen
+- Tab `Benachrichtigungen` auswaehlen
+- Erwartung: ungelesene und gelesene Benachrichtigungen werden angezeigt
+- Erwartung: die Liste laedt ohne Absturz
+
+### TC-MOB-BENACHRICHT-02: Benachrichtigung als gelesen markieren
+
+- Tab `Benachrichtigungen` mit ungelesener Benachrichtigung oeffnen
+- Benachrichtigung antippen
+- Erwartung: Status wechselt zu gelesen
+
+### TC-MOB-BENACHRICHT-03: Leerer Zustand
+
+- Tab `Benachrichtigungen` ohne vorhandene Benachrichtigungen oeffnen
+- Erwartung: eine verstaendliche Leer-Anzeige erscheint
+
+## Mobile Ueber Hege
+
+### TC-MOB-UEBER-01: Ueber-hege-Screen oeffnen
+
+- App oeffnen
+- Screen `ueber-hege` aufrufen (z. B. ueber Profil oder Einstellungen)
+- Erwartung: App-Version, Lizenzhinweise und Kontaktinformationen werden angezeigt
+- Erwartung: der Screen rendert ohne Absturz
+
+## API Mitglieds-Einladungen
+
+### TC-API-INV-01: Einladungen auflisten
+
+- Web-App lokal starten
+- `GET /api/v1/memberships/invitations` mit `revier-admin`-Session aufrufen
+- Erwartung: ausstehende Einladungen werden zurueckgegeben
+- Erwartung: ein nicht authentifizierter Aufruf antwortet mit `401`
+
+### TC-API-INV-02: Einladung anlegen
+
+- `POST /api/v1/memberships/invitations` mit gueltiger E-Mail-Adresse aufrufen
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die Einladung erscheint in `GET /api/v1/memberships/invitations`
+
+### TC-API-INV-03: Einladung loeschen
+
+- Bestehende Einladung per `DELETE /api/v1/memberships/invitations/:id` loeschen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: die Einladung fehlt anschliessend in der Liste
+
+### TC-API-INV-04: Einladung annehmen
+
+- `POST /api/v1/memberships/invitations/accept` mit gueltigem Token aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: der neue Nutzer erscheint als Mitglied im Revier
+
+### TC-API-INV-05: Einladungen als CSV exportieren
+
+- `GET /api/v1/memberships/invitations/export.csv` mit `revier-admin`-Session aufrufen
+- Erwartung: der Endpunkt antwortet mit `200` und `content-type: text/csv`
+- Erwartung: die CSV enthaelt mindestens die Kopfzeile sowie vorhandene Einladungen
+
+### TC-API-INV-06: Ungueltige Einladungen liefern Fehlerformat
+
+- `POST /api/v1/memberships/invitations` ohne Body oder mit ungueltiger E-Mail aufrufen
+- Erwartung: der Endpunkt antwortet mit `400`
+- Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
+
+## API Revier-Setup
+
+### TC-API-SETUP-01: Setup-Status abrufen
+
+- `GET /api/v1/reviere/active/setup` (falls GET vorhanden) mit authentifizierter Session aufrufen
+- Erwartung: der Endpunkt antwortet mit aktuellem Setup-Zustand des Reviers
+
+### TC-API-SETUP-02: Setup-Schritt abschliessen
+
+- `POST /api/v1/reviere/active/setup` mit gueltigen Setup-Daten aufrufen
+- Erwartung: der Endpunkt antwortet mit `200` oder `201`
+- Erwartung: der Setup-Zustand wechselt im System
+
+### TC-API-SETUP-03: Setup-Daten aktualisieren
+
+- `PATCH /api/v1/reviere/active/setup` mit aktualisierten Daten aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: die Aenderungen bleiben beim naechsten Abruf erhalten
+
+## API Oeffentliche Registrierung
+
+### TC-API-REG-01: Neues Revier registrieren
+
+- `POST /api/v1/public/register` mit gueltigen Daten (Reviername, Kennung, PIN) aufrufen
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: der neue Nutzer kann sich anschliessend per `POST /api/v1/auth/login` anmelden
+
+### TC-API-REG-02: Doppelte Kennung wird abgelehnt
+
+- `POST /api/v1/public/register` mit bereits vorhandener Kennung aufrufen
+- Erwartung: der Endpunkt antwortet mit `409` oder `400`
+- Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
+
+### TC-API-REG-03: Ungueltiger Body liefert `400`
+
+- `POST /api/v1/public/register` ohne Body oder mit fehlendem Pflichtfeld aufrufen
+- Erwartung: der Endpunkt antwortet mit `400`
+
+## Rollen- und Berechtigungslogik
+
+### TC-ROLE-01: Sidebar-Filterung nach Rolle
+
+- Web-App mit `jaeger`-Session starten
+- Sidebar pruefen
+- Erwartung: administrative Menupunkte (Mitglieder, Einladungen, Reviereinstellungen) sind nicht sichtbar
+- Web-App mit `revier-admin`-Session starten
+- Erwartung: alle Menupunkte sind sichtbar
+
+### TC-ROLE-02: Rechteubergaenge Admin zu Schriftfuehrung
+
+- `revier-admin`-Session verwenden und eine neue Sitzung anlegen
+- Rolle auf `schriftfuehrer` wechseln (oder Session als Schriftfuehrer starten)
+- Freigabe-Aktion versuchen
+- Erwartung: `schriftfuehrer` kann keine Sitzung freigeben (`403`)
+- Erwartung: `revier-admin` kann freigeben
+
+### TC-ROLE-03: Jaeger hat keinen Schreibzugriff auf Sitzungen
+
+- `jaeger`-Session verwenden
+- `POST /api/v1/sitzungen` aufrufen
+- Erwartung: der Endpunkt antwortet mit `403`
+- Erwartung: die Seite `/sitzungen` leitet `jaeger` auf `/` um (gemaess TC-AUTO-WEB-02)
+
+## Dark Mode
+
+### TC-DARK-01: Systemweites Dark-Mode-Verhalten (Mobile)
+
+- Geraet auf Dark Mode umstellen
+- App oeffnen
+- Erwartung: alle Tabs und Screens verwenden Dark-Mode-Farbtokens aus `packages/tokens/src/index.ts`
+- Erwartung: kein harter Weisswert (`#ffffff`) erscheint auf dunklem Hintergrund
+- Erwartung: Tab-Bar und Karten folgen der `surfaceCard` Dark-Variante
+
+### TC-DARK-02: Kontrast-Verhaeltnisse
+
+- Dark Mode in der App aktivieren
+- Haupt-Schrift (`ink`) auf Hintergrund (`background`) pruefen
+- Erwartung: Kontrast-Verhaeltnis >= 4,5:1 (WCAG AA)
+- Accent-Farbe (`accent`) auf `background` pruefen
+- Erwartung: Kontrast-Verhaeltnis >= 3:1 fuer UI-Komponenten
+
+### TC-DARK-03: In-App Theme-Switcher
+
+- Profil-Screen oeffnen
+- Theme-Umschalter auf `Dunkel` stellen
+- Erwartung: das UI wechselt sofort in Dark Mode ohne App-Neustart
+- Theme-Umschalter auf `System` stellen
+- Erwartung: das UI folgt der Systemeinstellung
