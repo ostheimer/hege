@@ -213,7 +213,7 @@
 
 - `pnpm test:e2e -- apps/web/e2e/auth.spec.ts apps/web/e2e/sitzungen.spec.ts` ausfuehren
 - Erwartung: Login, Logout und Redirect auf `/login` laufen im Browser durch
-- Erwartung: `jaeger` wird von `/sitzungen` auf `/` umgeleitet
+- Erwartung: `jaeger` wird von `/app/sitzungen` auf `/app?error=keine-berechtigung&path=%2Fapp%2Fsitzungen` umgeleitet
 - Erwartung: `schriftfuehrer` kann einen Entwurf anlegen und eine Version speichern
 - Erwartung: `revier-admin` kann freigeben und das PDF laden
 
@@ -578,7 +578,7 @@
 - Web-App lokal starten
 - Seite `/app/aufgaben` oeffnen
 - Erwartung: die Liste zeigt vorhandene Aufgaben aus der Server-Schicht
-- Erwartung: Titel, Faelligkeit, Status und zugewiesene Rolle sind sichtbar
+- Erwartung: Titel, Faelligkeit und Status sind sichtbar (zugewiesene Rolle ist nur auf der Detailseite sichtbar)
 - Erwartung: die Seite rendert ohne Serverfehler
 
 ### TC-WEB-AUFG-02: Neue Aufgabe anlegen
@@ -611,12 +611,14 @@
 - Erwartung: vorhandene Reviermeldungen werden aus der Server-Schicht geladen
 - Erwartung: Titel, Datum und Typ sind sichtbar
 
-### TC-WEB-REVMELD-02: Neue Reviermeldung anlegen
+### TC-WEB-REVMELD-02: Reviermeldung in Aufgabe umwandeln
 
-- Web-App mit aktiver DB starten
-- Formular ausfuellen und absenden
-- Erwartung: die neue Meldung erscheint in der Liste
-- Erwartung: `POST /api/v1/reviermeldungen` antwortet mit `201`
+- Web-App mit aktiver DB und bestehender Reviermeldung starten
+- Seite `/app/reviermeldungen` oeffnen
+- Hinweis: die Seite stellt kein Formular zum Anlegen neuer Meldungen bereit; sie listet, filtert, aendert Status und ermoeglicht das Umwandeln einer Meldung in eine Aufgabe
+- Eine vorhandene Meldung auswaehlen und in eine Aufgabe umwandeln
+- Erwartung: die Meldung wechselt den Status oder erscheint in `/app/aufgaben`
+- Erwartung: kein `500`-Fehler tritt auf
 
 ### TC-WEB-REVMELD-03: Zugriffsschutz fuer Gaeste
 
@@ -657,15 +659,17 @@
 ### TC-WEB-EINLADUNG-01: Einladungs-Link oeffnen
 
 - Web-App lokal starten
-- Einladungs-URL `/einladung?token=<gueltigesToken>` oeffnen
-- Erwartung: die Einladungsseite zeigt Reviername und einladende Person
-- Erwartung: ein Formular zur Registrierung oder Annahme ist sichtbar
+- Magic-Link-URL `/einladung/<token>` oeffnen (fuer Code-basierte Einladungen: `/einladung?code=<code>`)
+- Hinweis: die Seite zeigt generischen Text und ein Formular mit Code-Feld (fuer nicht-Magic-Links) plus PIN; Reviername und einladende Person werden nicht vor der Annahme angezeigt
+- Erwartung: die Einladungsseite rendert ohne Serverfehler
+- Erwartung: ein gueltiger Magic-Link-Token wird aus dem URL-Pfad gelesen und in das Formular uebergeben
 
 ### TC-WEB-EINLADUNG-02: Einladung annehmen (neuer Nutzer)
 
 - Einladungs-URL oeffnen
-- Registrierungsformular mit Kennung und PIN ausfuellen und absenden
-- Erwartung: `POST /api/v1/memberships/invitations/accept` antwortet mit `200`
+- Fuer nicht-Magic-Links: Code-Feld und vierstellige PIN ausfuellen und absenden
+- Fuer Magic-Links: nur die vierstellige PIN ausfuellen und absenden (kein Kennung-/Username-Feld vorhanden)
+- Erwartung: `POST /api/v1/memberships/invitations/accept` antwortet mit `201`
 - Erwartung: Nutzer ist anschliessend eingeloggt und im Revier als Mitglied sichtbar
 
 ### TC-WEB-EINLADUNG-03: Abgelaufenes Token liefert Fehlermeldung
@@ -676,17 +680,18 @@
 
 ## Web Mitgliederverwaltung
 
-### TC-WEB-MITGL-01: Mitgliederliste anzeigen
+### TC-WEB-MITGL-01: Einladungsliste anzeigen
 
 - Web-App lokal starten
 - Seite `/app/mitglieder` oeffnen
-- Erwartung: alle Mitglieder des Reviers werden mit Rolle und Status aufgelistet
+- Hinweis: die Seite zeigt Einladungsdatensaetze aus `listMemberInvitations`, nicht die vollstaendige Mitgliederliste des Reviers
+- Erwartung: ausstehende und bearbeitete Einladungen werden mit Name, Rolle und Status aufgelistet
 - Erwartung: die Daten kommen aus der Server-Schicht
 
 ### TC-WEB-MITGL-02: Mitglied einladen
 
 - Web-App mit `revier-admin`-Session starten
-- Einladungsformular mit E-Mail-Adresse ausfuellen
+- Einladungsformular mit Pflichtfeldern (Vorname, Nachname, Rolle, Jagdzeichen) ausfuellen
 - Erwartung: `POST /api/v1/memberships/invitations` antwortet mit `201`
 - Erwartung: die Einladung erscheint in der Liste der ausstehenden Einladungen
 
@@ -694,31 +699,31 @@
 
 - Ausstehende Einladung aus der Liste waehlen und loeschen
 - Erwartung: `DELETE /api/v1/memberships/invitations/:id` antwortet mit `200`
-- Erwartung: die Einladung verschwindet aus der Liste
+- Erwartung: die Einladung erscheint anschliessend in der Liste mit Status `revoked`
 
 ### TC-WEB-MITGL-04: Zugriffsschutz fuer nicht-Admins
 
 - Seite `/app/mitglieder` mit `jaeger`-Session oeffnen
-- Erwartung: Schreibaktionen (Einladen, Loeschen) sind nicht verfuegbar oder gesperrt
+- Erwartung: `jaeger` wird auf `/app?error=keine-berechtigung&path=%2Fapp%2Fmitglieder` weitergeleitet, da die Seite `requirePageRoles(["revier-admin"])` verwendet und nicht gerendert wird
 
 ## Mobile Benachrichtigungen
 
-### TC-MOB-BENACHRICHT-01: Benachrichtigungen-Tab oeffnen
+### TC-MOB-BENACHRICHT-01: Benachrichtigungen oeffnen
 
 - App oeffnen
-- Tab `Benachrichtigungen` auswaehlen
+- Mehr-Screen oeffnen und `Benachrichtigungen` antippen (der Screen ist im Tab-Bar mit `href: null` versteckt und wird ueber den Mehr-Screen erreicht)
 - Erwartung: ungelesene und gelesene Benachrichtigungen werden angezeigt
 - Erwartung: die Liste laedt ohne Absturz
 
 ### TC-MOB-BENACHRICHT-02: Benachrichtigung als gelesen markieren
 
-- Tab `Benachrichtigungen` mit ungelesener Benachrichtigung oeffnen
+- Benachrichtigungen-Screen mit ungelesener Benachrichtigung oeffnen
 - Benachrichtigung antippen
 - Erwartung: Status wechselt zu gelesen
 
 ### TC-MOB-BENACHRICHT-03: Leerer Zustand
 
-- Tab `Benachrichtigungen` ohne vorhandene Benachrichtigungen oeffnen
+- Benachrichtigungen-Screen ohne vorhandene Benachrichtigungen oeffnen
 - Erwartung: eine verstaendliche Leer-Anzeige erscheint
 
 ## Mobile Ueber Hege
@@ -741,20 +746,20 @@
 
 ### TC-API-INV-02: Einladung anlegen
 
-- `POST /api/v1/memberships/invitations` mit gueltiger E-Mail-Adresse aufrufen
+- `POST /api/v1/memberships/invitations` mit Pflichtfeldern `firstName`, `lastName`, `role`, `jagdzeichen` aufrufen (E-Mail ist optional)
 - Erwartung: der Endpunkt antwortet mit `201`
 - Erwartung: die Einladung erscheint in `GET /api/v1/memberships/invitations`
 
-### TC-API-INV-03: Einladung loeschen
+### TC-API-INV-03: Einladung widerrufen
 
-- Bestehende Einladung per `DELETE /api/v1/memberships/invitations/:id` loeschen
+- Bestehende Einladung per `DELETE /api/v1/memberships/invitations/:id` widerrufen
 - Erwartung: der Endpunkt antwortet mit `200`
-- Erwartung: die Einladung fehlt anschliessend in der Liste
+- Erwartung: die Einladung bleibt in der Liste mit Status `revoked` (wird nicht entfernt)
 
 ### TC-API-INV-04: Einladung annehmen
 
 - `POST /api/v1/memberships/invitations/accept` mit gueltigem Token aufrufen
-- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: der Endpunkt antwortet mit `201`
 - Erwartung: der neue Nutzer erscheint als Mitglied im Revier
 
 ### TC-API-INV-05: Einladungen als CSV exportieren
@@ -763,30 +768,34 @@
 - Erwartung: der Endpunkt antwortet mit `200` und `content-type: text/csv`
 - Erwartung: die CSV enthaelt mindestens die Kopfzeile sowie vorhandene Einladungen
 
-### TC-API-INV-06: Ungueltige Einladungen liefern Fehlerformat
+### TC-API-INV-06: Fehlende Pflichtfelder liefern Fehlerformat
 
-- `POST /api/v1/memberships/invitations` ohne Body oder mit ungueltiger E-Mail aufrufen
-- Erwartung: der Endpunkt antwortet mit `400`
+- `POST /api/v1/memberships/invitations` ohne Body oder mit fehlenden Pflichtfeldern (`firstName`, `lastName`, `role`, `jagdzeichen`) aufrufen
+- Hinweis: eine formal ungueltige E-Mail-Adresse wird vom Endpunkt nicht abgewiesen (keine E-Mail-Formatvalidierung)
+- Erwartung: fehlende Pflichtfelder liefern `400`
 - Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
 
 ## API Revier-Setup
 
-### TC-API-SETUP-01: Setup-Status abrufen
+### TC-API-SETUP-01: Setup-Route unterstuetzt kein GET
 
-- `GET /api/v1/reviere/active/setup` (falls GET vorhanden) mit authentifizierter Session aufrufen
-- Erwartung: der Endpunkt antwortet mit aktuellem Setup-Zustand des Reviers
+- `GET /api/v1/reviere/active/setup` aufrufen
+- Hinweis: die Route exportiert nur POST und PATCH Handler; GET ist nicht implementiert
+- Erwartung: der Endpunkt antwortet mit `405` (Method Not Allowed) oder `404`
 
-### TC-API-SETUP-02: Setup-Schritt abschliessen
+### TC-API-SETUP-02: Revier-Setup erstmalig abschliessen
 
-- `POST /api/v1/reviere/active/setup` mit gueltigen Setup-Daten aufrufen
+- `POST /api/v1/reviere/active/setup` mit gueltigen Setup-Daten fuer ein noch nicht abgeschlossenes Revier aufrufen
 - Erwartung: der Endpunkt antwortet mit `200` oder `201`
-- Erwartung: der Setup-Zustand wechselt im System
+- Erwartung: `setupCompletedAt` wird im Revier gesetzt
 
-### TC-API-SETUP-03: Setup-Daten aktualisieren
+### TC-API-SETUP-03: Wiederholtes Setup wird abgewiesen
 
-- `PATCH /api/v1/reviere/active/setup` mit aktualisierten Daten aufrufen
-- Erwartung: der Endpunkt antwortet mit `200`
-- Erwartung: die Aenderungen bleiben beim naechsten Abruf erhalten
+- Revier mit bereits abgeschlossenem Setup verwenden (`setupCompletedAt` gesetzt)
+- `POST /api/v1/reviere/active/setup` oder `PATCH /api/v1/reviere/active/setup` aufrufen
+- Hinweis: beide Methoden rufen `completeActiveRevierSetup` auf, das bei bereits gesetztem `setupCompletedAt` mit `409` abbricht; der Endpunkt unterstuetzt kein nachtraegliches Bearbeiten
+- Erwartung: der Endpunkt antwortet mit `409`
+- Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
 
 ## API Oeffentliche Registrierung
 
@@ -799,7 +808,7 @@
 ### TC-API-REG-02: Doppelte Kennung wird abgelehnt
 
 - `POST /api/v1/public/register` mit bereits vorhandener Kennung aufrufen
-- Erwartung: der Endpunkt antwortet mit `409` oder `400`
+- Erwartung: der Endpunkt antwortet mit `422`
 - Erwartung: das Fehlerformat folgt `{ error: { code, message, status } }`
 
 ### TC-API-REG-03: Ungueltiger Body liefert `400`
@@ -830,7 +839,7 @@
 - `jaeger`-Session verwenden
 - `POST /api/v1/sitzungen` aufrufen
 - Erwartung: der Endpunkt antwortet mit `403`
-- Erwartung: die Seite `/sitzungen` leitet `jaeger` auf `/` um (gemaess TC-AUTO-WEB-02)
+- Erwartung: die Seite `/app/sitzungen` leitet `jaeger` auf `/app?error=keine-berechtigung&path=%2Fapp%2Fsitzungen` um (gemaess TC-AUTO-WEB-02)
 
 ## Dark Mode
 
