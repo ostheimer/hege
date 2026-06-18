@@ -52,6 +52,10 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
 - Kontaktlisten v1: `GET/POST /api/v1/contact-lists` und `PATCH/DELETE /api/v1/contact-lists/:listId`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü
 - Mobile Dark Mode aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt
+- Mobile **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild“: System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; der native iOS-ActionSheet im `SelectField` respektiert den gewählten Modus (PR #165, #166, [Unreleased])
+- Mobile **Profil-Screen** (`(tabs)/profil`): Identität (Avatar/Name/Rolle/Revier), Erscheinungsbild-Umschalter, Face-ID-Entsperren als Schalter, Konto (Benutzername/E-Mail/Abmelden); erreichbar über die tappbare Profil-Zeile im Mehr-Tab und den neuen Initialen-Avatar im Heute-Hero (PR #168, OTA `0.1.0 · 2026-06-09.12`, [Unreleased])
+- **PIN ändern** (Profil → Sicherheit): neuer Endpunkt `POST /api/v1/auth/change-pin` (verlangt aktuelle PIN als Besitznachweis, scrypt-Rehash) + aufklappbares Formular im Mobile-Profil mit Client-Validierung (PR #169, OTA `0.1.0 · 2026-06-10.13`, [Unreleased])
+- Mobile **Erfassungs-Screens** (Fallwild, Ansitze, Meldungen) auf ein gemeinsames „Erfassen | Bestand“-Muster umgebaut: Segmented-Control im Hero, ein „Speichern“-Button pro Formular, Pull-to-Refresh, Offline-Vormerkungen-Block; Foto-Aufnahme als kompakte Icon-Kacheln (OTA `0.1.0 · 2026-06-13.16`, [Unreleased])
 
 Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
 
