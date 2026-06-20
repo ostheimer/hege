@@ -86,7 +86,7 @@
 - `POST /api/v1/auth/change-pin` mit falscher `currentPin` aufrufen
 - Erwartung: der Endpunkt antwortet mit `401`
 - `POST /api/v1/auth/change-pin` gegen den Demo-Store aufrufen
-- Erwartung: der Endpunkt antwortet mit `403` oder `503` (Demo-Store ist read-only)
+- Erwartung: der Endpunkt antwortet mit `400` und `code: "validation-error"` (Demo-Store-Kennung ist keine gueltige PIN-Voraussetzung — Anfrage scheitert an der Eingabevalidierung)
 
 ### TC-SRV-AUTH-01: Safe Post-Auth Path wird normalisiert
 
@@ -547,7 +547,7 @@
 - Erwartung: der Profil-Screen oeffnet sich mit Name, Rolle und Revier
 - Erwartung: der Erscheinungsbild-Umschalter (System/Hell/Dunkel) ist sichtbar und funktioniert
 - Erwartung: der Face-ID-Schalter ist sichtbar (ggf. deaktiviert mit Begruendung im Simulator)
-- Erwartung: `Abmelden` leitet nach Bestaetigung auf die Loginseite
+- Erwartung: `Abmelden` leitet direkt auf die Loginseite (kein Bestaetigungsdialog)
 
 ### TC-MOB-PROFIL-02: PIN aendern im Profil
 
