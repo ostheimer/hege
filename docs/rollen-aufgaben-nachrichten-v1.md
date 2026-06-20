@@ -2,45 +2,45 @@
 
 ## Ziel
 
-Dieses Dokument beschreibt die fachliche Richtung für Rollen, Aufgaben, Nachrichten, Reviermeldungen und Veranstaltungen. Es ergänzt das bestehende Rollenmodell, ohne eine verbindliche Migration oder vollständige Implementierung für diesen Sprint festzulegen.
+Dieses Dokument beschreibt die fachliche Richtung fuer Rollen, Aufgaben, Nachrichten, Reviermeldungen und Veranstaltungen. Es ergaenzt das bestehende Rollenmodell, ohne eine verbindliche Migration oder vollstaendige Implementierung fuer diesen Sprint festzulegen.
 
-Ziel ist ein internes Arbeits- und Kommunikationsmodell für Reviere in Österreich. Die App bleibt die fachliche Quelle der Wahrheit. Externe Messenger können später ergänzen, ersetzen aber nicht das eigene Modell.
+Ziel ist ein internes Arbeits- und Kommunikationsmodell fuer Reviere in Oesterreich. Die App bleibt die fachliche Quelle der Wahrheit. Externe Messenger koennen spaeter ergaenzen, ersetzen aber nicht das eigene Modell.
 
-Der konkrete nächste Umsetzungsschnitt für Reviermeldungen und Aufgaben liegt in [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md).
+Der konkrete naechste Umsetzungsschnitt fuer Reviermeldungen und Aufgaben liegt in [Reviermeldungen und Aufgaben v1](./reviermeldungen-aufgaben-v1-plan.md).
 
 ## Grundprinzipien
 
 - alle Inhalte sind pro `revier_id` getrennt
-- technische Zuordnung läuft über `membership`
+- technische Zuordnung laeuft ueber `membership`
 - eine Mitgliedschaft kann mehrere Rollen haben
 - Berechtigungen werden aus Rollen und Kontext abgeleitet
-- Sichtbarkeit wird explizit über Empfängergruppen, Rollen oder Ressourcenbezug gesteuert
-- Aufgaben und Nachrichten können auf fachliche Objekte verweisen
-- WhatsApp ist kein führender Datenkanal
+- Sichtbarkeit wird explizit ueber Empfaengergruppen, Rollen oder Ressourcenbezug gesteuert
+- Aufgaben und Nachrichten koennen auf fachliche Objekte verweisen
+- WhatsApp ist kein fuehrender Datenkanal
 
 ## Rollenbild
 
 ### Bestehende Kernrollen
 
-- `Revier Admin`: Verwaltung, Freigaben, Rollen- und Mitgliederüberblick
-- `Schriftführer`: Sitzungen, Protokolle, Beschlüsse und protokollbezogene Aufgaben
-- `Jäger`: mobile Feldnutzung, Ansitz, Fallwild, Reviereinrichtungen, eigene Aufgaben
+- `Revier Admin`: Verwaltung, Freigaben, Rollen- und Mitgliederueberblick
+- `Schriftfuehrer`: Sitzungen, Protokolle, Beschluesse und protokollbezogene Aufgaben
+- `Jaeger`: mobile Feldnutzung, Ansitz, Fallwild, Reviereinrichtungen, eigene Aufgaben
 
 ### Fachlich vorgesehene Erweiterungen
 
-- `Pächter`
+- `Paechter`
 - `Jagdleiter`
 - `Jagdaufseher`
 - `Kassier`
 - `Ausgeher`
 - `Gesellschafter`
-- `Gastjäger`
+- `Gastjaeger`
 
-Diese Rollen sind fachliche Zielrichtung. Sie müssen nicht sofort technisch vollständig getrennt werden.
+Diese Rollen sind fachliche Zielrichtung. Sie muessen nicht sofort technisch vollstaendig getrennt werden.
 
 ## Sichtbarkeit
 
-Sichtbarkeit wird nicht allein aus Rollen abgeleitet. Entscheidend sind Revier, Rolle, Empfängergruppe und optional der Bezug zu einer Ressource.
+Sichtbarkeit wird nicht allein aus Rollen abgeleitet. Entscheidend sind Revier, Rolle, Empfaengergruppe und optional der Bezug zu einer Ressource.
 
 ### Grundregeln
 
@@ -48,9 +48,9 @@ Sichtbarkeit wird nicht allein aus Rollen abgeleitet. Entscheidend sind Revier, 
 - adressierte Mitglieder sehen direkte Nachrichten und zugewiesene Aufgaben
 - Rollen sehen Inhalte, die explizit an ihre Rolle adressiert sind
 - Revier Admins sehen alle operativen Inhalte ihres Reviers
-- Schriftführer sehen protokoll- und sitzungsbezogene Inhalte
-- Jäger sehen feldrelevante Inhalte, eigene Aufgaben und an sie gerichtete Nachrichten
-- Gastjäger sehen nur Inhalte, die für ihre Teilnahme oder Einladung nötig sind
+- Schriftfuehrer sehen protokoll- und sitzungsbezogene Inhalte
+- Jaeger sehen feldrelevante Inhalte, eigene Aufgaben und an sie gerichtete Nachrichten
+- Gastjaeger sehen nur Inhalte, die fuer ihre Teilnahme oder Einladung noetig sind
 
 ### Sichtbarkeitsstufen
 
@@ -60,13 +60,13 @@ Sichtbarkeit wird nicht allein aus Rollen abgeleitet. Entscheidend sind Revier, 
 - `admin`: Revier Admins und berechtigte Leitungsrollen
 - `resource`: Sichtbarkeit folgt der referenzierten Ressource
 
-Die konkrete technische Policy kann später feiner werden. Für v1 reicht ein klarer, nachvollziehbarer Sichtbarkeitsentscheid pro Inhalt.
+Die konkrete technische Policy kann spaeter feiner werden. Fuer v1 reicht ein klarer, nachvollziehbarer Sichtbarkeitsentscheid pro Inhalt.
 
-## Empfängergruppen
+## Empfaengergruppen
 
-Nachrichten, Aufgaben, Reviermeldungen und Veranstaltungen können an unterschiedliche Empfängergruppen gerichtet sein.
+Nachrichten, Aufgaben, Reviermeldungen und Veranstaltungen koennen an unterschiedliche Empfaengergruppen gerichtet sein.
 
-Mögliche Zielgruppen:
+Moegliche Zielgruppen:
 
 - einzelne `membership_id`
 - mehrere Mitgliedschaften
@@ -77,30 +77,30 @@ Mögliche Zielgruppen:
 - Mitglieder mit Bezug zu einer Reviereinrichtung
 - Mitglieder mit Bezug zu einem Beschluss oder Protokollpunkt
 
-Empfängergruppen sollen nachvollziehbar gespeichert werden. Eine Nachricht an `alle Jäger` darf nicht nur als Text gespeichert werden, sondern braucht eine strukturierte Zielgruppe.
+Empfaengergruppen sollen nachvollziehbar gespeichert werden. Eine Nachricht an `alle Jaeger` darf nicht nur als Text gespeichert werden, sondern braucht eine strukturierte Zielgruppe.
 
 ## Aufgaben
 
-Aufgaben sind interne Arbeitseinheiten im Revier. Sie können einmalig, wiederkehrend oder projektartig sein.
+Aufgaben sind interne Arbeitseinheiten im Revier. Sie koennen einmalig, wiederkehrend oder projektartig sein.
 
 ### Typische Aufgaben
 
 - Hochstand kontrollieren
 - Hochstand reparieren
-- Fütterung betreuen
-- Salzlecke auffüllen
-- Kirrung prüfen
+- Fuetterung betreuen
+- Salzlecke auffuellen
+- Kirrung pruefen
 - Wildkamera warten
 - Fallwild-Nachbearbeitung erledigen
 - Arbeitseinsatz vorbereiten
-- Veranstaltungsdienst übernehmen
+- Veranstaltungsdienst uebernehmen
 - Beschluss aus einer Sitzung umsetzen
 
 ### Aufgabenbezug
 
 Eine Aufgabe kann ohne Bezug manuell entstehen oder auf eine Ressource verweisen.
 
-Mögliche Bezüge:
+Moegliche Bezuege:
 
 - `reviereinrichtung`
 - `fallwild_vorgang`
@@ -111,11 +111,11 @@ Mögliche Bezüge:
 - `protokoll_version`
 - `ansitz_session`
 
-Der Bezug soll als `source_type` und `source_id` modellierbar sein, damit Aufgaben nicht für jede Quelle ein eigenes Sondermodell benötigen.
+Der Bezug soll als `source_type` und `source_id` modellierbar sein, damit Aufgaben nicht fuer jede Quelle ein eigenes Sondermodell benoetigen.
 
 ### Aufgabenstatus
 
-Mögliche Statuswerte:
+Moegliche Statuswerte:
 
 - `offen`
 - `angenommen`
@@ -127,28 +127,28 @@ Mögliche Statuswerte:
 
 ### Aufgabenfelder
 
-Mögliche fachliche Felder:
+Moegliche fachliche Felder:
 
 - Titel
 - Beschreibung
 - Revier
 - Ersteller
 - Verantwortliche
-- Beobachter oder informierte Empfänger
-- Priorität
-- Fälligkeitsdatum
+- Beobachter oder informierte Empfaenger
+- Prioritaet
+- Faelligkeitsdatum
 - Startdatum
 - Wiederholungsregel
 - Standort oder Ressourcenbezug
 - Status
 - Abschlussnotiz
-- Anhänge oder Fotos
+- Anhaenge oder Fotos
 
-Diese Felder sind eine Richtung für spätere API- und Datenmodellierung, keine verbindliche Migration.
+Diese Felder sind eine Richtung fuer spaetere API- und Datenmodellierung, keine verbindliche Migration.
 
 ## Nachrichten
 
-Nachrichten sind interne, strukturierte Kommunikation im Revier. Sie sind nicht als vollständiger Chat-Ersatz für beliebige Privatkommunikation gedacht.
+Nachrichten sind interne, strukturierte Kommunikation im Revier. Sie sind nicht als vollstaendiger Chat-Ersatz fuer beliebige Privatkommunikation gedacht.
 
 ### Nachrichtentypen
 
@@ -163,17 +163,17 @@ Nachrichten sind interne, strukturierte Kommunikation im Revier. Sie sind nicht 
 ### Nachrichtenregeln
 
 - jede Nachricht hat einen Revierkontext
-- jede Nachricht hat einen Ersteller oder einen Systemauslöser
-- jede Nachricht hat strukturierte Empfänger
-- Nachrichten können gelesen, archiviert oder als erledigt markiert werden
-- fachlich relevante Nachrichten können auf Aufgaben, Reviermeldungen oder Veranstaltungen verweisen
+- jede Nachricht hat einen Ersteller oder einen Systemausloese
+- jede Nachricht hat strukturierte Empfaenger
+- Nachrichten koennen gelesen, archiviert oder als erledigt markiert werden
+- fachlich relevante Nachrichten koennen auf Aufgaben, Reviermeldungen oder Veranstaltungen verweisen
 - Push-Benachrichtigungen sind Auslieferung, nicht Quelle der Wahrheit
 
 ### Abgrenzung zu Notifications
 
 `notifications` bleiben technische oder produktinterne Hinweise, zum Beispiel `Protokoll freigegeben` oder `neue Aufgabe`. Nachrichten sind dagegen fachliche Inhalte, die Nutzer bewusst erstellen oder beantworten.
 
-Beide Konzepte können zusammenarbeiten: Eine neue Nachricht kann eine Notification auslösen, aber die Notification ersetzt die Nachricht nicht.
+Beide Konzepte koennen zusammenarbeiten: Eine neue Nachricht kann eine Notification ausloesen, aber die Notification ersetzt die Nachricht nicht.
 
 ## Reviermeldungen
 
@@ -184,10 +184,10 @@ Reviermeldungen sind strukturierte Beobachtungen oder Hinweise aus dem Revier. S
 - Wildsichtung
 - Schaden
 - Gefahr
-- Sperre oder Einschränkung
+- Sperre oder Einschraenkung
 - Mangel an Reviereinrichtung
-- auffällige Beobachtung
-- Hinweis für andere Jäger
+- auffaellige Beobachtung
+- Hinweis fuer andere Jaeger
 
 ### Eigenschaften
 
@@ -196,13 +196,13 @@ Reviermeldungen sind strukturierte Beobachtungen oder Hinweise aus dem Revier. S
 - Kategorie verpflichtend
 - Status nachvollziehbar
 - Fotos optional
-- Sichtbarkeit abhängig von Kategorie und Empfängergruppe
-- Meldung kann zu Aufgabe, Nachricht oder Veranstaltung führen
+- Sichtbarkeit abhaengig von Kategorie und Empfaengergruppe
+- Meldung kann zu Aufgabe, Nachricht oder Veranstaltung fuehren
 
 ### Statuswerte
 
 - `neu`
-- `geprüft`
+- `geprueft`
 - `in_bearbeitung`
 - `erledigt`
 - `verworfen`
@@ -212,7 +212,7 @@ Fallwild bleibt ein eigener fachlicher Vorgang. Eine Reviermeldung kann auf Fall
 
 ## Veranstaltungen
 
-Veranstaltungen bündeln Termine, Teilnehmer, Aufgaben und Kommunikation.
+Veranstaltungen buendeln Termine, Teilnehmer, Aufgaben und Kommunikation.
 
 ### Typische Veranstaltungen
 
@@ -220,7 +220,7 @@ Veranstaltungen bündeln Termine, Teilnehmer, Aufgaben und Kommunikation.
 - Arbeitseinsatz
 - Reviersitzung
 - Schulung
-- Hegemaßnahme
+- Hegemassnahme
 - Kontrolltermin
 - gemeinsamer Treffpunkt
 
@@ -230,7 +230,7 @@ Veranstaltungen bündeln Termine, Teilnehmer, Aufgaben und Kommunikation.
 - Beschreibung
 - Start- und Endzeit
 - Ort oder Treffpunkt
-- Empfängergruppe
+- Empfaengergruppe
 - Teilnehmerstatus
 - verantwortliche Rolle oder Mitgliedschaft
 - optionale Aufgabenliste
@@ -245,47 +245,53 @@ Veranstaltungen bündeln Termine, Teilnehmer, Aufgaben und Kommunikation.
 - `teilgenommen`
 - `nicht_erschienen`
 
-Veranstaltungen können später Aufgaben erzeugen, zum Beispiel Dienste, Vorbereitung, Nachbereitung oder Kontrollgänge.
+Veranstaltungen koennen spaeter Aufgaben erzeugen, zum Beispiel Dienste, Vorbereitung, Nachbereitung oder Kontrollgaenge.
 
 ## WhatsApp-Abgrenzung
 
-WhatsApp kann später als zusätzlicher Kanal betrachtet werden, ist aber nicht die fachliche Quelle.
+WhatsApp kann spaeter als zusaetzlicher Kanal betrachtet werden, ist aber nicht die fachliche Quelle.
 
 ### Nicht Ziel von v1
 
 - automatische Synchronisierung von WhatsApp-Gruppen
-- Import eingehender WhatsApp-Nachrichten als führende Fachdaten
-- Aufgabensteuerung ausschließlich über WhatsApp
-- Speicherung privater Chatverläufe
+- Import eingehender WhatsApp-Nachrichten als fuehrende Fachdaten
+- Aufgabensteuerung ausschliesslich ueber WhatsApp
+- Speicherung privater Chatverlaeufe
 - Versand sensibler Standortdaten ohne explizite fachliche Entscheidung
 
-### Mögliche spätere Nutzung
+### Moegliche spaetere Nutzung
 
 - Versand einer kurzen Benachrichtigung mit Link in die App
 - Erinnerung an Veranstaltung oder Aufgabe
 - Hinweis auf freigegebenes Protokoll
-- Weiterleitung allgemeiner Revierinformationen an opt-in Empfänger
+- Weiterleitung allgemeiner Revierinformationen an opt-in Empfaenger
 
-Der vollständige Inhalt und der verbindliche Status bleiben in der App.
+Der vollstaendige Inhalt und der verbindliche Status bleiben in der App.
 
 ## API-Richtung
 
 Die API soll fachliche Ressourcen klar trennen und trotzdem Beziehungen zulassen.
 
-Mögliche Endpunkte:
+### Bereits implementiert
+
+Die folgenden Endpunkte sind produktiv in `apps/web/src/app/api/v1/` vorhanden:
+
+- `GET /api/v1/reviermeldungen`
+- `POST /api/v1/reviermeldungen`
+- `GET /api/v1/reviermeldungen/:id`
+- `PATCH /api/v1/reviermeldungen/:id`
+- `GET /api/v1/aufgaben`
+- `POST /api/v1/aufgaben`
+- `GET /api/v1/aufgaben/:id`
+- `PATCH /api/v1/aufgaben/:id`
+
+### Geplant (naechste Ausbaustufe)
 
 - `GET /api/v1/roles`
-- `GET /api/v1/memberships`
-- `GET /api/v1/tasks`
-- `POST /api/v1/tasks`
-- `GET /api/v1/tasks/:id`
-- `PATCH /api/v1/tasks/:id`
+- `GET /api/v1/memberships` *(GET /api/v1/memberships/invitations bereits vorhanden)*
 - `GET /api/v1/messages`
 - `POST /api/v1/messages`
 - `PATCH /api/v1/messages/:id`
-- `GET /api/v1/reviermeldungen`
-- `POST /api/v1/reviermeldungen`
-- `PATCH /api/v1/reviermeldungen/:id`
 - `GET /api/v1/veranstaltungen`
 - `POST /api/v1/veranstaltungen`
 - `PATCH /api/v1/veranstaltungen/:id`
@@ -294,17 +300,17 @@ Diese Liste ist eine Richtung. Sie legt keine Umsetzung in diesem Sprint fest.
 
 ## Datenmodell-Richtung
 
-Mögliche Tabellen oder Ressourcen:
+Moegliche Tabellen oder Ressourcen:
 
 - `roles`
 - `membership_roles`
-- `tasks`
+- `tasks` *(aktuell als `reviermeldungen` und `aufgaben` getrennt modelliert)*
 - `task_assignees`
 - `task_comments`
 - `messages`
 - `message_recipients`
 - `message_read_states`
-- `reviermeldungen`
+- `reviermeldungen` *(bereits vorhanden)*
 - `veranstaltungen`
 - `veranstaltung_teilnehmer`
 - `resource_links`
@@ -322,24 +328,24 @@ Wichtige gemeinsame Felder:
 - `updated_at`
 - `archived_at`
 
-Für Empfängergruppen kann später eine generische Struktur entstehen, zum Beispiel `target_type` und `target_id` mit Werten wie `membership`, `role`, `revier`, `event_participants` oder `task_assignees`.
+Fuer Empfaengergruppen kann spaeter eine generische Struktur entstehen, zum Beispiel `target_type` und `target_id` mit Werten wie `membership`, `role`, `revier`, `event_participants` oder `task_assignees`.
 
 ## Datenschutz und Nachvollziehbarkeit
 
 - Nachrichten und Aufgaben sind revierinterne Daten
-- private Kommunikation soll nicht unnötig in die Plattform gezogen werden
+- private Kommunikation soll nicht unnoetig in die Plattform gezogen werden
 - sensible Standort- und Personendaten brauchen klare Sichtbarkeit
-- Änderungen an Aufgabenstatus und Verantwortlichkeit sollen nachvollziehbar sein
-- Revier Admins benötigen Überblick, aber keine unnötige Vermischung mit privater Kommunikation
+- Aenderungen an Aufgabenstatus und Verantwortlichkeit sollen nachvollziehbar sein
+- Revier Admins benoetigen Ueberblick, aber keine unnoetige Vermischung mit privater Kommunikation
 - Audit-Logs sollen fachliche Entscheidungen erfassen, nicht jede gelesene Nachricht
 
-## Akzeptanzkriterien für spätere Umsetzung
+## Akzeptanzkriterien fuer spaetere Umsetzung
 
 - Inhalte sind pro Revier getrennt
-- Empfängergruppen werden strukturiert gespeichert
-- Aufgaben können einzelnen Mitgliedern, Rollen oder Gruppen zugewiesen werden
-- Aufgaben können auf fachliche Ressourcen verweisen
+- Empfaengergruppen werden strukturiert gespeichert
+- Aufgaben koennen einzelnen Mitgliedern, Rollen oder Gruppen zugewiesen werden
+- Aufgaben koennen auf fachliche Ressourcen verweisen
 - Reviermeldungen sind von Fallwild und Nachrichten unterscheidbar
-- Veranstaltungen können Teilnehmer, Ort und Aufgabenbezug tragen
+- Veranstaltungen koennen Teilnehmer, Ort und Aufgabenbezug tragen
 - WhatsApp bleibt optionaler Ausgabekanal und nicht Quelle der Wahrheit
 - das Dokument erzwingt keine Migration in diesem Sprint
