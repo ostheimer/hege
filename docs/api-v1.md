@@ -182,7 +182,7 @@ Storage-Vertrag:
 
 ### Dokumente und Benachrichtigungen
 
-- `GET /api/v1/notifications`
+- `GET /api/v1/notifications` *(geplant — kein Route Handler vorhanden; Benachrichtigungsdaten kommen derzeit aus dem Dashboard-Snapshot)*
 - `GET /api/v1/documents/:id/download`
 
 ### Kontaktlisten
@@ -336,4 +336,4 @@ Bereits produktiv ueber `apps/web` vorhanden:
 
 1. gehaerteten Medien-/Queue-v2-Pfad per iPhone-/iOS-Simulator-Smoke mit Testkonto und Test-Revier erneut abnehmen
 2. Rollen-, Nachrichten- und Veranstaltungsressourcen auf denselben Rechte- und Fehlervertrag setzen
-3. Notification-Center-Endpunkte ausbauen (aktuell nur GET /api/v1/notifications)
+3. Notification-Center-Endpunkte implementieren (GET /api/v1/notifications existiert noch nicht als Route Handler; Benachrichtigungen kommen derzeit aus dem Dashboard-Snapshot)

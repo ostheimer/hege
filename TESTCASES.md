@@ -78,6 +78,8 @@
 
 ### TC-API-AUTH-06: PIN aendern
 
+> Hinweis: Dieser Test erfordert einen Nicht-Seed-Benutzer. Seed-Kennungen (z.B. `ostheimer`, `andreas@ostheimer.at`) durchlaufen beim Login `syncSeedUsers()`, das `password_hash` auf den Seed-Standard zuruecksetzt — eine zuvor geaenderte PIN wird damit sofort ueberschrieben.
+
 - Web-App lokal mit aktiver DB starten
 - `POST /api/v1/auth/change-pin` mit gueltiger Session, korrekter `currentPin` und neuer vierstelliger `newPin` aufrufen
 - Erwartung: der Endpunkt antwortet mit `200`
@@ -557,7 +559,7 @@
 - Aktuelle PIN, neue PIN und Bestaetigung eingeben
 - Formular absenden
 - Erwartung: bei korrekter aktueller PIN antwortet `POST /api/v1/auth/change-pin` mit `200`
-- Erwartung: bei falscher aktueller PIN erscheint ein Fehlerhinweis
+- Erwartung: bei falscher aktueller PIN antwortet der Endpunkt mit `401` — die Mobile-App bereinigt daraufhin die Session und leitet direkt auf die Loginseite (kein In-Place-Fehlerhinweis; `changePin()` in `api.ts` setzt kein `auth: false`, daher loest jedes `401` `clearSession()` aus)
 - Erwartung: bei einer PIN die nicht vierstellig ist, erscheint eine Client-Validierungsmeldung
 - Erwartung: bei `newPin == currentPin` erscheint eine Validierungsmeldung
 
