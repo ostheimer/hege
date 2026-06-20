@@ -76,6 +76,18 @@
 - Erwartung: der Endpunkt antwortet mit `303` auf `/login`
 - Erwartung: `hege_access_token` und `hege_refresh_token` werden mit `Max-Age=0` geloescht
 
+### TC-API-AUTH-06: PIN aendern
+
+- Web-App lokal mit aktiver DB starten
+- `POST /api/v1/auth/change-pin` mit gueltiger Session, korrekter `currentPin` und neuer vierstelliger `newPin` aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: ein anschliessender Login mit der alten PIN scheitert mit `401`
+- Erwartung: ein Login mit der neuen PIN gelingt
+- `POST /api/v1/auth/change-pin` mit falscher `currentPin` aufrufen
+- Erwartung: der Endpunkt antwortet mit `401`
+- `POST /api/v1/auth/change-pin` gegen den Demo-Store aufrufen
+- Erwartung: der Endpunkt antwortet mit `403` oder `503` (Demo-Store ist read-only)
+
 ### TC-SRV-AUTH-01: Safe Post-Auth Path wird normalisiert
 
 - Server-Unittests ausfuehren
@@ -221,7 +233,7 @@
 
 - `pnpm test:e2e -- apps/web/e2e/ansitze.spec.ts apps/web/e2e/fallwild.spec.ts` ausfuehren
 - Erwartung: Desktop- und Mobile-Viewport stimmen mit den Snapshots ueberein
-- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen grün durch
+- Erwartung: Ansitz-Start/Ende, Fallwild-Erfassung und CSV-Export laufen gruen durch
 
 ### TC-AUTO-WEB-04: Playwright fuer Leitstand, Reviereinrichtungen und Protokolle
 
@@ -414,7 +426,7 @@
 - Startseite `Heute im Revier` aufrufen
 - Erwartung: Reviername und aktive Ansitze werden aus `GET /api/v1/me` und `GET /api/v1/ansitze/live` geladen
 - Erwartung: die Karte zeigt echte Daten aus der API statt `demoData`
-- Erwartung: manueller Refresh aktualisiert die Werte
+- Erwartung: Pull-to-Refresh aktualisiert die Werte
 - Erwartung: die Offline-Warteschlange bleibt sichtbar
 
 ### TC-MOB-AUTH-01: Session-Restore und Login
@@ -437,15 +449,16 @@
 ### TC-MOB-FALLWILD-01: Fallwildliste laden
 
 - App oeffnen
-- Tab `Fallwild` oeffnen
+- Tab `Fallwild` oeffnen, Segment `Bestand` waehlen
 - Erwartung: die Liste wird per `GET /api/v1/fallwild` geladen
 - Erwartung: Eintraege oder leerer Zustand werden sauber dargestellt
 
-### TC-MOB-FALLWILD-02: Manuelle Aktualisierung
+### TC-MOB-FALLWILD-02: Manuelle Aktualisierung per Pull-to-Refresh
 
-- Tab `Fallwild` oeffnen
-- Pull-to-Refresh oder `Aktualisieren` ausloesen
+- Tab `Fallwild` oeffnen, Segment `Bestand` waehlen
+- Bestandsliste nach unten ziehen (Pull-to-Refresh) ausloesen
 - Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
+- Hinweis: der separate `Aktualisieren`-Button existiert seit PR #178 nicht mehr; Aktualisierung erfolgt ausschliesslich per Pull-to-Refresh
 
 ### TC-MOB-FALLWILD-03: API nicht erreichbar
 
@@ -456,7 +469,7 @@
 
 ### TC-MOB-FALLWILD-04: Fallwildformular mit Queue-Fallback
 
-- Tab `Fallwild` oeffnen
+- Tab `Fallwild` oeffnen, Segment `Erfassen` waehlen
 - Formular mit Koordinaten, Gemeinde, Lage, Wildart und Status ausfuellen
 - `Fallwild speichern` ausloesen
 - Erwartung: online wird der Vorgang direkt an `POST /api/v1/fallwild` gesendet
@@ -464,8 +477,8 @@
 
 ### TC-MOB-FALLWILD-05: Fallwild mit Fotos online erfassen
 
-- Tab `Fallwild` oeffnen
-- bis zu drei Fotos aus der Bibliothek auswaehlen
+- Tab `Fallwild` oeffnen, Segment `Erfassen` waehlen
+- bis zu drei Fotos aufnehmen oder aus der Bibliothek auswaehlen
 - Formular absenden
 - Erwartung: zuerst wird `POST /api/v1/fallwild` ausgefuehrt
 - Erwartung: danach laufen die Foto-Uploads sequentiell ueber `POST /api/v1/fallwild/:id/fotos`
@@ -501,14 +514,14 @@
 ### TC-MOB-ANSITZ-01: Ansitzliste laden
 
 - App oeffnen
-- Tab `Ansitz` oeffnen
+- Tab `Ansitz` oeffnen, Segment `Bestand` waehlen
 - Pruefen, dass die Liste per `GET /api/v1/ansitze/live` geladen wird
 - Erwartung: aktive Ansitze werden angezeigt oder ein leerer Zustand wird sauber dargestellt
 
-### TC-MOB-ANSITZ-02: Manuelle Aktualisierung
+### TC-MOB-ANSITZ-02: Manuelle Aktualisierung per Pull-to-Refresh
 
-- Tab `Ansitz` oeffnen
-- Pull-to-Refresh ausfuehren oder `Aktualisieren` tippen
+- Tab `Ansitz` oeffnen, Segment `Bestand` waehlen
+- Bestandsliste nach unten ziehen (Pull-to-Refresh) ausloesen
 - Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
 
 ### TC-MOB-ANSITZ-03: API nicht erreichbar
@@ -519,11 +532,34 @@
 
 ### TC-MOB-ANSITZ-04: Ansitzformular mit Queue-Fallback
 
-- Tab `Ansitz` oeffnen
+- Tab `Ansitz` oeffnen, Segment `Erfassen` waehlen
 - Formular mit Standortname, Koordinaten und Notiz ausfuellen
 - `Ansitz speichern` ausloesen
 - Erwartung: online wird ein `POST /api/v1/ansitze` ausgefuehrt
 - Erwartung: ohne Verbindung wird der Ansitz in die Offline-Queue gelegt
+
+## Mobile Profil
+
+### TC-MOB-PROFIL-01: Profil-Screen oeffnen
+
+- App oeffnen und einloggen
+- Im Mehr-Tab die Profil-Zeile antippen oder im Heute-Tab den Initialen-Avatar antippen
+- Erwartung: der Profil-Screen oeffnet sich mit Name, Rolle und Revier
+- Erwartung: der Erscheinungsbild-Umschalter (System/Hell/Dunkel) ist sichtbar und funktioniert
+- Erwartung: der Face-ID-Schalter ist sichtbar (ggf. deaktiviert mit Begruendung im Simulator)
+- Erwartung: `Abmelden` leitet nach Bestaetigung auf die Loginseite
+
+### TC-MOB-PROFIL-02: PIN aendern im Profil
+
+- App oeffnen und einloggen
+- Profil-Screen oeffnen (Mehr -> Profil-Zeile)
+- Im Abschnitt `Sicherheit` das PIN-Aendern-Formular aufklappen
+- Aktuelle PIN, neue PIN und Bestaetigung eingeben
+- Formular absenden
+- Erwartung: bei korrekter aktueller PIN antwortet `POST /api/v1/auth/change-pin` mit `200`
+- Erwartung: bei falscher aktueller PIN erscheint ein Fehlerhinweis
+- Erwartung: bei einer PIN die nicht vierstellig ist, erscheint eine Client-Validierungsmeldung
+- Erwartung: bei `newPin == currentPin` erscheint eine Validierungsmeldung
 
 ## Mobile Sitzung und Queue
 
@@ -571,7 +607,7 @@
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
 - Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
 
-## Fehlende Testabdeckung (Stand 2026-06-06)
+## Fehlende Testabdeckung (Stand 2026-06-20)
 
 Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 
@@ -591,12 +627,15 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (DELETE), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
 - `/api/v1/reviere/active/setup` (POST/PATCH)
 - `/api/v1/public/register` (POST)
+- `/api/v1/reviermeldungen` und `/api/v1/aufgaben` (GET/POST/PATCH/:id)
+- `/api/v1/contact-lists` und Eintraege-Endpunkte
 
 ### Rollen-/Berechtigungslogik
 - Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
-- Admin vs. Schriftführung vs. Mitglied Rechte-Übergänge
+- Admin vs. Schriftfuehrung vs. Mitglied Rechte-Uebergaenge
 
 ### Dark Mode
-- Systemweites Dark-Mode-Verhalten (Tokens, Kontrast-Verhältnisse)
+- Systemweites Dark-Mode-Verhalten (Tokens, Kontrast-Verhaeltnisse)
+- In-App-Umschalter (System/Hell/Dunkel) persistiert korrekt ueber App-Neustart
 
-*TODO: Test Cases für diese Bereiche hinzufügen*
+*TODO: Test Cases fuer diese Bereiche hinzufuegen*
