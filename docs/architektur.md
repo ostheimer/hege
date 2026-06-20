@@ -225,7 +225,7 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 - gemeinsames Domain-Modell vorhanden (`packages/domain`, `packages/tokens`, `packages/icons`)
 - produktive Authentifizierung aktiv: E-Mail/Benutzername + PIN, Auth-Session, Revierkontext, PIN-Aenderung (`POST /api/v1/auth/change-pin` seit PR #169)
 - persistente Drizzle-/Neon-Schicht fuer alle Kernmodule vorhanden und produktiv
-- vollstaendige Route-Handler-Abdeckung in `apps/web/src/app/api/v1/` fuer: `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `geo`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `notifications`, `contact-lists`, `reviermeldungen`, `aufgaben`, `memberships/invitations`, `reviere/active/setup`, `public/register`
+- vollstaendige Route-Handler-Abdeckung in `apps/web/src/app/api/v1/` fuer: `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `geo`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `contact-lists`, `reviermeldungen`, `aufgaben`, `memberships/invitations`, `reviere/active/setup`, `public/register`
 - Mobile-App mit Screens fuer: Heute (Dashboard), Ansitze, Fallwild, Reviereinrichtungen, Protokolle, Revierarbeit (Meldungen + Aufgaben), Kontakte, Benachrichtigungen, Mehr, **Profil** (eigener Screen seit PR #168 mit Avatar, Theme-Umschalter, Face-ID-Schalter, PIN-Aenderung und Konto-Verwaltung)
 - Mobile Offline-Queue v2 mit Retry-Backoff, Foto-Upload-Kette und manuellem Verwerfen
 - Mobile Dark Mode vollstaendig (In-App-Umschalter System/Hell/Dunkel, persistiert via `lib/theme-mode.ts`; `UIUserInterfaceStyle=Automatic` in `Info.plist`)
