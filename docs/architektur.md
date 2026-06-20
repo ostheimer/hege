@@ -146,7 +146,7 @@ docs/
 ### Aktueller Stand
 
 - `apps/api` verwendet derzeit einen In-Memory-Demo-Store
-- `apps/web` besitzt bereits eine Drizzle-/Neon-Grundlage fuer `users`, `reviere`, `memberships`, `ansitz_sessions` und `fallwild_vorgaenge`
+- `apps/web` besitzt eine Drizzle-/Neon-Grundlage fuer alle Kernmodule
 - lokale Migrationen und Seed-Skripte liegen unter `apps/web/drizzle*` und `apps/web/src/server/db`
 - lokale Infrastruktur fuer PostgreSQL/PostGIS und MinIO ist vorbereitet
 
@@ -222,20 +222,23 @@ Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neo
 
 ## Aktueller Repository-Stand
 
-- gemeinsames Domain-Modell vorhanden
-- API-Endpunkte fuer die Kernmodule in `apps/api` vorhanden
-- erster Vercel-native Datenpfad fuer `me`, `ansitze` und `fallwild` in `apps/web` vorhanden
-- Web- und Mobile-UIs als sichtbares Grundgeruest vorhanden
-- Domain- und Env-Grundlage fuer `hege.app` vorhanden
-- produktive Authentifizierung aktiv (E-Mail/Benutzername + PIN, Auth-Session, Revierkontext)
+- gemeinsames Domain-Modell vorhanden (`packages/domain`, `packages/tokens`, `packages/icons`)
+- produktive Authentifizierung aktiv: E-Mail/Benutzername + PIN, Auth-Session, Revierkontext, PIN-Aenderung (`POST /api/v1/auth/change-pin` seit PR #169)
 - persistente Drizzle-/Neon-Schicht fuer alle Kernmodule vorhanden und produktiv
-- Design-System `@hege/tokens` und `@hege/icons` als eigene Packages in `packages/` etabliert
+- vollstaendige Route-Handler-Abdeckung in `apps/web/src/app/api/v1/` fuer: `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `geo`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`, `notifications`, `contact-lists`, `reviermeldungen`, `aufgaben`, `memberships/invitations`, `reviere/active/setup`, `public/register`
+- Mobile-App mit Screens fuer: Heute (Dashboard), Ansitze, Fallwild, Reviereinrichtungen, Protokolle, Revierarbeit (Meldungen + Aufgaben), Kontakte, Benachrichtigungen, Mehr, **Profil** (eigener Screen seit PR #168 mit Avatar, Theme-Umschalter, Face-ID-Schalter, PIN-Aenderung und Konto-Verwaltung)
+- Mobile Offline-Queue v2 mit Retry-Backoff, Foto-Upload-Kette und manuellem Verwerfen
+- Mobile Dark Mode vollstaendig (In-App-Umschalter System/Hell/Dunkel, persistiert via `lib/theme-mode.ts`; `UIUserInterfaceStyle=Automatic` in `Info.plist`)
+- Mobile Erfassen|Bestand-Umschalter ueber alle Erfassungs-Screens (Fallwild, Ansitze, Revierarbeit) seit PR #178
+- Design-System `@hege/tokens` (Farben, Spacing, Radius, Schatten, Typo, semantische Rollen `onAccent`/`onWarning`/`surfaceMuted`) und `@hege/icons` als eigene Packages in `packages/`
+- Web-Karte via `@vis.gl/react-google-maps` mit klickbaren Markern; Mobile-Karte via `react-native-maps`
+- Einladungsflow (`/einladung`) und Mitgliederverwaltung (`/app/mitglieder`) im Web vorhanden
 
 ## Naechste technische Ausbaustufe
 
 1. Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
-2. Google-Maps-Karten auf echte Daten umstellen (Backoffice-Dashboard und Mobile-MapPreview)
-3. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
-4. Android-Emulator-Smoke als Zweitpfad vorbereiten
-5. PDF-Erzeugung weiter haerten
-6. GIP-Bounding-Box mit dem tatsaechlichen Revier abgleichen
+2. Mobile-E2E-Strategie ueber den dokumentierten Geraete-Smoke hinaus festziehen
+3. Android-Emulator-Smoke als Zweitpfad vorbereiten
+4. PDF-Erzeugung weiter haerten
+5. GIP-Bounding-Box mit dem tatsaechlichen Revier abgleichen
+6. iPhone-/iOS-Geraete-Smoke auf Production mit Foto-Upload, Standortaufloesung und leerer Queue erneut ausfuehren
