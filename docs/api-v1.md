@@ -21,6 +21,7 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/refresh`
 - `POST /api/v1/auth/logout`
+- `POST /api/v1/auth/change-pin`
 - `GET /api/v1/me`
 
 `POST /api/v1/auth/login` akzeptiert:
@@ -28,6 +29,8 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - `identifier` als E-Mail oder Benutzername
 - `pin` als vierstellige Zeichenkette
 - optional `membershipId`
+
+`POST /api/v1/auth/change-pin` erlaubt das Aendern der eigenen PIN und verlangt als Besitznachweis die aktuelle PIN (`currentPin`) sowie die neue PIN (`newPin`). Der Demo-Store lehnt diesen Endpunkt ab (read-only). Der Route Handler liegt unter `apps/web/src/app/api/v1/auth/change-pin/route.ts` und wurde in PR #169 eingefuehrt.
 
 ### Revier-Scope
 
@@ -86,19 +89,19 @@ Liefert:
 
 #### `POST /api/v1/geo/fallwild-location`
 
-Löst Koordinaten für die Fallwild-Erfassung auf. Die Route ist serverseitig, damit der Google-Server-Key nicht an Web oder Mobile ausgeliefert wird.
+Loest Koordinaten fuer die Fallwild-Erfassung auf. Die Route ist serverseitig, damit der Google-Server-Key nicht an Web oder Mobile ausgeliefert wird.
 
 Request:
 
 - `lat` als Dezimalgrad
 - `lng` als Dezimalgrad
-- `accuracyMeters` optional, vom Gerät gelieferte GPS-Genauigkeit in Metern
+- `accuracyMeters` optional, vom Geraet gelieferte GPS-Genauigkeit in Metern
 
 Antwort:
 
 - `location.lat`
 - `location.lng`
-- `location.accuracyMeters`, falls im Request übergeben
+- `location.accuracyMeters`, falls im Request uebergeben
 - `location.label`, falls ableitbar
 - `location.addressLabel`, falls Google Reverse Geocoding konfiguriert ist
 - `location.placeId`, falls Google einen Treffer liefert
@@ -119,11 +122,11 @@ Konfiguration:
 - `GIP_ROAD_KILOMETER_INDEX_PATH`
 - `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150`
 
-GIP ist die fachliche Zielquelle für Straßenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Straße. Der konfigurierte `GIP_ROAD_KILOMETER_ENDPOINT` bekommt `lat`, `lng`, optional `roadName` und optional `accuracyMeters`; akzeptiert werden einfache JSON-Felder wie `roadName`/`roadKilometer`, GeoJSON-ähnliche `FeatureCollection`-Antworten mit `properties` sowie ArcGIS-ähnliche `features[].attributes`. Alternativ kann `GIP_ROAD_KILOMETER_INDEX_PATH` auf einen kompakten JSON-Index aus GIP-OGD-BEPU-Punkten zeigen; ohne expliziten Index nutzt das Backend einen gebündelten regionalen Gänserndorf-Index. Der lokale Resolver wählt den nächsten Punkt innerhalb von `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS`, erweitert den Radius bei schlechter GPS-Genauigkeit und bevorzugt passende Straßencodes. Österreichische Straßennamen werden für den Abgleich normalisiert, sodass etwa `Landesstraße 9`, `L 9` und `L9` als derselbe Straßenbezug gelten. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gänserndorf-Testdaten ohne externe Keys; diese Antworten sind über `warnings` als Testdaten gekennzeichnet und nicht für echte Production-Erfassung gedacht. Details stehen in [GIP-Straßenkilometer v1](./gip-strassenkilometer-v1.md).
+GIP ist die fachliche Zielquelle fuer Strassenkilometer. Google liefert in v1 nur Adresse, Gemeinde und Strasse. Der konfigurierte `GIP_ROAD_KILOMETER_ENDPOINT` bekommt `lat`, `lng`, optional `roadName` und optional `accuracyMeters`; akzeptiert werden einfache JSON-Felder wie `roadName`/`roadKilometer`, GeoJSON-aehnliche `FeatureCollection`-Antworten mit `properties` sowie ArcGIS-aehnliche `features[].attributes`. Alternativ kann `GIP_ROAD_KILOMETER_INDEX_PATH` auf einen kompakten JSON-Index aus GIP-OGD-BEPU-Punkten zeigen; ohne expliziten Index nutzt das Backend einen gebuendelten regionalen Gaenserndorf-Index. Der lokale Resolver waehlt den naechsten Punkt innerhalb von `GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS`, erweitert den Radius bei schlechter GPS-Genauigkeit und bevorzugt passende Strassencodes. Oesterreichische Strassennamen werden fuer den Abgleich normalisiert, sodass etwa `Landesstrasse 9`, `L 9` und `L9` als derselbe Strassenbezug gelten. Mit `HEGE_GEO_PROVIDER=mock` liefert der Endpunkt lokale Gaenserndorf-Testdaten ohne externe Keys; diese Antworten sind ueber `warnings` als Testdaten gekennzeichnet und nicht fuer echte Production-Erfassung gedacht. Details stehen in [GIP-Strassenkilometer v1](./gip-strassenkilometer-v1.md).
 
 #### `POST /api/v1/fallwild`
 
-Akzeptiert zusätzlich zu Wildart, Status und Gemeinde Standort-Metadaten:
+Akzeptiert zusaetzlich zu Wildart, Status und Gemeinde Standort-Metadaten:
 
 - `location.accuracyMeters`
 - `location.source`
@@ -229,20 +232,20 @@ Reviermeldungen und Aufgaben bilden den ersten fachlichen Arbeitsblock nach Fall
 - `GET /api/v1/aufgaben/:id`
 - `PATCH /api/v1/aufgaben/:id`
 
-Reviermeldungen erfassen Kategorie, Status, Zeitpunkt, Titel, Beschreibung, optionalen Standort und optionalen Ressourcenbezug. Aufgaben erfassen Titel, Status, Priorität, Fälligkeit, Verantwortliche und optional einen Bezug zu Reviermeldung, Reviereinrichtung, Fallwild, Sitzung oder Beschluss.
+Reviermeldungen erfassen Kategorie, Status, Zeitpunkt, Titel, Beschreibung, optionalen Standort und optionalen Ressourcenbezug. Aufgaben erfassen Titel, Status, Prioritaet, Faelligkeit, Verantwortliche und optional einen Bezug zu Reviermeldung, Reviereinrichtung, Fallwild, Sitzung oder Beschluss.
 
-Rollen für v1:
+Rollen fuer v1:
 
 - `revier-admin`
 - `schriftfuehrer`
 - `jaeger`
 - `ausgeher`
 
-Normale Mitglieder sehen eigene oder ihnen zugewiesene Aufgaben. Revier-Admins und Schriftführer sehen die Revierliste.
+Normale Mitglieder sehen eigene oder ihnen zugewiesene Aufgaben. Revier-Admins und Schriftfuehrer sehen die Revierliste.
 
 ### Rollen, Nachrichten und Veranstaltungen
 
-Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fachlich bereits mitgedacht.
+Diese Ressourcen bleiben fuer die naechste Ausbaustufe vorgesehen und werden fachlich bereits mitgedacht.
 
 - `GET /api/v1/roles`
 - `GET /api/v1/memberships`
@@ -319,8 +322,12 @@ Kernressourcen:
 
 Bereits produktiv ueber `apps/web` vorhanden:
 
-- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
-- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
+- `auth` (login, refresh, logout, **change-pin**), `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents`
+- `contact-lists` mit Eintraegen, `reviermeldungen`, `aufgaben`
+- `memberships/invitations` (GET/POST), `memberships/invitations/[id]` (DELETE), `memberships/invitations/accept` (POST), `memberships/invitations/export.csv` (GET)
+- `reviere/active/setup` (POST/PATCH), `public/register` (POST)
+- `geo/fallwild-location` (POST)
+- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications, Reviermeldungen und Aufgaben
 - S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 
 `apps/api` bleibt als Referenz und Uebergangspfad im Repository, ist aber nicht die produktive Zielarchitektur.
@@ -328,5 +335,5 @@ Bereits produktiv ueber `apps/web` vorhanden:
 ## Naechste API-Themen
 
 1. gehaerteten Medien-/Queue-v2-Pfad per iPhone-/iOS-Simulator-Smoke mit Testkonto und Test-Revier erneut abnehmen
-2. Reviermeldungen und Aufgaben v1 auf dieselbe API-Linie heben
-3. Rollen-, Nachrichten- und Veranstaltungsressourcen danach auf denselben Rechte- und Fehlervertrag setzen
+2. Rollen-, Nachrichten- und Veranstaltungsressourcen auf denselben Rechte- und Fehlervertrag setzen
+3. Notification-Center-Endpunkte ausbauen (aktuell nur GET /api/v1/notifications)
