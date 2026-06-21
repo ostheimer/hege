@@ -59,7 +59,7 @@ Pfad 1 aus [docs/ux-roadmap-v2.md](docs/ux-roadmap-v2.md). Reihenfolge: P1.0 zue
 
 - [x] P1.0 — EAS-Preview-iOS-Build: erledigt via Build `e6667820` (2026-06-05, Runtime 1.0.1, Channel `preview`) per Internal Distribution/USB statt TestFlight; JS-Stände kommen seither per OTA (zuletzt `0.1.0 · 2026-06-10.14`). TestFlight erst nötig, wenn Tester ohne USB-Zugang dazukommen.
 - [x] P1.1 — Demo-Daten auf realistische Volumina erweitert (Seeds decken Sitzungen, Fallwild, Reviereinrichtungen, Mitglieder, Reviermeldungen/Aufgaben, Kontakte und Notifications ab).
-- [ ] P1.2 — Wortmarken-Logo als SVG-Asset-Satz (Mark+Wortmarke kombiniert + monochrome Varianten) für Header, Favicon, OG-Image, Mobile-Login, Mobile-Splash.
+- [ ] P1.2 — Wortmarken-Logo als SVG-Asset-Satz (Mark+Wortmarke kombiniert + monochrome Varianten) für Header, Favicon, OG-Image, Mobile-Login, Mobile-Splash. *Hinweis: `HegeWordmark.tsx` und `HegeWordmarkLight.tsx` existieren bereits als React-TSX-Komponenten in `packages/icons/src/wordmark/`. Ausstehend: standalone SVG-Dateien (.svg) für Favicon, OG-Image und Splash-Screen, die ohne React-Kontext einsetzbar sind.*
 - [x] P1.3 — Mobile Heute-Tab Layout-Fixes: alle fünf Punkte umgesetzt (PR #44, Verfeinerungen #76/#122).
 - [x] P1.4 — `<StateView>` für Empty/Loading/Error: Mobile vollständig migriert, Web-Pendant existiert seit PR #45 und ist breit adoptiert. Optionaler Hygiene-Rest (klein, niedrig): 3 Web-Empty-States (Benachrichtigungen `.empty-card`, Protokolle-Page, Ansitze-Tabellen-Rows) migrieren.
 - [ ] P1.5 — Custom Domain-Iconographie: `packages/icons` (`@hege/icons`) als Workspace-Package erstellt und im Repo vorhanden. *`apps/mobile` hat noch keine `@hege/icons`-Abhängigkeit — Mobile-Integration ausstehend.*

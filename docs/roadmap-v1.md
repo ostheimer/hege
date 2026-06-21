@@ -1,5 +1,7 @@
 # Roadmap v1
 
+> **Hinweis:** Diese Datei ist ein historisches Planungsdokument und endet bei Sprint 4. Die aktuell gepflegte Roadmap mit dem vollständigen Status aller Sprints und offenen Punkten liegt in [`/ROADMAP.md`](../ROADMAP.md) im Repository-Root.
+
 ## Ziel
 
 Diese Roadmap beschreibt die Ausbaustufen vom Repository-Grundgerüst zur ersten produktiven Version für Schriftführer und Jäger.

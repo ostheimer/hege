@@ -21,6 +21,7 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/refresh`
 - `POST /api/v1/auth/logout`
+- `POST /api/v1/auth/change-pin` — PIN eines eingeloggten Benutzers ändern; erfordert aktuelle PIN zur Verifikation
 - `GET /api/v1/me`
 
 `POST /api/v1/auth/login` akzeptiert:
@@ -59,6 +60,7 @@ Liefert:
 - `POST /api/v1/sitzungen/:id/versionen`
 - `PATCH /api/v1/sitzungen/:id/freigeben`
 - `GET /api/v1/sitzungen/:id/pdf`
+- `GET /api/v1/sitzungen/export.csv`
 - `GET /api/v1/protokolle`
 - `GET /api/v1/protokolle/:id`
 
@@ -72,8 +74,9 @@ Liefert:
 ### Reviereinrichtungen
 
 - `GET /api/v1/reviereinrichtungen`
-- `GET /api/v1/reviereinrichtungen/:id`
-- `POST /api/v1/reviereinrichtungen/:id/kontrollen`
+- `GET /api/v1/reviereinrichtungen/export.csv`
+- `GET /api/v1/reviereinrichtungen/:id` — **(noch nicht implementiert, Route-Handler fehlt)**
+- `POST /api/v1/reviereinrichtungen/:id/kontrollen` — **(noch nicht implementiert, Route-Handler fehlt)**
 
 ### Fallwild
 
@@ -179,7 +182,7 @@ Storage-Vertrag:
 
 ### Dokumente und Benachrichtigungen
 
-- `GET /api/v1/notifications`
+- `GET /api/v1/notifications` — **(noch nicht implementiert, Route-Handler fehlt; DB-Tabelle und Seeds vorhanden)**
 - `GET /api/v1/documents/:id/download`
 
 ### Kontaktlisten
@@ -224,6 +227,7 @@ Reviermeldungen und Aufgaben bilden den ersten fachlichen Arbeitsblock nach Fall
 - `POST /api/v1/reviermeldungen`
 - `GET /api/v1/reviermeldungen/:id`
 - `PATCH /api/v1/reviermeldungen/:id`
+- `GET /api/v1/reviermeldungen/export.csv`
 - `GET /api/v1/aufgaben`
 - `POST /api/v1/aufgaben`
 - `GET /api/v1/aufgaben/:id`
@@ -319,9 +323,17 @@ Kernressourcen:
 
 Bereits produktiv ueber `apps/web` vorhanden:
 
-- `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents`
-- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente und Notifications
-- S3-kompatible Storage-Schicht fuer lokales MinIO und spaeteres R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
+- `auth` (inkl. `change-pin`), `me`, `dashboard`, `ansitze`, `fallwild` (inkl. CSV-Export), `reviereinrichtungen` (Liste + CSV-Export; Einzel-Detail und Kontroll-Erfassung noch nicht implementiert), `protokolle`, `sitzungen` (inkl. CSV-Export), `documents`
+- `contact-lists` (inkl. Eintraege), `reviermeldungen` (inkl. CSV-Export), `aufgaben`
+- `memberships/invitations` (abrufen, anlegen, annehmen, widerrufen, CSV-Export)
+- `reviere/active/setup`, `public/register`, `geo/fallwild-location`
+- Drizzle-Migrationen fuer Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications, Reviermeldungen, Aufgaben, Kontaktlisten
+- S3-kompatible Storage-Schicht fuer lokales MinIO und Cloudflare R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
+
+Noch nicht implementiert (Doku kennzeichnet diese mit dem Hinweis „noch nicht implementiert"):
+
+- `GET /api/v1/notifications` (DB-Tabelle und Seeds vorhanden)
+- `GET /api/v1/reviereinrichtungen/:id` und `POST /api/v1/reviereinrichtungen/:id/kontrollen`
 
 `apps/api` bleibt als Referenz und Uebergangspfad im Repository, ist aber nicht die produktive Zielarchitektur.
 
