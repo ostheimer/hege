@@ -68,6 +68,7 @@ Liefert:
 
 - `GET /api/v1/ansitze`
 - `GET /api/v1/ansitze/live`
+- `GET /api/v1/ansitze/export.csv`
 - `POST /api/v1/ansitze`
 - `PATCH /api/v1/ansitze/:id/beenden`
 
