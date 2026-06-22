@@ -444,7 +444,7 @@
 ### TC-MOB-FALLWILD-02: Manuelle Aktualisierung
 
 - Tab `Fallwild` oeffnen
-- Pull-to-Refresh oder `Aktualisieren` ausloesen
+- Pull-to-Refresh ausloesen
 - Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
 
 ### TC-MOB-FALLWILD-03: API nicht erreichbar
@@ -458,7 +458,7 @@
 
 - Tab `Fallwild` oeffnen
 - Formular mit Koordinaten, Gemeinde, Lage, Wildart und Status ausfuellen
-- `Fallwild speichern` ausloesen
+- `Speichern` ausloesen
 - Erwartung: online wird der Vorgang direkt an `POST /api/v1/fallwild` gesendet
 - Erwartung: ohne Verbindung wird der Vorgang in die Offline-Queue gelegt und im Dashboard sichtbar
 
@@ -508,7 +508,7 @@
 ### TC-MOB-ANSITZ-02: Manuelle Aktualisierung
 
 - Tab `Ansitz` oeffnen
-- Pull-to-Refresh ausfuehren oder `Aktualisieren` tippen
+- Pull-to-Refresh ausfuehren
 - Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
 
 ### TC-MOB-ANSITZ-03: API nicht erreichbar
