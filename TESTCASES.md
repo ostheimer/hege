@@ -444,7 +444,7 @@
 ### TC-MOB-FALLWILD-02: Manuelle Aktualisierung
 
 - Tab `Fallwild` oeffnen
-- Pull-to-Refresh oder `Aktualisieren` ausloesen
+- Pull-to-Refresh ausloesen (Liste herunterziehen)
 - Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
 
 ### TC-MOB-FALLWILD-03: API nicht erreichbar
@@ -508,7 +508,7 @@
 ### TC-MOB-ANSITZ-02: Manuelle Aktualisierung
 
 - Tab `Ansitz` oeffnen
-- Pull-to-Refresh ausfuehren oder `Aktualisieren` tippen
+- Pull-to-Refresh ausloesen (Liste herunterziehen)
 - Erwartung: die Liste wird neu geladen, ohne dass die App abstuerzt
 
 ### TC-MOB-ANSITZ-03: API nicht erreichbar
@@ -571,9 +571,39 @@
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
 - Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
 
+## Automatisierte Unit-Tests (Vitest Mobile)
+
+Die folgenden Unit-Tests laufen automatisch via `pnpm test` im `apps/mobile` Package.
+Sie decken Geschaeftslogik, Filter-Helpers und UI-Hilfsfunktionen ab.
+
+Ausfuehren: `cd apps/mobile && pnpm test`
+
+| Datei | Testet |
+|-------|--------|
+| `lib/activity-feed.helpers.test.ts` | Activity-Feed Filterung und Sortierung |
+| `lib/ansitz-filter.helpers.test.ts` | Ansitz-Listenfilter |
+| `lib/ansitz-smart-defaults.helpers.test.ts` | Smart Defaults fuer neue Ansitze |
+| `lib/aufgabe-filter.helpers.test.ts` | Aufgaben-Listenfilter |
+| `lib/dashboard-role.helpers.test.ts` | Rollen-spezifische Dashboard-Logik |
+| `lib/device-unlock.test.ts` | PIN / Face-ID Entsperrlogik |
+| `lib/fallwild-filter.helpers.test.ts` | Fallwild-Listenfilter |
+| `lib/fallwild-smart-defaults.helpers.test.ts` | Smart Defaults fuer neues Fallwild |
+| `lib/initials.test.ts` | Initialen-Berechnung fuer Avatar |
+| `lib/notifications-read-state.test.ts` | Benachrichtigungen Gelesen-Status |
+| `lib/offline-queue.test.ts` | Offline-Warteschlange |
+| `lib/pin-detail-sheet.test.ts` | Pin-Detail-Sheet Logik |
+| `lib/protokoll-filter.helpers.test.ts` | Protokoll-Listenfilter |
+| `lib/reviereinrichtung-filter.helpers.test.ts` | Reviereinrichtungen-Listenfilter |
+| `lib/theme-mode.test.ts` | Dark/Light Mode Umschaltlogik |
+
+> Stand: 2026-06 — Bei neuen Test-Dateien bitte diese Tabelle ergaenzen.
+
 ## Fehlende Testabdeckung (Stand 2026-06-06)
 
 Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
+
+> Hinweis: Unit-Tests fuer Mobile-Geschaeftslogik sind seit 2026-06 im Abschnitt
+> "Automatisierte Unit-Tests (Vitest Mobile)" weiter oben dokumentiert.
 
 ### Web-Screens ohne Test Cases
 - `/app/aufgaben` — Aufgaben-Verwaltung (Web-Backoffice)
@@ -591,6 +621,9 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (DELETE), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
 - `/api/v1/reviere/active/setup` (POST/PATCH)
 - `/api/v1/public/register` (POST)
+
+### E2E-Tests ohne Abdeckung
+- `maps.spec.ts` — Karten-Integration (Google Maps, Marker, Standortauswahl) hat noch keinen Playwright E2E-Test
 
 ### Rollen-/Berechtigungslogik
 - Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
