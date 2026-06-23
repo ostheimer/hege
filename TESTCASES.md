@@ -580,21 +580,34 @@ Ausfuehren: `cd apps/mobile && pnpm test`
 
 | Datei | Testet |
 |-------|--------|
-| `lib/activity-feed.helpers.test.ts` | Activity-Feed Filterung und Sortierung |
-| `lib/ansitz-filter.helpers.test.ts` | Ansitz-Listenfilter |
-| `lib/ansitz-smart-defaults.helpers.test.ts` | Smart Defaults fuer neue Ansitze |
-| `lib/aufgabe-filter.helpers.test.ts` | Aufgaben-Listenfilter |
-| `lib/dashboard-role.helpers.test.ts` | Rollen-spezifische Dashboard-Logik |
+| `lib/accent-contrast.test.ts` | Farbkontrast-Berechnung fuer Akzentfarben |
+| `lib/activity-feed.test.ts` | Activity-Feed Filterung und Sortierung |
+| `lib/ansitz-filter.test.ts` | Ansitz-Listenfilter |
+| `lib/ansitz-smart-defaults.test.ts` | Smart Defaults fuer neue Ansitze |
+| `lib/aufgabe-filter.test.ts` | Aufgaben-Listenfilter |
+| `lib/dashboard-role.test.ts` | Rollen-spezifische Dashboard-Logik |
 | `lib/device-unlock.test.ts` | PIN / Face-ID Entsperrlogik |
-| `lib/fallwild-filter.helpers.test.ts` | Fallwild-Listenfilter |
-| `lib/fallwild-smart-defaults.helpers.test.ts` | Smart Defaults fuer neues Fallwild |
+| `lib/entity-map.test.ts` | Entity-Map Datenstruktur |
+| `lib/fallwild-filter.test.ts` | Fallwild-Listenfilter |
+| `lib/fallwild-location.test.ts` | Fallwild-Standortlogik |
+| `lib/fallwild-photos.test.ts` | Fallwild-Foto-Upload-Logik |
+| `lib/fallwild-smart-defaults.test.ts` | Smart Defaults fuer neues Fallwild |
+| `lib/fallwild-submission.test.ts` | Fallwild-Formular-Submission |
+| `lib/format.test.ts` | Datums- und Wert-Formatierung |
 | `lib/initials.test.ts` | Initialen-Berechnung fuer Avatar |
+| `lib/map-preview.test.ts` | Kartenvorschau-Logik |
+| `lib/map-stage.test.ts` | Karten-Stage-Berechnungen |
 | `lib/notifications-read-state.test.ts` | Benachrichtigungen Gelesen-Status |
 | `lib/offline-queue.test.ts` | Offline-Warteschlange |
 | `lib/pin-detail-sheet.test.ts` | Pin-Detail-Sheet Logik |
-| `lib/protokoll-filter.helpers.test.ts` | Protokoll-Listenfilter |
-| `lib/reviereinrichtung-filter.helpers.test.ts` | Reviereinrichtungen-Listenfilter |
+| `lib/protokoll-filter.test.ts` | Protokoll-Listenfilter |
+| `lib/protokoll-selection.helpers.test.ts` | Protokoll-Auswahllogik |
+| `lib/revierarbeit-map.helpers.test.ts` | Revierarbeit-Karten-Helpers |
+| `lib/reviereinrichtung-filter.test.ts` | Reviereinrichtungen-Listenfilter |
+| `lib/session.test.ts` | Session-Verwaltung |
 | `lib/theme-mode.test.ts` | Dark/Light Mode Umschaltlogik |
+| `lib/use-themed-styles.test.ts` | Theme-spezifische Styles |
+| `lib/view-toggle.test.ts` | Ansichtsumschaltung (Liste/Karte) |
 
 > Stand: 2026-06 — Bei neuen Test-Dateien bitte diese Tabelle ergaenzen.
 
@@ -622,8 +635,8 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/api/v1/reviere/active/setup` (POST/PATCH)
 - `/api/v1/public/register` (POST)
 
-### E2E-Tests ohne Abdeckung
-- `maps.spec.ts` — Karten-Integration (Google Maps, Marker, Standortauswahl) hat noch keinen Playwright E2E-Test
+### E2E-Tests mit offenen Luecken
+- Interaktive Google Maps Features (Marker-Auswahl, Standort-Selektion, GPS-Ortung) — `maps.spec.ts` deckt Panel-Navigation ab, aber keine interaktiven Karten-Gesten
 
 ### Rollen-/Berechtigungslogik
 - Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
