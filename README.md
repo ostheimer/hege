@@ -11,49 +11,7 @@ Reviermanagement-Plattform für Jagdgesellschaften in Österreich. Das Repositor
 
 ## Stand
 
-Die erste produktive Ausbaustufe liefert jetzt gemeinsame Typen, persistente Route Handler in `apps/web` und nutzbare UI-Screens für:
-
-- Ansitz bekanntgeben
-- Reviereinrichtungen lesen
-- Fallwild dokumentieren
-- Fallwild-Fotos hochladen
-- Sitzungen und Protokolle bearbeiten und lesen
-
-Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive Linie läuft aber in `apps/web` über Vercel-native Route Handler und Drizzle:
-
-- Drizzle-Konfiguration und Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications und Fallwild-Standortmetadaten
-- Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
-- Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
-- Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
-- Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
-- Mitgliedschaftsverwaltung über `GET/POST /api/v1/memberships/invitations` — Einladungen abrufen und anlegen; `POST /api/v1/memberships/invitations/accept` für Annahme, `DELETE /api/v1/memberships/invitations/[id]` für Einladung widerrufen, `GET /api/v1/memberships/invitations/export.csv` für CSV-Export
-- Revierdaten-Endpunkt über `POST/PATCH /api/v1/reviere/active/setup` — aktives Revier und Setup-Konfiguration abschließen
-- Öffentliche Endpunkte über `POST /api/v1/public/register` — öffentliche Registrierung für neues Revier
-- S3-kompatible Storage-Schicht für lokales MinIO und Cloudflare R2 inklusive best-effort Rollback nach fehlgeschlagenem Medien-Insert
-- Seed-Skript auf Basis der bestehenden Demo-Daten
-- Login in Web und App über E-Mail oder Benutzername plus vierstellige PIN
-- Mobile-Entsperren einer gespeicherten Sitzung per Face ID, Touch ID oder Geräteprüfung; der iPhone-Flow wurde am 2026-05-06 auf dem angeschlossenen Gerät bestätigt
-- Demo-Fallback fuer lokale Read-Tests, solange keine DB aktiv ist
-- Web-Ansitzseite mit Starten, Beenden und manuellem Refresh gegen den neuen API-Pfad
-- Web-Fallwildseite mit Erfassung, CSV-Export und mobilem Layout gegen denselben API-Pfad
-- Web-Dashboard, Reviereinrichtungen, Protokolle und Sitzungen gegen dieselbe Server-Schicht
-- Web-Einladungsflow `/einladung` — Mitglieder per Einladungslink in ein Revier aufnehmen
-- Web-Mitgliederverwaltung `/app/mitglieder` — Mitgliederliste, Rollen-Zuweisung und Einladungsstatus im Backoffice
-- Public Landing, Login, Registrierung und Setup-Flow mit neuem `hege`-Logo; die Website ist auf `https://hege.app` produktiv geprüft
-- Mobile-Screens für Dashboard, Ansitze, Fallwild, Reviereinrichtungen und Protokolle gegen denselben API-Slice
-- Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
-- lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
-- Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads
-- dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
-- Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
-- automatisierten Web-Tests mit Vitest für Route Handler, Services und Server-Queries
-- Playwright-E2E- und Visual-Regression-Tests für Public Web, Auth, Ansitze, Fallwild, Sitzungen, Dashboard, Reviereinrichtungen und Protokolle auf Desktop und Mobile
-- Preview-Smoke für Public Web, Session-Grundvertrag und die wichtigsten App-Read-Pfade
-- Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
-- Kontaktlisten v1: `GET/POST /api/v1/contact-lists` und `PATCH/DELETE /api/v1/contact-lists/:listId`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü
-- Mobile Dark Mode aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt
-
-Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
+Die erste produktive Ausbaustufe liefert gemeinsame Typen, persistente Route Handler in `apps/web` und nutzbare UI-Screens für Ansitz, Fallwild, Reviereinrichtungen, Sitzungen, Protokolle, Reviermeldungen, Aufgaben und Kontaktlisten. Web und Mobile sind gegen dieselbe Vercel-native API-Schicht unter `apps/web` implementiert; die vollständige Endpunktliste und den aktuellen Implementierungsstand findet man in [docs/api-v1.md](./docs/api-v1.md).
 
 ## Zielbetrieb
 
@@ -145,16 +103,9 @@ Wichtige Testwege:
 - `.github/workflows/release-check.yml` startet den produktionsfaehigen Release-Check automatisch bei erfolgreichen Production-Deployment-Statusmeldungen und erlaubt ebenfalls einen manuellen Start per `workflow_dispatch`.
 - Die E2E-Suite deckt aktuell Public Web, Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
 
-## Nächste Ausbauschritte
+## Roadmap und nächste Schritte
 
-- iPhone-/iOS-Geräte-Smoke für erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue nachziehen
-- Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
-- GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
-- Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
-- produktive Abnahme mit blockierendem Release-Check weiter beobachten
-- PDF-Erzeugung weiter härten
-- Android-Emulator-Smoke optional als Zweitpfad vorbereiten
-- Rollen-, Aufgaben- und Nachrichtenmodell fachlich weiter ausarbeiten
+Die vollständige Roadmap mit aktuellem Fokus und Detaildokumenten liegt in [ROADMAP.md](./ROADMAP.md).
 
 ## Dokumentation
 
