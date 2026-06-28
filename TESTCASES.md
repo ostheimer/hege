@@ -92,7 +92,7 @@
 - Erwartung: der Endpunkt antwortet mit `200`
 - Erwartung: ein anschliessender Login mit der alten PIN schlaegt fehl (`401`)
 - Erwartung: ein Login mit der neuen PIN gelingt und liefert eine gueltige Session
-- Vorbedingung: authentifizierte Session eines `jaeger`-, `schriftfuehrer`- oder `revier-admin`-Nutzers
+- Vorbedingung: authentifizierte Session eines `jaeger`-, `schriftfuehrer`- oder `revier-admin`-Nutzers; Non-Seed-Account verwenden (nicht `ostheimer` oder andere bekannte Seed-Konten), da `syncSeedUsers()` den password_hash mit dem Default-Seed-Hash ueberschreibt und dadurch der alte PIN wieder funktioniert; alternativ: in der Testumgebung Seed-Sync deaktivieren
 
 ### TC-API-AUTH-07: PIN-Aenderung mit falscher aktueller PIN schlaegt fehl
 
@@ -100,6 +100,7 @@
 - `POST /api/v1/auth/change-pin` mit falscher `currentPin` senden
 - Erwartung: der Endpunkt antwortet mit `401` oder `403`
 - Erwartung: die bestehende PIN bleibt unveraendert
+- Vorbedingung: Non-Seed-Account verwenden (nicht `ostheimer` oder andere bekannte Seed-Konten), da `syncSeedUsers()` den password_hash mit dem Default-Seed-Hash ueberschreibt; alternativ: in der Testumgebung Seed-Sync deaktivieren
 
 ### TC-SRV-AUTH-01: Safe Post-Auth Path wird normalisiert
 
@@ -247,7 +248,7 @@
 - Erwartung: der Endpunkt antwortet mit `200` und den vollstaendigen Aufgabendaten (Titel, Status, Prioritaet, Faelligkeit, Verantwortliche)
 - Erwartung: eine unbekannte ID antwortet mit `404`
 - Erwartung: eine Aufgabe aus einem fremden Revier antwortet mit `403` oder `404`
-- Vorbedingung: authentifizierte Session; mindestens eine Aufgabe im Seed vorhanden
+- Vorbedingung: Admin- oder Schriftfuehrungs-Session ODER Session eines Mitglieds dessen Aufgabe verwendet wird; normale Jaeger-Session mit fremder Aufgaben-ID ist ungueltig fuer diesen Test (normale Jaeger/Ausgeher sehen nur Aufgaben die ihnen zugewiesen sind oder die sie erstellt haben — bei einer unbekannten Aufgaben-ID gibt der Endpoint korrekt 404 zurueck)
 
 ## Automatisierte Web-Tests
 
@@ -491,7 +492,7 @@
 - Profil-Screen oeffnen (z. B. ueber Einstellungen oder Mehr-Menue)
 - Erwartung: der Screen zeigt einen Initialen-Avatar mit den Anfangsbuchstaben des Namens
 - Erwartung: Name, Kennung (E-Mail oder Username) und Reviername werden korrekt dargestellt
-- Erwartung: die Daten stammen aus der laufenden Session (`GET /api/v1/me`) und nicht aus lokalen Platzhaltern
+- Erwartung: die Daten stammen aus der gespeicherten Session und aus `fetchDashboardSnapshot()` (`/v1/dashboard`) und nicht aus lokalen Platzhaltern
 - Vorbedingung: authentifizierte Session
 
 ### TC-MOB-PROFIL-02: Face-ID-Schalter auf dem Profil-Screen
@@ -511,7 +512,7 @@
 - `PIN aendern` ausloesen
 - Aktuellen PIN und neuen vierstelligen PIN eingeben und bestaetigen
 - Erwartung: die App sendet `POST /api/v1/auth/change-pin` mit aktueller und neuer PIN
-- Erwartung: bei Erfolg erscheint eine Bestaetigung und das Formular schliesst sich
+- Erwartung: bei Erfolg erscheint eine Bestaetigung, das Formular bleibt geoeffnet, die drei PIN-Felder werden geleert und eine Erfolgsmeldung erscheint (das Formular schliesst sich nicht automatisch)
 - Erwartung: der naechste biometrische oder PIN-Entsperrversuch erfordert den neuen PIN
 - Erwartung: eine falsche aktuelle PIN zeigt einen Fehlerzustand ohne die App zum Absturz zu bringen
 - Vorbedingung: authentifizierte Session
@@ -659,12 +660,12 @@
 
 ### TC-DOM-FALLWILD-01: normalizeFallwildPhotoTitle ersetzt UUIDs und Kamera-Zaehler
 
-- Domain-Unittests ausfuehren (`pnpm --filter @hege/domain test` oder `pnpm test`)
+- Mobile-App-Tests ausfuehren (`pnpm --filter @hege/mobile test` oder direkt die Tests in `apps/mobile/lib/fallwild-photos.ts`)
 - Erwartung: `normalizeFallwildPhotoTitle("IMG_20240101_001.jpg")` gibt `"Fallwild-Foto 1"` zurueck (oder ein Muster `"Fallwild-Foto N"`)
 - Erwartung: `normalizeFallwildPhotoTitle("550e8400-e29b-41d4-a716-446655440000.jpg")` gibt `"Fallwild-Foto N"` zurueck (UUID-Dateiname wird normalisiert)
 - Erwartung: `normalizeFallwildPhotoTitle("Wildsau am Waldrand")` bleibt unveraendert (sinnvoller Titel wird beibehalten)
-- Erwartung: die Funktion wird in `packages/domain` exportiert und ist typsicher
-- Vorbedingung: `packages/domain` build laeuft gruen durch
+- Erwartung: die Funktion ist in `apps/mobile/lib/fallwild-photos.ts` als private Helper-Funktion implementiert (NICHT in `packages/domain` exportiert); Tests laufen ueber `normalizePickedFallwildPhoto`-Tests in der Mobile-App
+- Vorbedingung: `apps/mobile` build laeuft gruen durch
 
 ## Fehlende Testabdeckung (Stand 2026-06-28)
 
