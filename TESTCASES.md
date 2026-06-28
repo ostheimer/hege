@@ -513,7 +513,7 @@
 - Aktuellen PIN und neuen vierstelligen PIN eingeben und bestaetigen
 - Erwartung: die App sendet `POST /api/v1/auth/change-pin` mit aktueller und neuer PIN
 - Erwartung: bei Erfolg erscheint eine Bestaetigung, das Formular bleibt geoeffnet, die drei PIN-Felder werden geleert und eine Erfolgsmeldung erscheint (das Formular schliesst sich nicht automatisch)
-- Erwartung: der naechste biometrische oder PIN-Entsperrversuch erfordert den neuen PIN
+- Erwartung: der naechste Username/PIN-Login erfordert den neuen PIN — bei aktiviertem Face-ID ist Biometrie-Login weiterhin moeglich ohne PIN-Eingabe (gespeicherte Session wird wiederhergestellt)
 - Erwartung: eine falsche aktuelle PIN zeigt einen Fehlerzustand ohne die App zum Absturz zu bringen
 - Vorbedingung: authentifizierte Session
 
@@ -661,7 +661,7 @@
 ### TC-DOM-FALLWILD-01: normalizeFallwildPhotoTitle ersetzt UUIDs und Kamera-Zaehler
 
 - Mobile-App-Tests ausfuehren (`pnpm --filter @hege/mobile test` oder direkt die Tests in `apps/mobile/lib/fallwild-photos.ts`)
-- Erwartung: `normalizeFallwildPhotoTitle("IMG_20240101_001.jpg")` gibt `"Fallwild-Foto 1"` zurueck (oder ein Muster `"Fallwild-Foto N"`)
+- Erwartung: `normalizeFallwildPhotoTitle("IMG_1234.jpg")` gibt `"Fallwild-Foto 1"` zurueck (Kamera-Zaehler-Dateiname mit einfacher Zifferngruppe wird normalisiert)
 - Erwartung: `normalizeFallwildPhotoTitle("550e8400-e29b-41d4-a716-446655440000.jpg")` gibt `"Fallwild-Foto N"` zurueck (UUID-Dateiname wird normalisiert)
 - Erwartung: `normalizeFallwildPhotoTitle("Wildsau am Waldrand")` bleibt unveraendert (sinnvoller Titel wird beibehalten)
 - Erwartung: die Funktion ist in `apps/mobile/lib/fallwild-photos.ts` als private Helper-Funktion implementiert (NICHT in `packages/domain` exportiert); Tests laufen ueber `normalizePickedFallwildPhoto`-Tests in der Mobile-App
@@ -680,7 +680,7 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/app/mitglieder` — Mitgliederverwaltung
 
 ### Mobile-Screens ohne Test Cases
-- Benachrichtigungen-Tab (`(tabs)/benachrichtigungen.tsx`) — Push-Benachrichtigungen empfangen und als gelesen markieren; Berechtigungsanfrage beim ersten Start
+- Benachrichtigungen-Tab (`(tabs)/benachrichtigungen.tsx`) — liest Dashboard-Notifications und lokalen Lesestatus (kein nativer Push); keine Tests moeglich bis native Push-Registrierung eingerichtet ist
 - `ueber-hege.tsx` Screen
 
 ### API-Endpunkte ohne Test Cases
@@ -690,6 +690,9 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/api/v1/contact-lists` (GET/POST) und Eintraege-Endpunkte
 
 ### Nicht implementierte Endpunkte (kein TC moeglich bis Implementierung)
+
+⚠️ Native Push-Benachrichtigungen (APNs/FCM) noch nicht implementiert — `expo-notifications` fehlt in `apps/mobile/package.json`, keine Tests moeglich bis zum Einrichten der nativen Push-Registrierung
+
 - `GET /api/v1/reviereinrichtungen/:id` — Route-Handler fehlt noch
 - `POST /api/v1/reviereinrichtungen/:id/kontrollen` — Route-Handler fehlt noch
 - `GET /api/v1/notifications` — DB-Tabelle vorhanden, Route-Handler fehlt noch
