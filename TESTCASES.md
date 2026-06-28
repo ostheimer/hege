@@ -41,6 +41,15 @@
 - `GET /api/v1/ansitze/live` aufrufen
 - Erwartung: nur aktive Ansitze des Dev-Reviers werden als JSON zurueckgegeben
 
+### TC-API-ANSITZ-03: Ansitze CSV-Export abrufen
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/ansitze/export.csv` aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: `content-type` ist `text/csv`
+- Erwartung: die CSV enthaelt mindestens eine Kopfzeile sowie die gespeicherten Ansitz-Sitzungen des aktiven Reviers
+- Erwartung: ein nicht authentifizierter Aufruf antwortet mit `401`
+
 ### TC-API-AUTH-01: Login liefert Session und Cookies
 
 - Web-App lokal starten
@@ -75,6 +84,22 @@
 - `POST /api/v1/auth/logout` mit bestehender Session ausloesen
 - Erwartung: der Endpunkt antwortet mit `303` auf `/login`
 - Erwartung: `hege_access_token` und `hege_refresh_token` werden mit `Max-Age=0` geloescht
+
+### TC-API-AUTH-06: PIN-Aenderung ueber API
+
+- Web-App lokal mit authentifizierter Session starten
+- `POST /api/v1/auth/change-pin` mit gueltigem Body senden: `{ currentPin: "<aktuelle PIN>", newPin: "<neue vierstellige PIN>" }`
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: ein anschliessender Login mit der alten PIN schlaegt fehl (`401`)
+- Erwartung: ein Login mit der neuen PIN gelingt und liefert eine gueltige Session
+- Vorbedingung: authentifizierte Session eines `jaeger`-, `schriftfuehrer`- oder `revier-admin`-Nutzers
+
+### TC-API-AUTH-07: PIN-Aenderung mit falscher aktueller PIN schlaegt fehl
+
+- Web-App lokal mit authentifizierter Session starten
+- `POST /api/v1/auth/change-pin` mit falscher `currentPin` senden
+- Erwartung: der Endpunkt antwortet mit `401` oder `403`
+- Erwartung: die bestehende PIN bleibt unveraendert
 
 ### TC-SRV-AUTH-01: Safe Post-Auth Path wird normalisiert
 
@@ -197,6 +222,32 @@
 - `GET /api/v1/documents/:id/download` aufrufen
 - Erwartung: der Endpunkt antwortet mit einem Download-Dokument oder `404`
 - Erwartung: veroeffentlichte Protokolle verweisen auf diesen Download
+
+### TC-API-REVMELD-01: Reviermeldung einzeln lesen
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/reviermeldungen/:id` mit einer bekannten Meldungs-ID aufrufen
+- Erwartung: der Endpunkt antwortet mit `200` und den vollstaendigen Meldungsdaten (Kategorie, Status, Titel, Beschreibung, optionaler Standort)
+- Erwartung: eine unbekannte ID antwortet mit `404`
+- Erwartung: eine Meldung aus einem fremden Revier antwortet mit `403` oder `404`
+- Vorbedingung: authentifizierte Session; mindestens eine Reviermeldung im Seed vorhanden
+
+### TC-API-REVMELD-02: Reviermeldung aktualisieren
+
+- Web-App lokal mit authentifizierter `revier-admin`- oder `schriftfuehrer`-Session starten
+- `PATCH /api/v1/reviermeldungen/:id` mit einem geaenderten Status oder Titel aufrufen
+- Erwartung: der Endpunkt antwortet mit `200` und den aktualisierten Daten
+- Erwartung: ein anschliessendes `GET /api/v1/reviermeldungen/:id` spiegelt die Aenderung wider
+- Erwartung: ein `jaeger`-Nutzer ohne Schreibrecht antwortet mit `403`
+
+### TC-API-AUFG-01: Aufgabe einzeln lesen
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/aufgaben/:id` mit einer bekannten Aufgaben-ID aufrufen
+- Erwartung: der Endpunkt antwortet mit `200` und den vollstaendigen Aufgabendaten (Titel, Status, Prioritaet, Faelligkeit, Verantwortliche)
+- Erwartung: eine unbekannte ID antwortet mit `404`
+- Erwartung: eine Aufgabe aus einem fremden Revier antwortet mit `403` oder `404`
+- Vorbedingung: authentifizierte Session; mindestens eine Aufgabe im Seed vorhanden
 
 ## Automatisierte Web-Tests
 
@@ -432,6 +483,39 @@
 - Erwartung: Lade- oder Fehlerzustand wird angezeigt
 - Erwartung: die App bleibt bedienbar
 
+## Mobile Profil
+
+### TC-MOB-PROFIL-01: Profil-Screen zeigt Benutzerdaten
+
+- App oeffnen und einloggen
+- Profil-Screen oeffnen (z. B. ueber Einstellungen oder Mehr-Menue)
+- Erwartung: der Screen zeigt einen Initialen-Avatar mit den Anfangsbuchstaben des Namens
+- Erwartung: Name, Kennung (E-Mail oder Username) und Reviername werden korrekt dargestellt
+- Erwartung: die Daten stammen aus der laufenden Session (`GET /api/v1/me`) und nicht aus lokalen Platzhaltern
+- Vorbedingung: authentifizierte Session
+
+### TC-MOB-PROFIL-02: Face-ID-Schalter auf dem Profil-Screen
+
+- App oeffnen und einloggen
+- Profil-Screen oeffnen
+- Erwartung: ein Schalter zum Aktivieren/Deaktivieren von Face ID (oder Touch ID) ist sichtbar
+- Erwartung: der aktuelle Zustand des Schalters spiegelt die gespeicherte Einstellung wider
+- Umschalten und App neu starten
+- Erwartung: die geaenderte Einstellung ist nach dem Neustart erhalten
+- Vorbedingung: Geraet unterstuetzt biometrische Entsperrung (iPhone mit Face ID oder Touch ID)
+
+### TC-MOB-PROFIL-03: PIN-Aenderung ueber Mobile-Formular
+
+- App oeffnen und einloggen
+- Profil-Screen oeffnen
+- `PIN aendern` ausloesen
+- Aktuellen PIN und neuen vierstelligen PIN eingeben und bestaetigen
+- Erwartung: die App sendet `POST /api/v1/auth/change-pin` mit aktueller und neuer PIN
+- Erwartung: bei Erfolg erscheint eine Bestaetigung und das Formular schliesst sich
+- Erwartung: der naechste biometrische oder PIN-Entsperrversuch erfordert den neuen PIN
+- Erwartung: eine falsche aktuelle PIN zeigt einen Fehlerzustand ohne die App zum Absturz zu bringen
+- Vorbedingung: authentifizierte Session
+
 ## Mobile Fallwild
 
 ### TC-MOB-FALLWILD-01: Fallwildliste laden
@@ -571,7 +655,18 @@
 - `powershell -ExecutionPolicy Bypass -File apps/mobile/scripts/android-smoke.ps1` ausfuehren
 - Erwartung: das Skript pusht ein Testbild auf den Emulator und gibt den nativen Smoke-Ablauf fuer Login, Dashboard, Ansitz, Fallwild mit Foto und Offline-Sync aus
 
-## Fehlende Testabdeckung (Stand 2026-06-06)
+## Domain-Logik
+
+### TC-DOM-FALLWILD-01: normalizeFallwildPhotoTitle ersetzt UUIDs und Kamera-Zaehler
+
+- Domain-Unittests ausfuehren (`pnpm --filter @hege/domain test` oder `pnpm test`)
+- Erwartung: `normalizeFallwildPhotoTitle("IMG_20240101_001.jpg")` gibt `"Fallwild-Foto 1"` zurueck (oder ein Muster `"Fallwild-Foto N"`)
+- Erwartung: `normalizeFallwildPhotoTitle("550e8400-e29b-41d4-a716-446655440000.jpg")` gibt `"Fallwild-Foto N"` zurueck (UUID-Dateiname wird normalisiert)
+- Erwartung: `normalizeFallwildPhotoTitle("Wildsau am Waldrand")` bleibt unveraendert (sinnvoller Titel wird beibehalten)
+- Erwartung: die Funktion wird in `packages/domain` exportiert und ist typsicher
+- Vorbedingung: `packages/domain` build laeuft gruen durch
+
+## Fehlende Testabdeckung (Stand 2026-06-28)
 
 Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 
@@ -584,13 +679,19 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/app/mitglieder` — Mitgliederverwaltung
 
 ### Mobile-Screens ohne Test Cases
-- Benachrichtigungen-Tab (`(tabs)/benachrichtigungen.tsx`)
+- Benachrichtigungen-Tab (`(tabs)/benachrichtigungen.tsx`) — Push-Benachrichtigungen empfangen und als gelesen markieren; Berechtigungsanfrage beim ersten Start
 - `ueber-hege.tsx` Screen
 
 ### API-Endpunkte ohne Test Cases
 - `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (DELETE), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
 - `/api/v1/reviere/active/setup` (POST/PATCH)
 - `/api/v1/public/register` (POST)
+- `/api/v1/contact-lists` (GET/POST) und Eintraege-Endpunkte
+
+### Nicht implementierte Endpunkte (kein TC moeglich bis Implementierung)
+- `GET /api/v1/reviereinrichtungen/:id` — Route-Handler fehlt noch
+- `POST /api/v1/reviereinrichtungen/:id/kontrollen` — Route-Handler fehlt noch
+- `GET /api/v1/notifications` — DB-Tabelle vorhanden, Route-Handler fehlt noch
 
 ### Rollen-/Berechtigungslogik
 - Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
