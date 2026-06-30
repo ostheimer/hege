@@ -600,7 +600,7 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - Systemweites Dark-Mode-Verhalten (Tokens, Kontrast-Verhältnisse) (**implementiert — PRs #159, #165; In-App-Umschalter PR #165**)
 
 - [ ] TC-MOB-PROFIL-01: Profil-Screen öffnen → Sektionen Identität/Erscheinungsbild/Face-ID/Konto sichtbar, Initialen-Avatar korrekt
-- [ ] TC-MOB-PROFIL-02: In-App-Theme-Umschalter (Mehr → Erscheinungsbild: System/Hell/Dunkel) → Theme wechselt und persistiert nach App-Neustart
+- [ ] TC-MOB-PROFIL-02: In-App-Theme-Umschalter (Mehr → Profil → Erscheinungsbild: System/Hell/Dunkel) → Theme wechselt und persistiert nach App-Neustart
 - [ ] TC-API-AUTH-PIN: `POST /api/v1/auth/change-pin` → altes PIN korrekt → neues PIN gesetzt; falsches altes PIN → 401
 
 *TODO: Test Cases für diese Bereiche hinzufügen*

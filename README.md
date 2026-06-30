@@ -54,7 +54,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Mobile Dark Mode aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt
 - Mobile: **eigener Profil-Screen** (`(tabs)/profil`), Initialen-Avatar, Identität/Erscheinungsbild/Face-ID/Konto-Sektionen (PR #168)
 - **PIN ändern**: `POST /api/v1/auth/change-pin`, scrypt-Rehash, aufklappbares Mobile-Formular (PR #169)
-- Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System/Hell/Dunkel), persistiert (PR #165)
+- Mobile: **In-App-Theme-Umschalter** (Mehr → Profil → „Erscheinungsbild": System/Hell/Dunkel), persistiert (PR #165)
 - Mobile: **Erfassungs-Screens** (Fallwild, Ansitze, Meldungen) auf „Erfassen | Bestand"-Segmented-Control-Muster umgestellt (PR ≥ #169)
 - **Kamera-Crash behoben**: `NSCameraUsageDescription` in Info.plist ergänzt (PR #176)
 
