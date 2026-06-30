@@ -1,6 +1,6 @@
 > **📁 HISTORISCHES DOKUMENT**
 > 
-> Diese Datei ist ein historisches Planungsdokument. Sprint 0–4 sind abgeschlossen.
+> Diese Datei ist ein historisches Planungsdokument. Sprint 0–3 sind abgeschlossen; Sprint 4 war zum Zeitpunkt dieses Dokuments begonnen (nicht vollständig abgeschlossen).
 > Die **aktuelle Roadmap** liegt in [`/ROADMAP.md`](../ROADMAP.md).
 > Sprint-Backlogs in `sprint-0-backlog.md` und `sprint-1-backlog.md` sind abgeschlossene Sprints.
 
