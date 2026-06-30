@@ -52,6 +52,11 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Release-Check für produktive Deployments mit demselben Read-Contract gegen Production
 - Kontaktlisten v1: `GET/POST /api/v1/contact-lists` und `PATCH/DELETE /api/v1/contact-lists/:listId`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü
 - Mobile Dark Mode aktiviert: `UIUserInterfaceStyle` auf `Automatic` umgestellt; Design-System §10 mit semantischen Farb-Token (`onAccent`, `onWarning`, `surfaceMuted`), `<FeedbackBanner>`, `<Badge tone>` und `cardSurface()` eingeführt
+- Mobile: **eigener Profil-Screen** (`(tabs)/profil`), Initialen-Avatar, Identität/Erscheinungsbild/Face-ID/Konto-Sektionen (PR #168)
+- **PIN ändern**: `POST /api/v1/auth/change-pin`, scrypt-Rehash, aufklappbares Mobile-Formular (PR #169)
+- Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System/Hell/Dunkel), persistiert (PR #165)
+- Mobile: **Erfassungs-Screens** (Fallwild, Ansitze, Meldungen) auf „Erfassen | Bestand"-Segmented-Control-Muster umgestellt (PR ≥ #169)
+- **Kamera-Crash behoben**: `NSCameraUsageDescription` in Info.plist ergänzt (PR #176)
 
 Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
 
