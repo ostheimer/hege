@@ -1,3 +1,11 @@
+> **📁 HISTORISCHES DOKUMENT**
+> 
+> Diese Datei ist ein historisches Planungsdokument. Sprint 0–4 sind abgeschlossen.
+> Die **aktuelle Roadmap** liegt in [`/ROADMAP.md`](../ROADMAP.md).
+> Sprint-Backlogs in `sprint-0-backlog.md` und `sprint-1-backlog.md` sind abgeschlossene Sprints.
+
+---
+
 # Roadmap v1
 
 > **Hinweis:** Diese Datei ist ein historisches Planungsdokument und endet bei Sprint 4. Die aktuell gepflegte Roadmap mit dem vollständigen Status aller Sprints und offenen Punkten liegt in [`/ROADMAP.md`](../ROADMAP.md) im Repository-Root.
