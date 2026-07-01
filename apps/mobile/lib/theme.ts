@@ -91,7 +91,7 @@ export const colors = lightColors;
 export function useThemeColors(): ThemeColors {
   const scheme = useColorScheme();
   const mode = useThemeMode();
-  // In-App-Override (Mehr → Erscheinungsbild) gewinnt; "system" folgt dem
+  // In-App-Override (Mehr → Profil → Erscheinungsbild) gewinnt; "system" folgt dem
   // iOS-Color-Scheme. Greift app-weit, weil useThemedStyles + alle direkten
   // Konsumenten ueber diesen Hook laufen.
   const effective = resolveEffectiveThemeScheme(mode, scheme);
