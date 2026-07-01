@@ -55,7 +55,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Mobile: **eigener Profil-Screen** (`(tabs)/profil`), Initialen-Avatar, Identität/Erscheinungsbild/Face-ID/Konto-Sektionen (PR #168)
 - **PIN ändern**: `POST /api/v1/auth/change-pin`, scrypt-Rehash, aufklappbares Mobile-Formular (PR #169)
 - Mobile: **In-App-Theme-Umschalter** (Mehr → Profil → „Erscheinungsbild": System/Hell/Dunkel), persistiert (PR #165)
-- Mobile: **Erfassungs-Screens** (Fallwild, Ansitze, Meldungen) auf „Erfassen | Bestand"-Segmented-Control-Muster umgestellt (PR ≥ #169)
+- Mobile: **Erfassungs-Screens** (Fallwild, Ansitze, Meldungen) auf „Erfassen | Bestand"-Segmented-Control-Muster umgestellt (PR #178)
 - **Kamera-Crash behoben**: `NSCameraUsageDescription` in Info.plist ergänzt (PR #176)
 
 Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
