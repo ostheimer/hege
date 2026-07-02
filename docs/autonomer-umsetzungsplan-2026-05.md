@@ -109,6 +109,8 @@ Der aktuelle Stand wird auf einem echten iPhone gegen Production geprüft: Konta
 
 ## A2 - Echte Karten im Web
 
+> **Status 2026-07-02: erledigt.** `@vis.gl/react-google-maps` ist im Web-Backoffice integriert (bestätigt per TODO.md und A0-Statusnotiz). Alle Hauptflächen zeigen echte Google Maps. Env `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` und `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` sind dokumentiert. Fallback-Zustand (kein Key) zeigt Koordinatenliste statt leerer Karte. Dokumentation in `docs/maps-google-v1.md`.
+
 ### Ziel
 
 Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf eine echte, Google-Maps-orientierte Karte umgestellt.
@@ -165,6 +167,8 @@ Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf ein
 - Production-Route ist nach Deploy per Browser geprüft.
 
 ## A3 - Echte Karten in der iPhone-App
+
+> **Status 2026-07-02: erledigt.** `react-native-maps` ist in der iPhone-App integriert (bestätigt per TODO.md und A0-Statusnotiz). MapPreview-Platzhalter auf allen Hauptscreens ersetzt. Standortfreigabe, Marker und Detail-Sheet funktionieren. EAS-Update auf alle Channels (`production`, `preview`, `development`) erfolgt. Dokumentation in `docs/maps-google-v1.md`.
 
 ### Ziel
 
