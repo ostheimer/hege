@@ -109,7 +109,7 @@ Der aktuelle Stand wird auf einem echten iPhone gegen Production geprüft: Konta
 
 ## A2 - Echte Karten im Web
 
-> **Status 2026-07-02: erledigt.** `@vis.gl/react-google-maps` ist im Web-Backoffice integriert (bestätigt per TODO.md und A0-Statusnotiz). Alle Hauptflächen zeigen echte Google Maps. Env `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` und `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` sind dokumentiert. Fallback-Zustand (kein Key) zeigt Koordinatenliste statt leerer Karte. Dokumentation in `docs/maps-google-v1.md`.
+> **Status 2026-07-02: im Kern erledigt.** `@vis.gl/react-google-maps` ist im Web-Backoffice integriert (bestätigt per TODO.md F-03). Kartenlage zeigt echte Google Maps für Einrichtungen, Ansitze, Fallwild und Reviermeldungen. Offener Rest: Aufgaben-Standort-Kartenansicht fehlt noch — `/app/aufgaben` zeigt nur Karten und Statusaktionen, kein Map-Layer. Env `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` und `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` sind dokumentiert; Fallback (kein Key) zeigt Koordinatenliste.
 
 ### Ziel
 
@@ -168,7 +168,7 @@ Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf ein
 
 ## A3 - Echte Karten in der iPhone-App
 
-> **Status 2026-07-02: erledigt.** `react-native-maps` ist in der iPhone-App integriert (bestätigt per TODO.md und A0-Statusnotiz). MapPreview-Platzhalter auf allen Hauptscreens ersetzt. Standortfreigabe, Marker und Detail-Sheet funktionieren. EAS-Update auf alle Channels (`production`, `preview`, `development`) erfolgt. Dokumentation in `docs/maps-google-v1.md`.
+> **Status 2026-07-02: im Kern erledigt.** `react-native-maps` 1.20.1 ist in der iPhone-App integriert, tappbare Pins in allen Locations-Tabs (bestätigt per TODO.md F-14). Offener Rest (klein): Mein-Standort-Button + explizite Standortfreigabe-Zustände in `EntityMap`; tote `map-preview.tsx`/`map-stage.tsx` entfernen.
 
 ### Ziel
 
