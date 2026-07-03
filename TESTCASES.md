@@ -198,6 +198,53 @@
 - Erwartung: der Endpunkt antwortet mit einem Download-Dokument oder `404`
 - Erwartung: veroeffentlichte Protokolle verweisen auf diesen Download
 
+## API Reviermeldungen und Aufgaben
+
+### TC-API-REVMELD-01: Reviermeldungen auflisten
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/reviermeldungen` aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: die Antwort enthaelt die Reviermeldungen des aktiven Reviers
+- Erwartung: Rollenrechte werden geprueft (nur berechtigte Nutzer sehen alle Meldungen)
+- Erwartung: ein nicht authentifizierter Aufruf antwortet mit `401`
+
+### TC-API-REVMELD-02: Reviermeldung anlegen
+
+- Web-App lokal mit authentifizierter Session starten
+- `POST /api/v1/reviermeldungen` mit gueltigem JSON-Body senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die neue Meldung erscheint anschliessend in `GET /api/v1/reviermeldungen`
+
+### TC-API-REVMELD-03: Reviermeldung aktualisieren
+
+- Web-App lokal mit authentifizierter Session starten
+- `PATCH /api/v1/reviermeldungen/:id` mit gueltigem JSON-Body aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: die aktualisierte Meldung spiegelt die Aenderung in `GET /api/v1/reviermeldungen` wider
+
+### TC-API-AUFG-01: Aufgaben auflisten
+
+- Web-App lokal mit authentifizierter Session starten
+- `GET /api/v1/aufgaben` aufrufen
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: eigene und offene Aufgaben des aktiven Reviers werden zurueckgegeben (rollenabhaengige Sichtbarkeit)
+- Erwartung: ein nicht authentifizierter Aufruf antwortet mit `401`
+
+### TC-API-AUFG-02: Aufgabe anlegen
+
+- Web-App lokal mit authentifizierter Session starten
+- `POST /api/v1/aufgaben` mit gueltigem JSON-Body senden
+- Erwartung: der Endpunkt antwortet mit `201`
+- Erwartung: die neue Aufgabe erscheint anschliessend in `GET /api/v1/aufgaben`
+
+### TC-API-AUFG-03: Aufgabenstatus aktualisieren
+
+- Web-App lokal mit authentifizierter Session starten
+- `PATCH /api/v1/aufgaben/:id` mit Status-Aenderung aufrufen (z. B. `{ "status": "in_arbeit" }`)
+- Erwartung: der Endpunkt antwortet mit `200`
+- Erwartung: der aktualisierte Status wird in `GET /api/v1/aufgaben` zurueckgegeben
+
 ## Automatisierte Web-Tests
 
 ### TC-AUTO-WEB-01: Unit- und Integrationstests fuer Domain und Web
@@ -591,6 +638,7 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/api/v1/memberships/invitations` (GET/POST), `/api/v1/memberships/invitations/[id]` (DELETE), `/api/v1/memberships/invitations/accept` (POST), `/api/v1/memberships/invitations/export.csv` (GET)
 - `/api/v1/reviere/active/setup` (POST/PATCH)
 - `/api/v1/public/register` (POST)
+- `/api/v1/contact-lists` (GET/POST), `/api/v1/contact-lists/:listId` (PATCH/DELETE)
 
 ### Rollen-/Berechtigungslogik
 - Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
