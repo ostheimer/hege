@@ -6,6 +6,8 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-04
+
 ### Added
 
 - Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; erlaubt die Wahl des Erscheinungsbilds unabhängig vom iOS-System. „System" folgt `useColorScheme()` (PR #165).
@@ -38,22 +40,22 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Mobile Design-System §10: `<FeedbackBanner>` Primitiv (`components/feedback-banner.tsx`) fuer transientes Aktions-Feedback an Formularen (Ansitze, Fallwild, Revierarbeit); ersetzt die pro Screen duplizierten `infoCard`/`errorCard`/`feedbackCard`-Banner — werterhaltend (gleiche Flaechen und Copy) (PR #144).
 - Mobile Design-System §10: `cardSurface(theme)` Hilfsfunktion in `lib/surfaces.ts` konsolidiert die dominante Content-Card-Flaeche (Padding 18, Radius 22, `theme.card`) in 10 Dateien — werterhaltend (PR #145).
-- Mobile Design-System §10: `<Badge tone>` Primitiv (PR #135) mit semantischen Color-Roles für Success, Warning, Error und Info; auf Revierarbeit, Protokolle, Ansitze und Fallwild eingesetzt (PR #136).
-- Mobile Design-System §10: semantische Farb-Tokens (`onAccent`, `surfaceMuted`, Status-Surfaces) in `@hege/tokens` (`packages/tokens`); erstmals in `StateView` für Loading-/Empty-States adoptiert (PR #134).
+- Mobile Design-System §10: `<Badge tone>` Primitiv (PR #135) mit semantischen Color-Roles fuer Success, Warning, Error und Info; auf Revierarbeit, Protokolle, Ansitze und Fallwild eingesetzt (PR #136).
+- Mobile Design-System §10: semantische Farb-Tokens (`onAccent`, `surfaceMuted`, Status-Surfaces) in `@hege/tokens` (`packages/tokens`); erstmals in `StateView` fuer Loading-/Empty-States adoptiert (PR #134).
 - Mobile Design-System §10.7: Eyebrow- und Section-Label-Typographie aus gesamter App in gemeinsame Tokens konsolidiert (PR #141).
-- Mobile Design-System §10.3: Muted-Surface-Button-Farben auf Tokens umgestellt; die Sekundär-/Muted-Buttons holen ihre Hintergrundfarbe jetzt aus `surfaceMuted`/`surfaceMutedStrong` (PR #142).
-- Mobile API-Base-URL-Fix: Lokaler Entwicklungs-Fallback in `apps/mobile/lib/api.ts` von `http://localhost:3000` auf `http://localhost:3000/api/v1` korrigiert (fehlender `/v1`-Pfadanteil führte zu 404s im lokalen Dev); für Geräte- und Produktions-Builds muss `EXPO_PUBLIC_API_BASE_URL` weiterhin über EAS-Profile gesetzt werden (PR #140).
+- Mobile Design-System §10.3: Muted-Surface-Button-Farben auf Tokens umgestellt; die Sekundaer-/Muted-Buttons holen ihre Hintergrundfarbe jetzt aus `surfaceMuted`/`surfaceMutedStrong` (PR #142).
+- Mobile API-Base-URL-Fix: Lokaler Entwicklungs-Fallback in `apps/mobile/lib/api.ts` von `http://localhost:3000` auf `http://localhost:3000/api/v1` korrigiert (fehlender `/v1`-Pfadanteil fuehrte zu 404s im lokalen Dev); fuer Geraete- und Produktions-Builds muss `EXPO_PUBLIC_API_BASE_URL` weiterhin ueber EAS-Profile gesetzt werden (PR #140).
 
-- Kontaktlisten v1: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menü.
-- Reviermeldungen und Aufgaben v1: Drizzle-Tabellen, Seed-Daten, `GET/POST/PATCH /api/v1/reviermeldungen`, `GET/POST/PATCH /api/v1/aufgaben`, Rollenprüfung, Aufgaben-Sichtbarkeit (eigene/offene) und Dashboard-Zähler.
-- Mobile-Tab `Meldungen`: Reviermeldung erfassen, eigene und offene Aufgaben lesen, Aufgabenstatus ändern.
-- Fallwild-Standort v1: Mobile übernimmt iPhone-GPS, `POST /api/v1/geo/fallwild-location` ist produktiv erreichbar, speichert Standort- und Straßenkilometer-Metadaten; Adresse und Straße werden serverseitig per Google Reverse Geocoding ergänzt, wenn `GOOGLE_MAPS_SERVER_API_KEY` gesetzt ist.
-- Mock-/Provider-Schicht für Fallwild-Standort (`HEGE_GEO_PROVIDER=live|mock|disabled`): `mock` liefert lokale Gänserndorf-Testdaten ohne externe API-Keys; UI und API zeigen klare Hinweise für manuelle Standortergänzung.
-- GIP-OGD-BEPU-Indexpfad: lokaler JSON-Resolver (`GIP_ROAD_KILOMETER_INDEX_PATH`), konfigurierbarer Suchradius (`GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150`) und Build-Befehl `pnpm --filter @hege/web geo:gip:index` für den Export aus `gip_reference_ogd.gpkg`.
-- Regionaler GIP-OGD-BEPU-Index für Gänserndorf aus dem offiziellen Referenzexport als gebündelter Backend-Fallback für `HEGE_GEO_PROVIDER=live` ohne externen Index.
-- GitHub-Workflow `.github/workflows/release-check.yml` für automatischen Release-Check bei erfolgreichen Production-Deployments und manuellen `workflow_dispatch`; als blockierender Production-Check in Vercel aktiviert.
-- Cloudflare R2-Bucket `hege-assets` (WEUR) mit Custom Domain `assets.hege.app`; S3-Env-Variablen (`S3_ACCESS_KEY`, `S3_SECRET_KEY` u. a.) für Preview und Production in Vercel konfiguriert.
-- Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit (max. 3), Submission-Fallback, recoverable Upload-Fehler und Queue-Retry-Policy.
+- Kontaktlisten v1: Drizzle-Tabellen, Seed-/Demo-Daten, `GET/POST/PATCH/DELETE /api/v1/contact-lists`, verlinkte registrierte Mitglieder mit Live-Name/-Telefon, freie externe Kontakte, Web-Seite `/app/kontakte` und Mobile-Screen `Kontakte` im Mehr-Menue.
+- Reviermeldungen und Aufgaben v1: Drizzle-Tabellen, Seed-Daten, `GET/POST/PATCH /api/v1/reviermeldungen`, `GET/POST/PATCH /api/v1/aufgaben`, Rollenpruefung, Aufgaben-Sichtbarkeit (eigene/offene) und Dashboard-Zaehler.
+- Mobile-Tab `Meldungen`: Reviermeldung erfassen, eigene und offene Aufgaben lesen, Aufgabenstatus aendern.
+- Fallwild-Standort v1: Mobile uebernimmt iPhone-GPS, `POST /api/v1/geo/fallwild-location` ist produktiv erreichbar, speichert Standort- und Strassenkilometer-Metadaten; Adresse und Strasse werden serverseitig per Google Reverse Geocoding ergaenzt, wenn `GOOGLE_MAPS_SERVER_API_KEY` gesetzt ist.
+- Mock-/Provider-Schicht fuer Fallwild-Standort (`HEGE_GEO_PROVIDER=live|mock|disabled`): `mock` liefert lokale Gaenserndorf-Testdaten ohne externe API-Keys; UI und API zeigen klare Hinweise fuer manuelle Standortergaenzung.
+- GIP-OGD-BEPU-Indexpfad: lokaler JSON-Resolver (`GIP_ROAD_KILOMETER_INDEX_PATH`), konfigurierbarer Suchradius (`GIP_ROAD_KILOMETER_MAX_DISTANCE_METERS=150`) und Build-Befehl `pnpm --filter @hege/web geo:gip:index` fuer den Export aus `gip_reference_ogd.gpkg`.
+- Regionaler GIP-OGD-BEPU-Index fuer Gaenserndorf aus dem offiziellen Referenzexport als gebuendelter Backend-Fallback fuer `HEGE_GEO_PROVIDER=live` ohne externen Index.
+- GitHub-Workflow `.github/workflows/release-check.yml` fuer automatischen Release-Check bei erfolgreichen Production-Deployments und manuellen `workflow_dispatch`; als blockierender Production-Check in Vercel aktiviert.
+- Cloudflare R2-Bucket `hege-assets` (WEUR) mit Custom Domain `assets.hege.app`; S3-Env-Variablen (`S3_ACCESS_KEY`, `S3_SECRET_KEY` u. a.) fuer Preview und Production in Vercel konfiguriert.
+- Mobile Vitest-Abdeckung fuer Foto-Normalisierung, Foto-Limit (max. 3), Submission-Fallback, recoverable Upload-Fehler und Queue-Retry-Policy.
 - Echte Auth-Session mit Login, Refresh, `GET /api/v1/me` und serverseitigem Revierkontext fuer Web und App.
 - Neue API-Vertraege fuer `dashboard`, `reviereinrichtungen`, `protokolle`, `sitzungen` und `documents` auf der Web-Schicht eingefuehrt.
 - Public-Web-Block mit Landing auf `/`, Pricing-CTAs, Login-/Registrieren-Einstieg und Onboarding-Redirects fuer `/app` und `/app/setup` vorbereitet.
@@ -74,7 +76,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Mobile Design-System §10: `onAccent`-Token auf Accent-Flaechen adoptiert (20 hartkodierte `#fff9ef`-Vordergruende in 13 Dateien): Filter-Reset-Buttons, Badges, FAB, aktive Filter-Chips, Map-Fallbacks; behebt Dark-Mode-Kontrast-Bug (`#fff9ef` auf `#9db36f` ~2:1 → `theme.onAccent` `#10231d` auf Salbei-Accent); OTA `0.1.0 · 2026-05-31.8` (PR #146).
 - Mobile Design-System §10: `onWarning`-Token (Tinte auf `theme.warning`-Flaechen) eingefuehrt und auf `QueueStatusPill` (Fehler-/Offline-State) + `QueueBadge` (Fehler-State) adoptiert; schliesst die Status-Familie ab und behebt den Dark-Mode-Kontrast (Creme `#fff9ef` auf Gold `#cdb069` → `theme.onWarning` `#10231d`); OTA `0.1.0 · 2026-06-03.9` (PR #152).
 - Mobile Design-System §10: Spacing-/Radius-Literale, die exakt zur `@hege/tokens`-Skala passen, durch Token-Referenzen ersetzt (139 Stellen in 30 Dateien: `spacing.xs`–`spacing.xl`, `radius.md/lg/xl/full`); werterhaltend, off-scale-Werte (6/10/12/14, 16/18/22) bewusst belassen (PR #154).
-- Mobile Design-System §10: `rnShadow.card`-Token auf den Card-Schatten von Login + App-Loader adoptiert (`{ ...rnShadow.card, elevation: 4 }`), werterhaltend; die übrigen 6 bespoke Schatten (FAB, Map-Stage, Queue-Badge, View-Toggle) bleiben hartkodiert, da `rnShadow` (web-abgeleitet) dort nicht passt (PR #156).
+- Mobile Design-System §10: `rnShadow.card`-Token auf den Card-Schatten von Login + App-Loader adoptiert (`{ ...rnShadow.card, elevation: 4 }`), werterhaltend; die uebrigen 6 bespoke Schatten (FAB, Map-Stage, Queue-Badge, View-Toggle) bleiben hartkodiert, da `rnShadow` (web-abgeleitet) dort nicht passt (PR #156).
 - Neues `hege`-Logo fuer iOS-App und Website eingebaut; auf `https://hege.app` produktiv verfuegbar.
 - Mobile Session-Restore um lokalen `locked`-Status und biometrisches Entsperren (Face ID/Touch ID) fuer gespeicherte Sitzungen erweitert; iPhone-Abnahme 2026-05-06 bestaetigt.
 - Mobile Offline-Queue auf Queue v2 umgestellt: `nextAttemptAt`, exponentieller Retry-Backoff, dynamische Sync-Schleife, manueller Retry und Verwerfen fehlgeschlagener Eintraege; Fallwild Create-zu-Upload-Kette bleibt erhalten.
@@ -107,7 +109,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 - Login-Placeholder in Web und App zeigen keine konkreten Seed-Zugangsdaten mehr an.
 - Production-Fallback fuer Legacy-Schema eingebaut, damit Login ohne `users.username` und Fallwild-Reads ohne `media_assets` nicht mehr mit `500` scheitern.
 - Fallwild-Reads brechen ohne konfigurierte Storage-Public-URL nicht mehr mit `500`, sondern liefern `photos: []`.
-- Protokoll-Erstellung (Schriftfuehrung): Validierungsfehler nennen jetzt verstaendliche deutsche Feldbezeichnungen statt interner Feldnamen (z. B. `„Titel" darf nicht leer sein.`).
+- Protokoll-Erstellung (Schriftfuehrung): Validierungsfehler nennen jetzt verstaendliche deutsche Feldbezeichnungen statt interner Feldnamen (z. B. `„Titel“ darf nicht leer sein.`).
 - Ein Beschluss mit Titel, aber ohne Beschlusstext, wird beim Speichern nicht mehr stillschweigend verworfen, sondern klar zurueckgemeldet.
 - Erfolgs- und Fehlermeldungen im Sitzungsdetail erscheinen nur noch beim ausloesenden Formular (Stammdaten, Protokollversion und Freigabe getrennt) statt doppelt.
 - Die Sitzungs-Historie zeigt „Version N" statt der internen Versions-ID.
