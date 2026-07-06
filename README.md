@@ -57,6 +57,13 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Mobile: **In-App-Theme-Umschalter** (Mehr → Profil → „Erscheinungsbild": System/Hell/Dunkel), persistiert (PR #165)
 - Mobile: **Erfassungs-Screens** (Fallwild, Ansitze, Meldungen) auf „Erfassen | Bestand"-Segmented-Control-Muster umgestellt (PR #178)
 - **Kamera-Crash behoben**: `NSCameraUsageDescription` in Info.plist ergänzt (PR #176)
+- Mobile: **Benachrichtigungen-Tab** (`(tabs)/benachrichtigungen.tsx`) mit Unread-Badge im Mehr-Tab und Web-Sidebar (PR #80)
+- Mobile: **Über Hege-Screen** (`app/ueber-hege.tsx`) — Versions- und Rechtsinfo-Screen
+- **Web Backoffice Aufgaben und Reviermeldungen**: `apps/web/src/app/app/aufgaben/` und `apps/web/src/app/app/reviermeldungen/` — vollständige Web-Seiten inkl. Erstellungsformulare
+- **Reviermeldung → Aufgabe One-Click-Konversion**: Über `sourceType: "reviermeldung"` und `sourceId` auf Web (PR #98) und Mobile (PR #99); der `sourceType`/`sourceId`-Mechanismus ist für weitere Ressourcentypen vorbereitet
+- **Filter/Sort/CSV als Standard-Muster**: Alle 10 Hauptlisten (5× Web, 5× Mobile) haben Filter-Chips, Sort-Chips und CSV-Export; neue Listen müssen dieses Muster von Anfang an mitimplementieren
+- **Status-Count-Hints in Aufgaben-Chips**: z. B. „Offen (12) · Erledigt (3)" für schnelle Übersicht (PR #97)
+- **Web SEO-Infrastruktur**: `opengraph-image.tsx`, `robots.ts` und `sitemap.ts` in `apps/web/src/app/` sind aktiv
 
 Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell und direkte Nachrichten (mit späterer WhatsApp-/Telegram-Anbindung) sind als nächste fachliche Erweiterung geplant.
 
