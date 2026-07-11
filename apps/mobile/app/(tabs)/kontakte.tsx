@@ -499,7 +499,6 @@ function ContactCard({
   actions?: ReactNode;
 }) {
   const styles = useThemedStyles(createStyles);
-  const theme = useThemeColors();
   const roleOrFunction =
     "funktion" in contact && contact.funktion
       ? contact.funktion
@@ -512,9 +511,12 @@ function ContactCard({
   return (
     <View style={styles.contactCard}>
       <View style={styles.contactMain}>
-        <View style={styles.contactIcon}>
-          <Ionicons name="call-outline" size={18} color={theme.onAccent} />
-        </View>
+        <IconButton
+          accent
+          icon="call-outline"
+          label={`Anrufen: ${contact.name}`}
+          onPress={() => void Linking.openURL(toTelHref(contact.phone))}
+        />
         <View style={styles.contactCopy}>
           <Text style={styles.contactMeta}>{roleOrFunction}</Text>
           <Text style={styles.contactName}>{contact.name}</Text>
@@ -523,10 +525,7 @@ function ContactCard({
           {"note" in contact && contact.note ? <Text style={styles.contactMuted}>{contact.note}</Text> : null}
         </View>
       </View>
-      <View style={styles.contactActions}>
-        <IconButton accent icon="call-outline" label={`Anrufen: ${contact.name}`} onPress={() => void Linking.openURL(toTelHref(contact.phone))} />
-        {actions}
-      </View>
+      {actions ? <View style={styles.contactActions}>{actions}</View> : null}
     </View>
   );
 }
@@ -785,14 +784,6 @@ const createStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "flex-start",
       gap: 12
-    },
-    contactIcon: {
-      width: 34,
-      height: 34,
-      borderRadius: radius.md,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: theme.accent
     },
     contactCopy: {
       flex: 1,
