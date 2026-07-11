@@ -6,6 +6,7 @@
 - Installierte native Version: `1.0` (`Build 7`, Runtime `1.0.1`)
 - Beginn: Preview-OTA `0.1.0 · 2026-06-13.16`
 - Fix-Abnahme: lokal installierter Release-Build `0.1.0 · 2026-07-10.17`
+- Preview-OTA-Abnahme: Gruppe `3632ac5e-6994-43c8-8e03-1d0bc385ba85`, Commit `2175003`
 - Backend: Production unter `https://hege.app/api/v1`
 - Rolle: Ausgeher
 
@@ -28,11 +29,11 @@
 
 Kontaktkarten zeigten das Telefon-Symbol doppelt: einmal dekorativ und einmal als echte Anrufen-Aktion. Die dekorative Darstellung wurde in `apps/mobile/app/(tabs)/kontakte.tsx` durch den bestehenden tappbaren Anruf-Button ersetzt; der zweite Button entfällt.
 
-Die Korrektur wurde als `0.1.0 · 2026-07-10.17` lokal im Release-Modus auf demselben iPhone installiert und visuell bestätigt. Mobile-Typecheck sowie 178 Vitest-Tests laufen grün.
+Die Korrektur wurde als `0.1.0 · 2026-07-10.17` lokal im Release-Modus auf demselben iPhone installiert und visuell bestätigt. Anschließend wurde derselbe Commit als Preview-OTA veröffentlicht und über den registrierten Preview-Build geladen. Die lokale Expo-Updates-Datenbank weist die Update-ID `019f52ec-94a5-7f6f-a978-db4e1f7a25b0` mit einem erfolgreichen und keinem fehlgeschlagenen Start aus. Mobile-Typecheck sowie 178 Vitest-Tests laufen grün.
 
 ## Offene Punkte
 
-- `.17` ist noch nicht als Preview-OTA veröffentlicht und noch nicht nach Production übernommen.
+- `.17` ist als Preview-OTA abgenommen, aber noch nicht nach Production übernommen.
 - Der Offline-zu-Online-Queue-Sync wurde nicht erneut ausgeführt, da dafür ein weiterer Production-Testvorgang erzeugt würde.
 - Pflege-Rechte für Schriftführung oder Admin wurden in dieser Session nicht nativ geprüft.
 - Der beim Kamera-Smoke erzeugte Production-Datensatz `fallwild-fddbb7c0-f7a3-48c4-a238-d60cfa1e0593` bleibt bestehen; die API bietet derzeit keinen DELETE-Endpunkt zur Bereinigung.
