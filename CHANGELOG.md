@@ -25,6 +25,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Fixed
 
+- Mobile: **doppelten Telefonbutton in Kontaktkarten entfernt** — der bisher dekorative Telefon-Chip ist jetzt selbst die tappbare Anrufen-Aktion; der zweite, darunter gerenderte Button entfällt. OTA `0.1.0 · 2026-07-10.17`.
 - Mobile: **Kamera-Crash bei Fallwild-Foto behoben** — `NSCameraUsageDescription` fehlte in `Info.plist`/`app.json`, iOS beendete die App beim ersten Kamera-Zugriff (TCC-Kill, von JS nicht abfangbar). Nativer Fix → neuer EAS-Build (Runtime 1.0.1, Channel `preview`); „Aus Bibliothek" war nie betroffen (PR #176).
 - Mobile: **Foto-Titel in der Fallwild-Erfassung lesbar gemacht** — technische Asset-Namen (iOS-UUIDs wie `6FEB0C11-…`, Kamera-Zähler `IMG_1234`, reine Hex-Bezeichner) werden durch „Fallwild-Foto 1/2/3" ersetzt; menschlich vergebene Dateinamen bleiben erhalten. Die redundante zweite Dateinamen-Zeile in der Foto-Karte entfällt; OTA `0.1.0 · 2026-06-11.15`.
 - Web-API: **unerwartete 5xx-Fehler landen jetzt in den Vercel-Runtime-Logs** (`jsonError` loggt via `console.error`; erwartete 4xx bleiben still) — vorher verschwanden Produktionsfehler spurlos; `/v1/me`, `/v1/ansitze/live` und die drei CSV-Exporte liefern bei fehlender Auth sauberes 401-JSON statt eines generischen Next-500 (PR #171).
