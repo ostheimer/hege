@@ -148,7 +148,7 @@ export async function resolveAuthContext(context: SessionTokenContext): Promise<
   return toAuthContextResponse(user, activeMembership, membershipsForUser);
 }
 
-export function assertRole(role: Role, allowedRoles: Role[]) {
+export function assertRole(role: Role, allowedRoles: readonly Role[]) {
   if (!allowedRoles.includes(role)) {
     throw new RouteError("Diese Aktion ist für die aktuelle Rolle nicht erlaubt.", 403, "forbidden");
   }

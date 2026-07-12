@@ -1,4 +1,4 @@
-import type { Aufgabe, Reviermeldung, Role } from "@hege/domain";
+import { canRoleAccess, rolesForFeature, type Aufgabe, type Reviermeldung, type Role } from "@hege/domain";
 import { randomUUID } from "crypto";
 
 import type { RequestContext } from "../../auth/context";
@@ -16,12 +16,7 @@ import type {
   UpdateReviermeldungInput
 } from "./schemas";
 
-export const REVIERARBEIT_ALLOWED_ROLES = [
-  "jaeger",
-  "ausgeher",
-  "schriftfuehrer",
-  "revier-admin"
-] as const satisfies readonly Role[];
+export const REVIERARBEIT_ALLOWED_ROLES = rolesForFeature("revierarbeit-read");
 
 export class RevierarbeitServiceError extends Error {
   constructor(
@@ -255,7 +250,7 @@ function canModifyReviermeldung(context: RequestContext, entry: Reviermeldung) {
 }
 
 function canManageRevierarbeit(role: Role) {
-  return role === "revier-admin" || role === "schriftfuehrer";
+  return canRoleAccess(role, "revierarbeit-manage");
 }
 
 function resolveCompletedAt(existing: Aufgabe, nextStatus: Aufgabe["status"] | undefined, now: string) {

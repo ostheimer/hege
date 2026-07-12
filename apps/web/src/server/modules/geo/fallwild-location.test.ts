@@ -151,6 +151,33 @@ describe("fallwild location resolver", () => {
     });
   });
 
+  it("keeps the manual fallback for the production smoke coordinate on Schillergasse", async () => {
+    const { resolveFallwildLocation } = await loadModule({
+      googleMapsLanguage: "de",
+      googleMapsRegion: "AT"
+    });
+
+    await expect(
+      resolveFallwildLocation({
+        lat: 48.336003,
+        lng: 16.732323,
+        accuracyMeters: 4,
+        fetchImpl: vi.fn() as unknown as typeof fetch
+      })
+    ).resolves.toMatchObject({
+      location: {
+        lat: 48.336003,
+        lng: 16.732323,
+        accuracyMeters: 4
+      },
+      roadReference: undefined,
+      warnings: [
+        "Google Reverse Geocoding ist nicht konfiguriert.",
+        "Für diese Koordinate wurde kein GIP-Straßenkilometer gefunden; bitte manuell ergänzen."
+      ]
+    });
+  });
+
   it("surfaces ambiguous Google reverse geocoding results as a warning", async () => {
     const { resolveFallwildLocation } = await loadModule({
       googleMapsServerApiKey: "google-key",

@@ -11,6 +11,7 @@ import type {
   Role,
   User
 } from "@hege/domain";
+import { rolesForFeature } from "@hege/domain";
 import { and, eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 
@@ -34,7 +35,7 @@ const INVITE_TTL_HOURS = 168; // 7 Tage
 
 const ALLOWED_ROLES: Role[] = ["jaeger", "schriftfuehrer", "ausgeher", "revier-admin"];
 
-const INVITER_ROLES: Role[] = ["revier-admin"];
+const INVITER_ROLES = rolesForFeature("members-manage");
 
 interface CreateInvitationCommand {
   context: RequestContext;

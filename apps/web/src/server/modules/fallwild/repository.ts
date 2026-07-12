@@ -2,6 +2,7 @@ import type { FallwildVorgang } from "@hege/domain";
 import { and, eq, sql } from "drizzle-orm";
 
 import { getDb } from "../../db/client";
+import { isMissingTableError } from "../../db/compat";
 import { fallwildVorgaenge, mediaAssets, reviere } from "../../db/schema";
 import { mapFallwildRowToDomain } from "./queries";
 
@@ -9,13 +10,21 @@ export interface FallwildRepository {
   insert(entry: FallwildVorgang): Promise<FallwildVorgang>;
   countPhotos(fallwildId: string): Promise<number>;
   findUploadScope(fallwildId: string, revierId: string): Promise<FallwildUploadScope | undefined>;
+  findDeleteScope(fallwildId: string, revierId: string): Promise<FallwildDeleteScope | undefined>;
   insertPhoto(entry: FallwildPhotoInsert): Promise<FallwildPhotoRecord>;
+  deleteById(fallwildId: string, revierId: string, deleteMediaAssets: boolean): Promise<boolean>;
 }
 
 export interface FallwildUploadScope {
   fallwildId: string;
   revierId: string;
   tenantKey: string;
+}
+
+export interface FallwildDeleteScope {
+  fallwildId: string;
+  objectKeys: string[];
+  mediaSchemaAvailable: boolean;
 }
 
 export interface FallwildPhotoInsert {
@@ -104,6 +113,47 @@ export function createDbFallwildRepository(): FallwildRepository {
         : undefined;
     },
 
+    async findDeleteScope(fallwildId, revierId) {
+      const [row] = await db
+        .select({ fallwildId: fallwildVorgaenge.id })
+        .from(fallwildVorgaenge)
+        .where(and(eq(fallwildVorgaenge.id, fallwildId), eq(fallwildVorgaenge.revierId, revierId)))
+        .limit(1);
+
+      if (!row) {
+        return undefined;
+      }
+
+      try {
+        const photos = await db
+          .select({ objectKey: mediaAssets.objectKey })
+          .from(mediaAssets)
+          .where(
+            and(
+              eq(mediaAssets.revierId, revierId),
+              eq(mediaAssets.entityType, "fallwild"),
+              eq(mediaAssets.entityId, fallwildId)
+            )
+          );
+
+        return {
+          fallwildId: row.fallwildId,
+          objectKeys: photos.map((photo) => photo.objectKey),
+          mediaSchemaAvailable: true
+        };
+      } catch (error) {
+        if (!isMissingTableError(error, "media_assets")) {
+          throw error;
+        }
+
+        return {
+          fallwildId: row.fallwildId,
+          objectKeys: [],
+          mediaSchemaAvailable: false
+        };
+      }
+    },
+
     async insertPhoto(entry) {
       const [row] = await db
         .insert(mediaAssets)
@@ -126,6 +176,29 @@ export function createDbFallwildRepository(): FallwildRepository {
       }
 
       return row;
+    },
+
+    async deleteById(fallwildId, revierId, deleteMediaAssets) {
+      return db.transaction(async (tx) => {
+        if (deleteMediaAssets) {
+          await tx
+            .delete(mediaAssets)
+            .where(
+              and(
+                eq(mediaAssets.revierId, revierId),
+                eq(mediaAssets.entityType, "fallwild"),
+                eq(mediaAssets.entityId, fallwildId)
+              )
+            );
+        }
+
+        const deleted = await tx
+          .delete(fallwildVorgaenge)
+          .where(and(eq(fallwildVorgaenge.id, fallwildId), eq(fallwildVorgaenge.revierId, revierId)))
+          .returning({ id: fallwildVorgaenge.id });
+
+        return deleted.length > 0;
+      });
     }
   };
 }

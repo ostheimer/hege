@@ -146,16 +146,15 @@ Wichtige Testwege:
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines für die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` prüft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
 - `pnpm --filter @hege/web smoke:release -- <production-url>` prüft denselben Read-Contract gegen einen produktiven Deploy.
+- `pnpm mobile:e2e:ios:core` prüft Build-Tag, Login, Dashboard, Navigation und Feldrollen-Kontaktrechte auf einem iOS-Simulator; `pnpm mobile:e2e:ios:roles` prüft die Pflegefläche für Schriftführung und Revier-Admin.
 - `.github/workflows/preview-smoke.yml` startet denselben Smoke automatisch bei erfolgreichen Preview-Deployment-Statusmeldungen und erlaubt einen manuellen Start per `workflow_dispatch`.
 - `.github/workflows/release-check.yml` startet den produktionsfaehigen Release-Check automatisch bei erfolgreichen Production-Deployment-Statusmeldungen und erlaubt ebenfalls einen manuellen Start per `workflow_dispatch`.
 - Die E2E-Suite deckt aktuell Public Web, Auth, Sitzungen, Dashboard, Reviereinrichtungen, Protokolle, `/ansitze` und `/fallwild` inkl. Desktop- und Mobile-Layout ab.
 
 ## Nächste Ausbauschritte
 
-- iPhone-/iOS-Geräte-Smoke für erfolgreichen Foto-Upload, automatische Standortauflösung und leere Queue nachziehen
-- Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
-- GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
-- Mobile-E2E-Strategie über den dokumentierten Geräte-Smoke hinaus festziehen
+- Offline-Queue-Sync auf dem physischen iPhone abschließend prüfen und erzeugte Smoke-Daten über den geschützten Cleanup-Pfad bereinigen
+- Maestro-Simulator-Smokes als schnellen Vorlauf beibehalten; Kamera, GPS, Face ID und Offline-Netzwechsel weiterhin physisch abnehmen
 - produktive Abnahme mit blockierendem Release-Check weiter beobachten
 - PDF-Erzeugung weiter härten
 - Android-Emulator-Smoke optional als Zweitpfad vorbereiten

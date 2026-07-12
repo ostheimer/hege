@@ -140,6 +140,15 @@
 - Erwartung: fehlende Storage-Konfiguration antwortet mit `503`
 - Erwartung: fehlt `media_assets` in einer Legacy-DB noch, antwortet der Endpunkt mit `503` statt `500`
 
+### TC-API-FALLWILD-07: Fallwild inklusive Fotos sicher bereinigen
+
+- Mit `schriftfuehrer`- oder `revier-admin`-Session `DELETE /api/v1/fallwild/:id` aufrufen
+- Erwartung: Storage-Objekte werden vor `media_assets` und `fallwild_vorgaenge` entfernt
+- Erwartung: die Antwort enthält `{ deleted: true, id }`
+- Erwartung: eine Feldrolle erhält `403`
+- Erwartung: eine ID aus einem fremden Revier verhält sich wie nicht gefunden
+- Erwartung: bei Storage-Fehler bleibt der Datenbankeintrag erhalten und die Route antwortet mit `503`
+
 ## API Dashboard, Reviereinrichtungen, Protokolle und Sitzungen
 
 ### TC-API-DASH-01: Dashboard-API liefert den Snapshot
@@ -229,6 +238,20 @@
 - Erwartung: Dashboard, Reviereinrichtungen, Protokoll-Liste und Protokoll-Detail laufen auf Desktop und Mobile-Viewport durch
 - Erwartung: der Dokument-Download liefert den erwarteten PDF-Dateinamen
 - Erwartung: es gibt keinen Horizontal-Overflow im Mobile-Viewport
+
+### TC-AUTO-MOBILE-01: Maestro-Core-Smoke für eine Feldrolle
+
+- iOS-Simulator mit installierter App starten
+- `HEGE_SMOKE_IDENTIFIER` und `HEGE_SMOKE_PIN` nur in der Umgebung setzen
+- `pnpm mobile:e2e:ios:core` ausführen
+- Erwartung: Build-Tag, Login, Dashboard, Mehr-Navigation und Kontakte sind sichtbar
+- Erwartung: `Listen und Kontakte` ist für die Feldrolle nicht sichtbar
+
+### TC-AUTO-MOBILE-02: Maestro-Rollen-Smoke
+
+- `pnpm mobile:e2e:ios:roles` einmal als Schriftführung und einmal als Revier-Admin ausführen
+- Erwartung: `Listen und Kontakte` und `Liste anlegen` sind sichtbar
+- Erwartung: keine Zugangsdaten sind in den Flow-Dateien hinterlegt
 
 ### TC-AUTO-WEB-05: Preview-Smoke gegen die PR-URL
 
@@ -593,8 +616,7 @@ Die folgenden Bereiche haben noch keine Test Cases in diesem Dokument:
 - `/api/v1/public/register` (POST)
 
 ### Rollen-/Berechtigungslogik
-- Rollen-aware Navigation (Sidebar-Filterung nach Rolle)
-- Admin vs. Schriftführung vs. Mitglied Rechte-Übergänge
+- Weitergehende Mutations-E2E für Admin vs. Schriftführung über die bereits automatisierte Sichtbarkeitsprüfung hinaus
 
 ### Dark Mode
 - Systemweites Dark-Mode-Verhalten (Tokens, Kontrast-Verhältnisse) (**implementiert — PRs #159, #165; In-App-Umschalter PR #165**)

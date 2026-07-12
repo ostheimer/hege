@@ -79,6 +79,6 @@ Env-Variablen:
 
 ## Offene Härtung
 
-- Bounding Box mit dem tatsächlichen Revier abgleichen und bei Bedarf erweitern.
+- Die Bounding Box wurde am 2026-07-12 gegen die echte Production-Smoke-Koordinate `48.336003,16.732323` in der Schillergasse geprüft: Der Punkt liegt innerhalb des gebündelten Ausschnitts. Der nächste kilometrierte GIP-Punkt liegt rund 379 m entfernt auf `L3035/B8`. Der manuelle Fallback ist deshalb fachlich korrekt; eine Radiusvergrößerung würde einen falschen Straßenkilometer zuordnen.
 - Aktualisierungsrhythmus für den GIP-OGD-Export festlegen.
 - Nach dem ersten echten Fallwild-Feldtest prüfen, ob `150 m` Suchradius fachlich passt.

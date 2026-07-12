@@ -22,6 +22,7 @@ interface ScreenShellProps extends PropsWithChildren {
   aside?: ReactNode;
   compactHero?: boolean;
   topSafeArea?: boolean;
+  testID?: string;
   /**
    * Pull-to-Refresh aktivieren. Wenn gesetzt, rendert ScreenShell automatisch
    * einen nativen RefreshControl mit Brand-Farbe.
@@ -40,7 +41,8 @@ export function ScreenShell({
   children,
   refresh,
   compactHero = false,
-  topSafeArea = true
+  topSafeArea = true,
+  testID
 }: ScreenShellProps) {
   const insets = useSafeAreaInsets();
   const bottomPadding = TAB_BAR_VISUAL_HEIGHT + insets.bottom;
@@ -49,7 +51,7 @@ export function ScreenShell({
   const safeAreaEdges = topSafeArea ? (["top", "left", "right"] as const) : (["left", "right"] as const);
 
   return (
-    <SafeAreaView edges={safeAreaEdges} style={styles.safeArea}>
+    <SafeAreaView edges={safeAreaEdges} style={styles.safeArea} testID={testID}>
       <ScrollView
         contentInsetAdjustmentBehavior="never"
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}

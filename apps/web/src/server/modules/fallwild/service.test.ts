@@ -2,6 +2,7 @@ import type { FallwildVorgang } from "@hege/domain";
 import { describe, expect, it, vi } from "vitest";
 
 import type {
+  FallwildDeleteScope,
   FallwildPhotoInsert,
   FallwildPhotoRecord,
   FallwildRepository,
@@ -402,6 +403,80 @@ describe("fallwild service", () => {
     expect(deleteObject).toHaveBeenCalledWith("attersee/fallwild/fallwild-1/photo-rollback-bild.jpg");
   });
 
+  it("deletes stored photos before removing the scoped fallwild entry", async () => {
+    const deleteObject = vi.fn();
+    const repository = createMemoryRepository({
+      deleteScope: {
+        fallwildId: "fallwild-1",
+        objectKeys: ["gaenserndorf/fallwild/fallwild-1/photo-1.jpg"],
+        mediaSchemaAvailable: true
+      }
+    });
+    const service = createFallwildService({
+      deleteObject,
+      repository,
+      useDemoStore: false
+    });
+
+    await expect(
+      service.delete({
+        fallwildId: "fallwild-1",
+        revierId: "revier-attersee"
+      })
+    ).resolves.toEqual({
+      deleted: true,
+      id: "fallwild-1"
+    });
+
+    expect(deleteObject).toHaveBeenCalledWith("gaenserndorf/fallwild/fallwild-1/photo-1.jpg");
+    expect(repository.deletedIds).toEqual(["fallwild-1"]);
+  });
+
+  it("keeps the database entry when photo cleanup fails", async () => {
+    const repository = createMemoryRepository({
+      deleteScope: {
+        fallwildId: "fallwild-1",
+        objectKeys: ["gaenserndorf/fallwild/fallwild-1/photo-1.jpg"],
+        mediaSchemaAvailable: true
+      }
+    });
+    const service = createFallwildService({
+      deleteObject: vi.fn(async () => {
+        throw new Error("R2 nicht erreichbar");
+      }),
+      repository,
+      useDemoStore: false
+    });
+
+    await expect(
+      service.delete({
+        fallwildId: "fallwild-1",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "R2 nicht erreichbar",
+      status: 503
+    });
+    expect(repository.deletedIds).toEqual([]);
+  });
+
+  it("returns not found for a fallwild entry outside the active revier", async () => {
+    const service = createFallwildService({
+      repository: createMemoryRepository(),
+      useDemoStore: false
+    });
+
+    await expect(
+      service.delete({
+        fallwildId: "fallwild-404",
+        revierId: "revier-attersee"
+      })
+    ).rejects.toMatchObject({
+      message: "Fallwild-Vorgang wurde nicht gefunden.",
+      status: 404
+    });
+  });
+
   it("rejects mutations without a database-backed store", async () => {
     const service = createFallwildService({
       repository: createMemoryRepository(),
@@ -427,15 +502,20 @@ describe("fallwild service", () => {
 });
 
 function createMemoryRepository({
+  deleteScope,
   existingPhotos = 0,
   scope
 }: {
+  deleteScope?: FallwildDeleteScope;
   existingPhotos?: number;
   scope?: FallwildUploadScope;
 } = {}): FallwildRepository & {
+  deletedIds: string[];
   insertedPhotos: FallwildPhotoRecord[];
 } {
   const store: FallwildVorgang[] = [];
+  const deletedIds: string[] = [];
+  let currentDeleteScope = deleteScope;
   const insertedPhotos: FallwildPhotoRecord[] = Array.from({ length: existingPhotos }, (_, index) => ({
     contentType: "image/jpeg",
     createdAt: `2026-04-04T06:0${index}:00.000Z`,
@@ -450,6 +530,7 @@ function createMemoryRepository({
   }));
 
   return {
+    deletedIds,
     insertedPhotos,
     async insert(entry: FallwildVorgang) {
       store.unshift(entry);
@@ -465,6 +546,13 @@ function createMemoryRepository({
 
       return scope;
     },
+    async findDeleteScope(fallwildId: string, revierId: string) {
+      if (!currentDeleteScope || currentDeleteScope.fallwildId !== fallwildId || revierId !== "revier-attersee") {
+        return undefined;
+      }
+
+      return currentDeleteScope;
+    },
     async insertPhoto(entry: FallwildPhotoInsert) {
       const row: FallwildPhotoRecord = {
         ...entry,
@@ -472,6 +560,15 @@ function createMemoryRepository({
       };
       insertedPhotos.unshift(row);
       return row;
+    },
+    async deleteById(fallwildId: string, revierId: string) {
+      if (!currentDeleteScope || currentDeleteScope.fallwildId !== fallwildId || revierId !== "revier-attersee") {
+        return false;
+      }
+
+      deletedIds.push(fallwildId);
+      currentDeleteScope = undefined;
+      return true;
     }
   };
 }

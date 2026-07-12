@@ -245,7 +245,7 @@ export default function KontakteScreen() {
 
   if (isLoading) {
     return (
-      <ScreenShell eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte werden geladen.">
+      <ScreenShell testID="contacts-screen" eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte werden geladen.">
         <StateView mode="loading" title="Kontakte werden geladen" />
       </ScreenShell>
     );
@@ -253,7 +253,7 @@ export default function KontakteScreen() {
 
   if (!directory) {
     return (
-      <ScreenShell eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte im Revier.">
+      <ScreenShell testID="contacts-screen" eyebrow="Kontakte" title="Telefonlisten" subtitle="Kontakte im Revier.">
         <StateView
           mode="error"
           title="Kontakte nicht verfügbar"
@@ -278,6 +278,7 @@ export default function KontakteScreen() {
 
   return (
     <ScreenShell
+      testID="contacts-screen"
       eyebrow="Kontakte"
       title="Telefonlisten"
       subtitle="Mitglieder, Reviernachbarn und Notrufnummern griffbereit."

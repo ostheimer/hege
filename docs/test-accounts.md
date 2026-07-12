@@ -23,7 +23,7 @@ Login wahlweise mit Username oder E-Mail.
 
 ## Was welche Rolle sieht
 
-Server-Seitige Rollen-Guards: [apps/web/src/server/auth/guards.ts:25-36](../apps/web/src/server/auth/guards.ts#L25-L36).
+Die gemeinsame Rollen-/Feature-Matrix liegt in [`packages/domain/src/permissions.ts`](../packages/domain/src/permissions.ts). Server-, Web- und Mobile-Guards leiten ihre Rollen daraus ab.
 
 | Route | Erforderliche Rolle |
 |-------|---------------------|
@@ -33,10 +33,10 @@ Server-Seitige Rollen-Guards: [apps/web/src/server/auth/guards.ts:25-36](../apps
 | `/app/reviereinrichtungen` | jede authentifizierte Rolle |
 | `/app/protokolle` | jede authentifizierte Rolle |
 | `/app/kontakte` | jede authentifizierte Rolle |
-| `/app/sitzungen` | `schriftfuehrer`, `revier-admin` |
-| `/app/sitzungen/[id]` | `schriftfuehrer`, `revier-admin` |
+| `/app/sitzungen` | `schriftfuehrer`, `revier-admin`, `platform-admin` |
+| `/app/sitzungen/[id]` | `schriftfuehrer`, `revier-admin`, `platform-admin` |
 
-**Hinweis:** Die Sidebar zeigt aktuell auch nicht-erlaubte Links. Nicht autorisierte Rollen werden bei Zugriff still auf `/app` redirected. Siehe [ui-audit-2026-05-07.md F-01](./ui-audit-2026-05-07.md#f-01-sidebar-zeigt-rollenfremde-links-und-redirected-stillschweigend--kritisch).
+Die Sidebar filtert rollenfremde Links. Nicht autorisierte Direktzugriffe führen mit sichtbarem Berechtigungshinweis zum Dashboard zurück.
 
 ## Mutationen je Rolle
 
@@ -48,6 +48,7 @@ Aus [apps/web/src/server/modules/sitzungen/service.ts:48-159](../apps/web/src/se
 | Version anlegen / bearbeiten | `schriftfuehrer`, `revier-admin` |
 | Freigeben | `revier-admin` |
 | Kontaktlisten anlegen / bearbeiten / löschen | `schriftfuehrer`, `revier-admin`, `platform-admin` |
+| Fallwild-Testdaten bereinigen | `schriftfuehrer`, `revier-admin`, `platform-admin` |
 
 ## Fehlende Rolle
 

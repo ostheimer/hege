@@ -84,6 +84,7 @@ Liefert:
 - `GET /api/v1/fallwild`
 - `POST /api/v1/fallwild`
 - `GET /api/v1/fallwild/:id`
+- `DELETE /api/v1/fallwild/:id`
 - `POST /api/v1/fallwild/:id/fotos`
 - `GET /api/v1/fallwild/export.csv`
 - `POST /api/v1/geo/fallwild-location`
@@ -147,6 +148,17 @@ Antwort:
 - `200` mit `FallwildVorgang`
 - `404` wenn der Vorgang im aktiven Revier nicht existiert
 - `403` wenn die Rolle nicht lesen darf
+
+#### `DELETE /api/v1/fallwild/:id`
+
+Bereinigt einen Fallwild-Vorgang ausschließlich innerhalb des aktiven Reviers. Erlaubt sind `schriftfuehrer`, `revier-admin` und `platform-admin`. Vor dem transaktionalen Löschen von `media_assets` und `fallwild_vorgaenge` werden alle zugehörigen Storage-Objekte entfernt. Schlägt die R2-/S3-Bereinigung fehl, bleibt der Datenbankeintrag erhalten und die Route antwortet mit `503`.
+
+Antwort:
+
+- `200` mit `{ deleted: true, id }`
+- `404` wenn der Vorgang im aktiven Revier nicht existiert
+- `403` wenn die Rolle nicht verwalten darf
+- `503` wenn die Storage-Bereinigung fehlschlägt
 
 #### `POST /api/v1/fallwild/:id/fotos`
 

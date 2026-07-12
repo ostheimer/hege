@@ -42,6 +42,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: "Heute",
+          tabBarButtonTestID: "tab-today",
           tabBarIcon: ({ color, size }) => <Ionicons color={color} name="home-outline" size={size} />
         }}
       />
@@ -49,6 +50,7 @@ export default function TabsLayout() {
         name="ansitze"
         options={{
           title: "Ansitze",
+          tabBarButtonTestID: "tab-ansitze",
           tabBarIcon: ({ color, size }) => <Ionicons color={color} name="trail-sign-outline" size={size} />
         }}
       />
@@ -56,6 +58,7 @@ export default function TabsLayout() {
         name="fallwild"
         options={{
           title: "Fallwild",
+          tabBarButtonTestID: "tab-fallwild",
           tabBarIcon: ({ color, size }) => <Ionicons color={color} name="camera-outline" size={size} />
         }}
       />
@@ -63,6 +66,7 @@ export default function TabsLayout() {
         name="mehr"
         options={{
           title: "Mehr",
+          tabBarButtonTestID: "tab-more",
           tabBarIcon: ({ color, size }) => <Ionicons color={color} name="ellipsis-horizontal" size={size} />
         }}
       />

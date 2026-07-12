@@ -34,6 +34,7 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 - [Agent-Workstreams Sprint 0](./docs/agent-workstreams-sprint-0.md)
 - [Agent-Workstreams Sprint 1](./docs/agent-workstreams-sprint-1.md)
 - [iOS-Smoke-Runbook](./docs/mobile-smoke-ios.md)
+- [Mobile-E2E mit Maestro](./docs/mobile-e2e-maestro.md)
 - [Android-Smoke-Runbook](./docs/mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./docs/maps-google-v1.md)
 - [GIP-Straßenkilometer v1](./docs/gip-strassenkilometer-v1.md)

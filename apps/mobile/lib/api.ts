@@ -33,7 +33,7 @@ import type {
   User,
   Wildart
 } from "@hege/domain";
-import { buildDashboardOverview, demoData } from "@hege/domain";
+import { buildDashboardOverview, canRoleAccess, demoData } from "@hege/domain";
 
 import type { LocalPendingPhoto } from "./fallwild-photos";
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from "./session";
@@ -709,7 +709,7 @@ async function fallbackContactDirectory(
           };
         })
       })),
-    canManage: role === "revier-admin" || role === "schriftfuehrer" || role === "platform-admin"
+    canManage: canRoleAccess(role, "contacts-manage")
   };
 }
 

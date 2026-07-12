@@ -1,4 +1,4 @@
-import type { Role, Sitzung } from "@hege/domain";
+import { rolesForFeature, type Role, type Sitzung } from "@hege/domain";
 import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 
@@ -45,7 +45,7 @@ interface FreigabeCommand extends BaseSitzungCommand {
 }
 
 export async function createSitzung(command: CreateSitzungCommand): Promise<Sitzung> {
-  assertMutationPrerequisites(command.role, ["schriftfuehrer", "revier-admin"]);
+  assertMutationPrerequisites(command.role, rolesForFeature("sitzungen-manage"));
 
   const sitzungId = `sitzung-${randomUUID()}`;
 
@@ -79,7 +79,7 @@ export async function createSitzung(command: CreateSitzungCommand): Promise<Sitz
 }
 
 export async function updateSitzung(command: UpdateSitzungCommand): Promise<Sitzung> {
-  assertMutationPrerequisites(command.role, ["schriftfuehrer", "revier-admin"]);
+  assertMutationPrerequisites(command.role, rolesForFeature("sitzungen-manage"));
   await assertEditableSitzung(command.revierId, command.sitzungId, { mutation: "stammdaten" });
 
   await getDb().transaction(async (tx) => {
@@ -119,7 +119,7 @@ export async function updateSitzung(command: UpdateSitzungCommand): Promise<Sitz
 }
 
 export async function createSitzungVersion(command: CreateVersionCommand): Promise<Sitzung> {
-  assertMutationPrerequisites(command.role, ["schriftfuehrer", "revier-admin"]);
+  assertMutationPrerequisites(command.role, rolesForFeature("sitzungen-manage"));
   const sitzung = await assertEditableSitzung(command.revierId, command.sitzungId, {
     mutation: "version"
   });
@@ -166,7 +166,7 @@ export async function createSitzungVersion(command: CreateVersionCommand): Promi
 }
 
 export async function freigebenSitzung(command: FreigabeCommand): Promise<Sitzung> {
-  assertMutationPrerequisites(command.role, ["revier-admin"]);
+  assertMutationPrerequisites(command.role, rolesForFeature("sitzungen-approve"));
   const sitzung = await assertEditableSitzung(command.revierId, command.sitzungId, {
     mutation: "freigabe"
   });
@@ -225,7 +225,7 @@ export async function freigebenSitzung(command: FreigabeCommand): Promise<Sitzun
   return result;
 }
 
-function assertMutationPrerequisites(role: Role, allowedRoles: Role[]) {
+function assertMutationPrerequisites(role: Role, allowedRoles: readonly Role[]) {
   if (getServerEnv().useDemoStore) {
     throw new RouteError("Sitzungs-Mutationen benötigen eine aktive Datenbank.", 503, "service-unavailable");
   }

@@ -109,12 +109,13 @@ describe("POST /api/v1/fallwild", () => {
     expect(mockCreateFallwildVorgang).not.toHaveBeenCalled();
   });
 
-  it("returns 403 for forbidden roles", async () => {
+  it("allows platform admins to create fallwild consistently", async () => {
     mockGetRequestContext.mockResolvedValueOnce({
       membershipId: "member-admin",
       revierId: "revier-attersee",
       role: "platform-admin"
     });
+    mockCreateFallwildVorgang.mockResolvedValueOnce({ id: "fallwild-platform" });
 
     const response = await POST(
       new Request("http://localhost/api/v1/fallwild", {
@@ -136,7 +137,12 @@ describe("POST /api/v1/fallwild", () => {
       })
     );
 
-    expect(response.status).toBe(403);
-    expect(mockCreateFallwildVorgang).not.toHaveBeenCalled();
+    expect(response.status).toBe(201);
+    expect(mockCreateFallwildVorgang).toHaveBeenCalledWith(
+      expect.objectContaining({
+        reportedByMembershipId: "member-admin",
+        revierId: "revier-attersee"
+      })
+    );
   });
 });

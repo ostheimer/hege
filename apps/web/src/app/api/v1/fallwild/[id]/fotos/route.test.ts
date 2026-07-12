@@ -228,11 +228,17 @@ describe("POST /api/v1/fallwild/:id/fotos", () => {
     });
   });
 
-  it("returns 403 for forbidden roles", async () => {
+  it("allows platform admins to upload fallwild photos consistently", async () => {
     mockGetRequestContext.mockResolvedValueOnce({
       membershipId: "member-admin",
       revierId: "revier-attersee",
       role: "platform-admin"
+    });
+    mockUploadFallwildPhoto.mockResolvedValueOnce({
+      id: "photo-platform",
+      title: "Bild",
+      url: "https://storage.example/photo-platform.jpg",
+      createdAt: "2026-07-12T12:00:00.000Z"
     });
 
     const formData = new FormData();
@@ -250,7 +256,13 @@ describe("POST /api/v1/fallwild/:id/fotos", () => {
       }
     );
 
-    expect(response.status).toBe(403);
-    expect(mockUploadFallwildPhoto).not.toHaveBeenCalled();
+    expect(response.status).toBe(201);
+    expect(mockUploadFallwildPhoto).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fallwildId: "fallwild-1",
+        reportedByMembershipId: "member-admin",
+        revierId: "revier-attersee"
+      })
+    );
   });
 });

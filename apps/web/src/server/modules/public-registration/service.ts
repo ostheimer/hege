@@ -8,6 +8,7 @@ import type {
   Role,
   User
 } from "@hege/domain";
+import { rolesForFeature } from "@hege/domain";
 import { eq, like, or } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 
@@ -143,7 +144,7 @@ export async function completeActiveRevierSetup(
   context: RequestContext,
   payload: CompleteRevierSetupPayload
 ): Promise<void> {
-  assertRole(context.role, ["revier-admin"]);
+  assertRole(context.role, rolesForFeature("members-manage"));
 
   const db = getDb();
   const [current] = await db.select().from(reviere).where(eq(reviere.id, context.revierId)).limit(1);

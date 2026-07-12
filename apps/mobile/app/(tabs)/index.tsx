@@ -179,6 +179,7 @@ export default function HeuteScreen() {
 
   return (
     <ScreenShell
+      testID="dashboard-screen"
       eyebrow={todayLabel}
       title={greeting}
       subtitle={
