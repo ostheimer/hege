@@ -8,7 +8,6 @@ Der priorisierte, autonom ausführbare Arbeitsplan liegt in [docs/autonomer-umse
 - Kontaktlisten im nativen iPhone-Smoke prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Pflege-Rechte für Schriftführung/Admin.
 - Echten WebAuthn-/Passkey-Login serverseitig planen; Mobile kann zunächst nur eine bestehende Sitzung lokal per Face ID entsperren.
 - GIP-Bounding-Box für Jagdgesellschaft Gänserndorf fachlich prüfen und bei Bedarf größeren Revier-Ausschnitt als `GIP_ROAD_KILOMETER_INDEX_PATH` deployen.
-- Mobile-spezifische E2E-Strategie für Expo und native Oberflächen über den dokumentierten Geräte-Smoke hinaus festziehen.
 - Android-Emulator-Smoke nach [Android-Smoke-Runbook](docs/mobile-smoke-android.md) als optionalen Zweitpfad vorbereiten, falls später Android-Abdeckung ohne physisches Gerät benötigt wird.
 - Rollen- und Empfängergruppenmodell für zielgerichtete Sichtbarkeit von Nachrichten, Aufgaben und Veranstaltungen gegen [Rollen/Aufgaben/Nachrichten v1](docs/rollen-aufgaben-nachrichten-v1.md) festziehen.
 - Veranstaltungsmodul mit Ankündigung, Treffpunkt, Erinnerungen und optionaler Teilnahmebestätigung planen.
@@ -21,7 +20,7 @@ Vollständiger Befund mit Code-Verweisen und Reproduktion: [docs/ui-audit-2026-0
 #### Kritisch
 
 - ~~[krit] E2E-Test-Datenmüll aus Production löschen (alle Sitzungen/Protokolle/Fallwild mit Prefix `E2E `) und E2E-Suite auf separaten Neon-Branch umstellen — siehe Audit F-02.~~ Erledigt 2026-05-07: Cleanup-Skript via PR #33 verifiziert, Dry-Run gegen Production zeigte 0 verbleibende E2E-Datensätze; Die Neon-Branch-Trennung ist obsolet: Die E2E-Suite läuft gegen eine ephemere lokale Docker-Postgres-DB pro Lauf, CI macht gegen Preview/Production nur read-only Smokes, und die Architektur-Doku lehnt Neon-Branching bewusst ab.
-- ~~[krit] Sidebar rollen-aware filtern und stillen Redirect auf `/app` durch sichtbaren Hinweis ersetzen — siehe Audit F-01.~~ Im Kern erledigt: Rollen-Guard leitet sichtbar auf `/app?error=keine-berechtigung` mit Forbidden-Banner um (e2e-abgesichert seit PR #171). Offener Rest: zentrale Rollen-Matrix in `packages/domain` extrahieren (löst auch die platform-admin-Inkonsistenz bei Aufgaben/Reviermeldungen).
+- ~~[krit] Sidebar rollen-aware filtern und stillen Redirect auf `/app` durch sichtbaren Hinweis ersetzen — siehe Audit F-01.~~ Erledigt: Rollen-Guard leitet sichtbar auf `/app?error=keine-berechtigung` mit Forbidden-Banner um; die zentrale Rollen-/Feature-Matrix in `packages/domain` hält API, Navigation und Plattform-Admin konsistent.
 - ~~[krit] Backoffice-„Kartenlage" durch echte Google Maps JS API ersetzen — siehe Audit F-03.~~ Erledigt seit 2026-05-17: echte Google-Karte via `@vis.gl/react-google-maps` mit klickbaren Markern (Einrichtungen, Ansitze, Fallwild, Reviermeldungen).
 - ~~[krit] Mobile MapPreview durch `react-native-maps` ersetzen — siehe Audit F-14.~~ Im Kern erledigt: `react-native-maps` 1.20.1 mit tappbaren Pins in allen Locations-Tabs. Offener Rest (klein): Mein-Standort-Button + explizite Standortfreigabe-Zustände in `EntityMap`; tote `map-preview.tsx`/`map-stage.tsx` entfernen.
 

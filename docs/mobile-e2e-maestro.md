@@ -9,9 +9,10 @@ Maestro ergänzt den manuellen Geräte-Smoke um reproduzierbare iOS-Simulator-Fl
 - Dashboard-Start,
 - Navigation über `Mehr` zu `Kontakte`,
 - ausgeblendete Pflegefläche für Feldrollen,
-- sichtbare Kontaktpflege für Schriftführung und Revier-Admin.
+- sichtbare Kontaktpflege für Schriftführung und Revier-Admin,
+- sichtbare Offline-Vormerkungen und `Jetzt senden` im Fallwild-Erfassungsmodus.
 
-Kamera, echtes GPS, Face ID und Offline-Netzwechsel bleiben im physischen [iOS-Smoke-Runbook](./mobile-smoke-ios.md). Maestro unterstützt lokale iOS-Läufe offiziell auf Simulatoren, nicht auf physischen iPhones.
+Kamera, echtes GPS, Face ID und der echte Offline-Netzwechsel bleiben im physischen [iOS-Smoke-Runbook](./mobile-smoke-ios.md). Die Queue-Oberfläche und der App-Lebenszyklus werden vorher kontrolliert im Simulator geprüft. Maestro unterstützt lokale iOS-Läufe offiziell auf Simulatoren, nicht auf physischen iPhones.
 
 ## Installation
 
@@ -42,6 +43,14 @@ HEGE_SMOKE_PIN=<pin> \
 pnpm mobile:e2e:ios:roles
 ```
 
+Für die Warteschlangen-Oberfläche muss der Simulator bereits angemeldet und die echte Warteschlange leer sein:
+
+```sh
+pnpm mobile:e2e:ios:queue
+```
+
+Der Runner beendet die App, injiziert ausschließlich im Simulator einen konfliktbehafteten Fallwild-Eintrag, prüft `Offline-Vormerkungen` und `Jetzt senden` im Modus `Erfassen` und entfernt die Fixture anschließend wieder. Eine vorhandene Warteschlange wird niemals überschrieben.
+
 Optionale Variablen:
 
 - `HEGE_APP_ID`, Standard `app.hege.revier`
@@ -51,4 +60,4 @@ Die Flows liegen unter `.maestro/`. Test-IDs sind nur stabile Automatisierungsan
 
 ## Verifizierter Lauf
 
-Am 2026-07-12 liefen die Flows mit Maestro `2.6.1` auf einem iPhone-16e-Simulator mit iOS 26.2 erfolgreich für Ausgeher, Schriftführung und Revier-Admin.
+Am 2026-07-12 liefen die Flows mit Maestro `2.6.1` auf einem iPhone-16e-Simulator mit iOS 26.2 erfolgreich für Ausgeher, Schriftführung und Revier-Admin. Der Queue-Flow lief mit Build-Tag `0.1.0 · 2026-07-12.19` grün; die Fixture war danach wieder entfernt.

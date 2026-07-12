@@ -1,0 +1,16 @@
+appId: ${APP_ID}
+name: iOS offline queue visibility
+tags:
+  - ios
+  - queue
+---
+- launchApp
+- tapOn:
+    id: tab-fallwild
+- extendedWaitUntil:
+    visible:
+      id: fallwild-offline-queue
+    timeout: 15000
+- assertVisible:
+    id: fallwild-queue-sync-button
+- assertVisible: Warteschlange jetzt senden

@@ -239,6 +239,14 @@ export default function FallwildScreen() {
     }
   }
 
+  async function handleRefresh() {
+    if (queue.entries.length > 0) {
+      await syncOfflineQueue({ retryFailed: true });
+    }
+
+    await loadFallwild({ refreshing: true });
+  }
+
   async function handleSubmit() {
     if (isSubmitting) {
       return;
@@ -304,7 +312,7 @@ export default function FallwildScreen() {
     setError(null);
 
     try {
-      const remaining = await syncOfflineQueue();
+      const remaining = await syncOfflineQueue({ retryFailed: true });
       setFeedback({
         variant: remaining.length === 0 ? "success" : "warning",
         title: remaining.length === 0 ? "Warteschlange synchronisiert" : "Warteschlange teilweise synchronisiert",
@@ -515,13 +523,98 @@ export default function FallwildScreen() {
   const queueSummary = summarizeOfflineQueue(queueEntries);
   const photosDisabled = attachments.length >= MAX_FALLWILD_PHOTOS || isPickingPhotos || isSubmitting;
 
+  useEffect(() => {
+    const syncedFallwild = queue.lastSuccessfulSyncKinds.some(
+      (kind) => kind === "fallwild-create" || kind === "fallwild-photo-upload"
+    );
+
+    if (!queue.lastSuccessfulSyncAt || !syncedFallwild) {
+      return;
+    }
+
+    const remainingFallwildCount = queue.entries.filter(
+      (entry) => entry.kind === "fallwild-create" || entry.kind === "fallwild-photo-upload"
+    ).length;
+    setFeedback({
+      variant: remainingFallwildCount === 0 ? "success" : "warning",
+      title:
+        remainingFallwildCount === 0
+          ? "Warteschlange synchronisiert"
+          : "Warteschlange teilweise synchronisiert",
+      copy:
+        remainingFallwildCount === 0
+          ? "Alle vorgemerkten Fallwild-Einträge wurden verarbeitet."
+          : `${remainingFallwildCount} Fallwild-Einträge warten weiter in der Warteschlange.`
+    });
+    void loadFallwild({ refreshing: true });
+  }, [queue.lastSuccessfulSyncAt]);
+
+  const queuePanel = queueEntries.length > 0 ? (
+    <View style={styles.stateCard} testID="fallwild-offline-queue">
+      <Text style={styles.stateTitle}>Offline-Vormerkungen</Text>
+      <Text style={styles.queueRowCopy}>
+        Diese Vorgänge sind gespeichert und werden beim Wiederöffnen der App automatisch gesendet.
+      </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Warteschlange jetzt senden"
+        testID="fallwild-queue-sync-button"
+        style={[styles.queueSyncButton, queue.isSyncing ? styles.buttonDisabled : null]}
+        onPress={() => void handleQueueSync()}
+        disabled={queue.isSyncing}
+      >
+        <Text style={styles.queueSyncButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Jetzt senden"}</Text>
+      </Pressable>
+      {queueEntries.slice(0, 3).map((entry) => (
+        <View key={entry.id} style={styles.queueRow}>
+          <Text style={styles.queueRowTitle}>{entry.title}</Text>
+          <Text style={styles.queueRowCopy}>{getOfflineQueueEntryStatusLine(entry)}</Text>
+          <Text style={styles.queueRowCopy}>{getOfflineQueueEntryAttachmentHint(entry)}</Text>
+          {getOfflineQueueEntryRetryHint(entry) ? (
+            <Text style={styles.queueRowCopy}>{getOfflineQueueEntryRetryHint(entry)}</Text>
+          ) : null}
+          {entry.lastError ? <Text style={styles.queueRowCopy}>{entry.lastError}</Text> : null}
+          {entry.status === "failed" || entry.status === "conflict" ? (
+            <View style={styles.queueActionRow}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Fallwild-Eintrag ${entry.title} erneut versuchen`}
+                style={[styles.retryButton, retryingEntryId === entry.id ? styles.buttonDisabled : null]}
+                onPress={() => void handleRetryQueueEntry(entry.id)}
+                disabled={retryingEntryId === entry.id}
+              >
+                <Text style={styles.retryButtonText}>
+                  {retryingEntryId === entry.id ? "..." : "Erneut versuchen"}
+                </Text>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Fallwild-Eintrag ${entry.title} verwerfen`}
+                style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
+                onPress={() => void handleDiscardQueueEntry(entry.id)}
+                disabled={discardingEntryId === entry.id}
+              >
+                <Text style={styles.discardButtonText}>
+                  {discardingEntryId === entry.id ? "..." : "Verwerfen"}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+        </View>
+      ))}
+      {queueEntries.length > 3 ? (
+        <Text style={styles.queueRowCopy}>{`${queueEntries.length - 3} weitere Einträge in der Warteschlange.`}</Text>
+      ) : null}
+    </View>
+  ) : null;
+
   return (
     <ScreenShell
       eyebrow="Fallwild"
       title="Fallwild mobil erfassen."
       subtitle="Zeitpunkt, GPS, Wildart und bis zu drei Bibliotheksfotos werden direkt oder offline erfasst."
       aside={<QueueStatusPill count={queueSummary.totalCount} failedCount={queueSummary.failedCount} />}
-      refresh={{ refreshing: isRefreshing, onRefresh: () => void loadFallwild({ refreshing: true }) }}
+      refresh={{ refreshing: isRefreshing, onRefresh: () => void handleRefresh() }}
     >
       <ViewToggle<CaptureSection>
         block
@@ -533,6 +626,8 @@ export default function FallwildScreen() {
           { key: "bestand", label: "Bestand", icon: "albums-outline" }
         ]}
       />
+
+      {queuePanel}
 
       {section === "erfassen" ? (
       <View style={styles.formCard}>
@@ -786,7 +881,7 @@ export default function FallwildScreen() {
           )}
         </View>
 
-        {feedback ? (
+        {feedback && (feedback.title !== "Fallwild vorgemerkt" || queueEntries.length > 0) ? (
           <FeedbackBanner
             tone={feedback.variant === "success" ? "success" : "warning"}
             title={feedback.title}
@@ -898,64 +993,6 @@ export default function FallwildScreen() {
         />
       ) : null}
 
-      {queueEntries.length > 0 ? (
-        <View style={styles.stateCard}>
-          <Text style={styles.stateTitle}>Offline-Vormerkungen</Text>
-          <Text style={styles.queueRowCopy}>
-            Diese Vorgänge sind gespeichert und werden automatisch gesendet, sobald wieder Verbindung besteht.
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Warteschlange jetzt senden"
-            style={[styles.queueSyncButton, queue.isSyncing ? styles.buttonDisabled : null]}
-            onPress={() => void handleQueueSync()}
-            disabled={queue.isSyncing}
-          >
-            <Text style={styles.queueSyncButtonText}>{queue.isSyncing ? "Wird gesendet..." : "Jetzt senden"}</Text>
-          </Pressable>
-          {queueEntries.slice(0, 3).map((entry) => (
-            <View key={entry.id} style={styles.queueRow}>
-              <Text style={styles.queueRowTitle}>{entry.title}</Text>
-              <Text style={styles.queueRowCopy}>{getOfflineQueueEntryStatusLine(entry)}</Text>
-              <Text style={styles.queueRowCopy}>{getOfflineQueueEntryAttachmentHint(entry)}</Text>
-              {getOfflineQueueEntryRetryHint(entry) ? (
-                <Text style={styles.queueRowCopy}>{getOfflineQueueEntryRetryHint(entry)}</Text>
-              ) : null}
-              {entry.lastError ? <Text style={styles.queueRowCopy}>{entry.lastError}</Text> : null}
-              {entry.status === "failed" || entry.status === "conflict" ? (
-                <View style={styles.queueActionRow}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Fallwild-Eintrag ${entry.title} erneut versuchen`}
-                    style={[styles.retryButton, retryingEntryId === entry.id ? styles.buttonDisabled : null]}
-                    onPress={() => void handleRetryQueueEntry(entry.id)}
-                    disabled={retryingEntryId === entry.id}
-                  >
-                    <Text style={styles.retryButtonText}>
-                      {retryingEntryId === entry.id ? "..." : "Erneut versuchen"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Fallwild-Eintrag ${entry.title} verwerfen`}
-                    style={[styles.discardButton, discardingEntryId === entry.id ? styles.buttonDisabled : null]}
-                    onPress={() => void handleDiscardQueueEntry(entry.id)}
-                    disabled={discardingEntryId === entry.id}
-                  >
-                    <Text style={styles.discardButtonText}>
-                      {discardingEntryId === entry.id ? "..." : "Verwerfen"}
-                    </Text>
-                  </Pressable>
-                </View>
-              ) : null}
-            </View>
-          ))}
-          {queueEntries.length > 3 ? (
-            <Text style={styles.queueRowCopy}>{`${queueEntries.length - 3} weitere Einträge in der Warteschlange.`}</Text>
-          ) : null}
-        </View>
-      ) : null}
-
       {mode === "karte" && !isLoading ? (
         <EntityMap
           pins={pins}
@@ -976,7 +1013,7 @@ export default function FallwildScreen() {
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
-              onRefresh={() => void loadFallwild({ refreshing: true })}
+              onRefresh={() => void handleRefresh()}
               tintColor={theme.accent}
               colors={[theme.accent]}
             />

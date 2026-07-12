@@ -66,7 +66,7 @@ Die Test- und Deploy-Strecke muss zuverlässig sein, bevor neue größere Featur
 
 ## A1 - Production-iPhone-Smoke abschließen
 
-> **Status 2026-06-10: technisch entblockt, Session ausstehend.** Alle Voraussetzungen sind produktiv (Google-Server-Key, gebündelter GIP-Index, R2-Foto-Upload, Kontaktlisten-API, Queue v2); das iPhone hat den aktuellen OTA-Stand. Es fehlt nur die manuelle Geräte-Session nach `docs/mobile-smoke-ios.md` plus Ergebnis-Doku (Datum/Gerät/Build) — sie schließt die ROADMAP-Fokuspunkte 1, 2 und 4 auf einmal.
+> **Status 2026-07-12: weitgehend abgenommen, Queue-Korrektur in Auslieferung.** Das physische iPhone bestätigt Login, Face ID, Kontakte, Anrufen, GPS, Google-Standortauflösung, Kamera und R2-Foto-Upload. Der Offline-Vorgang blieb nach Netzrückkehr zunächst liegen; Build-Tag `.19` korrigiert App-Aktivierung, Pull-to-Refresh und Queue-Sichtbarkeit. Der kontrollierte Simulatorlauf einschließlich Production-Erstellung und Cleanup ist grün. Offen bleibt nur der finale Gegencheck derselben `.19`-OTA auf dem physischen iPhone.
 
 ### Ziel
 

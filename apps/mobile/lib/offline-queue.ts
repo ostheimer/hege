@@ -58,6 +58,13 @@ interface OfflineQueueSnapshot {
   hydrated: boolean;
   entries: OfflineOperation[];
   isSyncing: boolean;
+  lastSuccessfulSyncAt?: string;
+  lastSuccessfulSyncCount: number;
+  lastSuccessfulSyncKinds: OfflineOperation["kind"][];
+}
+
+export interface SyncOfflineQueueOptions {
+  retryFailed?: boolean;
 }
 
 export interface QueueMutationResult {
@@ -71,7 +78,9 @@ const listeners = new Set<() => void>();
 let snapshot: OfflineQueueSnapshot = {
   hydrated: false,
   entries: [],
-  isSyncing: false
+  isSyncing: false,
+  lastSuccessfulSyncCount: 0,
+  lastSuccessfulSyncKinds: []
 };
 
 let hydratePromise: Promise<OfflineOperation[]> | null = null;
@@ -237,8 +246,18 @@ export async function retryOfflineQueueEntry(entryId: string): Promise<OfflineOp
   });
 }
 
-export async function syncOfflineQueue(): Promise<OfflineOperation[]> {
+export async function syncOfflineQueue(
+  options: SyncOfflineQueueOptions = {}
+): Promise<OfflineOperation[]> {
   await ensureHydrated();
+
+  if (syncPromise) {
+    return syncPromise;
+  }
+
+  if (options.retryFailed) {
+    await resetRetryableFailures();
+  }
 
   if (snapshot.entries.length === 0) {
     setSnapshot({
@@ -248,10 +267,6 @@ export async function syncOfflineQueue(): Promise<OfflineOperation[]> {
     return snapshot.entries;
   }
 
-  if (syncPromise) {
-    return syncPromise;
-  }
-
   syncPromise = runQueueSync().finally(() => {
     syncPromise = null;
   });
@@ -259,7 +274,30 @@ export async function syncOfflineQueue(): Promise<OfflineOperation[]> {
   return syncPromise;
 }
 
+async function resetRetryableFailures() {
+  const hasRetryableFailures = snapshot.entries.some((entry) => entry.status === "failed");
+
+  if (!hasRetryableFailures) {
+    return;
+  }
+
+  await persistEntries(
+    snapshot.entries.map((entry) =>
+      entry.status === "failed"
+        ? {
+            ...entry,
+            status: "pending" as const,
+            lastError: undefined,
+            nextAttemptAt: undefined
+          }
+        : entry
+    )
+  );
+}
+
 async function runQueueSync() {
+  const initialEntries = snapshot.entries;
+
   setSnapshot({
     ...snapshot,
     isSyncing: true
@@ -295,9 +333,17 @@ async function runQueueSync() {
     entry = getNextSyncableEntry();
   }
 
+  const remainingEntryIds = new Set(snapshot.entries.map((entry) => entry.id));
+  const successfulEntries = initialEntries.filter((entry) => !remainingEntryIds.has(entry.id));
+  const successfulSyncKinds = [...new Set(successfulEntries.map((entry) => entry.kind))];
+
   setSnapshot({
     ...snapshot,
-    isSyncing: false
+    isSyncing: false,
+    lastSuccessfulSyncAt:
+      successfulEntries.length > 0 ? new Date().toISOString() : snapshot.lastSuccessfulSyncAt,
+    lastSuccessfulSyncCount: successfulEntries.length,
+    lastSuccessfulSyncKinds: successfulSyncKinds
   });
 
   return snapshot.entries;
@@ -409,7 +455,9 @@ async function ensureHydrated(): Promise<OfflineOperation[]> {
     setSnapshot({
       entries,
       hydrated: true,
-      isSyncing: false
+      isSyncing: false,
+      lastSuccessfulSyncCount: 0,
+      lastSuccessfulSyncKinds: []
     });
 
     return entries;

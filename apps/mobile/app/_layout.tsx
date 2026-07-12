@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Pressable } from "react-native";
+import { AppState, Pressable } from "react-native";
 
 import { AppLoader } from "../components/app-loader";
 import { hydrateOfflineQueue, syncOfflineQueue } from "../lib/offline-queue";
+import { createOfflineQueueAppStateHandler } from "../lib/offline-queue-lifecycle";
 import { restoreSession, useSessionSnapshot } from "../lib/session";
 import { useThemeColors } from "../lib/theme";
 
@@ -20,9 +21,18 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (session.status === "authenticated") {
-      void syncOfflineQueue();
+    if (session.status !== "authenticated") {
+      return;
     }
+
+    void syncOfflineQueue();
+
+    const subscription = AppState.addEventListener(
+      "change",
+      createOfflineQueueAppStateHandler(syncOfflineQueue)
+    );
+
+    return () => subscription.remove();
   }, [session.status]);
 
   if (session.status === "loading" || !session.hydrated) {

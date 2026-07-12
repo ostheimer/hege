@@ -253,6 +253,15 @@
 - Erwartung: `Listen und Kontakte` und `Liste anlegen` sind sichtbar
 - Erwartung: keine Zugangsdaten sind in den Flow-Dateien hinterlegt
 
+### TC-AUTO-MOBILE-03: Maestro-Offline-Warteschlange
+
+- angemeldeten iOS-Simulator mit leerer Warteschlange und installiertem aktuellen App-Stand starten
+- `pnpm mobile:e2e:ios:queue` ausführen
+- Erwartung: die Fixture überschreibt keine vorhandenen Vormerkungen
+- Erwartung: `Offline-Vormerkungen` und `Jetzt senden` sind im Modus `Erfassen` sichtbar
+- Erwartung: die Fixture wird nach dem Lauf aus AsyncStorage entfernt
+- Ergänzend muss der Unit-Test für den App-Lebenszyklus belegen, dass `active` einen sofortigen Retry mit `retryFailed: true` auslöst
+
 ### TC-AUTO-WEB-05: Preview-Smoke gegen die PR-URL
 
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` ausfuehren

@@ -10,6 +10,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 - Web-API: geschützter Fallwild-Cleanup über `DELETE /api/v1/fallwild/:id` für Schriftführung, Revier-Admin und Plattform-Admin; entfernt zugehörige R2-Objekte vor der transaktionalen Datenbankbereinigung und bleibt strikt auf das aktive Revier begrenzt.
 - Mobile-QA: Maestro-Smokes für Build-Tag, Login, Dashboard, Navigation und Kontaktrechte; Feldrolle sowie Schriftführung/Revier-Admin laufen ohne hinterlegte Zugangsdaten über injizierte Test-Credentials. OTA `0.1.0 · 2026-07-12.18`.
+- Mobile-QA: reproduzierbarer Maestro-Queue-Smoke mit sicherer Simulator-Fixture; prüft Offline-Vormerkungen und die sichtbare Aktion `Jetzt senden` im Erfassungsmodus, ohne vorhandene Warteschlangen zu überschreiben.
 - Geteilte Rollen-/Feature-Matrix in `@hege/domain` für Kontakte, Fallwild, Revierarbeit, Sitzungen und Mitgliederverwaltung; Plattform-Admin ist damit in API, Navigation und Fallbacks konsistent berücksichtigt.
 - Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; erlaubt die Wahl des Erscheinungsbilds unabhängig vom iOS-System. „System" folgt `useColorScheme()` (PR #165).
 - Mobile: **eigener Profil-Screen** (`(tabs)/profil`, erreichbar über die tappbare Profil-Zeile im Mehr-Tab und den neuen Initialen-Avatar im Heute-Hero): Identität (Avatar/Name/Rolle/Revier), Erscheinungsbild-Umschalter (Umzug aus Mehr), Face-ID-Entsperren als Schalter, Konto (Benutzername/E-Mail/Abmelden) und BUILD_TAG-Fußzeile; Mehr-Tab dadurch schlanker; OTA `0.1.0 · 2026-06-09.12` (PR #168).
@@ -28,6 +29,7 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Fixed
 
+- Mobile: Offline-Vormerkungen werden beim erneuten Aktivieren der App automatisch erneut gesendet; Pull-to-Refresh und `Jetzt senden` umgehen einen laufenden Retry-Backoff bewusst. Der Queue-Block ist nun auch im Erfassungsmodus sichtbar, erfolgreiche Synchronisierung wird bestätigt und die veraltete Meldung `Fallwild vorgemerkt` verschwindet erst nach geleerter Warteschlange. Simulator- und Production-Gegencheck mit bereinigten Testdaten; Build-Tag `0.1.0 · 2026-07-12.19`.
 - Mobile: **doppelten Telefonbutton in Kontaktkarten entfernt** — der bisher dekorative Telefon-Chip ist jetzt selbst die tappbare Anrufen-Aktion; der zweite, darunter gerenderte Button entfällt. OTA `0.1.0 · 2026-07-10.17`.
 - Mobile: **Kamera-Crash bei Fallwild-Foto behoben** — `NSCameraUsageDescription` fehlte in `Info.plist`/`app.json`, iOS beendete die App beim ersten Kamera-Zugriff (TCC-Kill, von JS nicht abfangbar). Nativer Fix → neuer EAS-Build (Runtime 1.0.1, Channel `preview`); „Aus Bibliothek" war nie betroffen (PR #176).
 - Mobile: **Foto-Titel in der Fallwild-Erfassung lesbar gemacht** — technische Asset-Namen (iOS-UUIDs wie `6FEB0C11-…`, Kamera-Zähler `IMG_1234`, reine Hex-Bezeichner) werden durch „Fallwild-Foto 1/2/3" ersetzt; menschlich vergebene Dateinamen bleiben erhalten. Die redundante zweite Dateinamen-Zeile in der Foto-Karte entfällt; OTA `0.1.0 · 2026-06-11.15`.
