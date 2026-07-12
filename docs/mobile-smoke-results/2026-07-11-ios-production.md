@@ -41,3 +41,10 @@ Die Korrektur wurde als `0.1.0 · 2026-07-10.17` lokal im Release-Modus auf dems
 ## Bewertung
 
 Der Production-API-Pfad für Login, Face ID, Dashboard, Kontakte, GPS, Google-Standortauflösung, Kamera und R2-Foto-Upload ist auf einem echten iPhone bestätigt. A1 bleibt offen, bis Queue-Sync und Rollenpflege geprüft sowie der abgenommene OTA-Stand nach Production übernommen wurden.
+
+## Folgestand 2026-07-12
+
+- Der geschützte Cleanup-Pfad wurde mit PR #197 ergänzt; `fallwild-fddbb7c0-f7a3-48c4-a238-d60cfa1e0593` und das zugehörige R2-Objekt sind gelöscht und per `404` gegengeprüft.
+- Build-Tag `.18` wurde auf Preview und Production veröffentlicht.
+- Die Rollen-Smokes für Ausgeher, Schriftführung und Revier-Admin liefen im iOS-Simulator grün.
+- Der physische Offline-Test deckte einen fehlenden Wiederaufnahme-Sync auf. Korrektur und selbstständige Simulatorabnahme sind in [iOS-Queue-Smoke 2026-07-12](./2026-07-12-ios-queue.md) dokumentiert; der abschließende `.19`-Gegencheck auf dem iPhone bleibt offen.

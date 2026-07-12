@@ -181,16 +181,18 @@ Der Queue-Sync soll zeigen, dass Kernaktionen bei kurzzeitig fehlendem Netz vorg
 3. Einen kleinen Testvorgang in einem abgestimmten Test-Revier erzeugen, bevorzugt Fallwild mit dem importierten Testbild.
 4. Prüfen, dass die App den Vorgang als ausstehend, offline oder in der Warteschlange erkennbar macht.
 5. Netzwerk wiederherstellen.
-6. Dashboard, Ansitz oder Fallwild manuell aktualisieren.
+6. App aus dem Kontrollzentrum oder den Einstellungen wieder in den Vordergrund holen.
 7. Warten, bis die Queue abgearbeitet ist.
-8. Wenn ein Eintrag fehlschlägt, Fehlertext und nächsten Retry-Zeitpunkt prüfen.
+8. Falls die automatische Verarbeitung nicht sofort erfolgt, im Fallwild-Screen Pull-to-Refresh oder `Jetzt senden` ausführen.
 9. Für einen fehlgeschlagenen oder konfliktbehafteten Testeintrag die sichtbaren Aktionen `Erneut versuchen` und `Verwerfen` prüfen, aber nur im abgestimmten Test-Revier verwerfen.
 
 Erwartung:
 
 - Die App bleibt bedienbar.
 - Der Vorgang geht nicht verloren.
-- Ausstehende Queue-Einträge werden nach wiederhergestelltem Netz synchronisiert.
+- Ausstehende Queue-Einträge werden beim erneuten Aktivieren der App nach wiederhergestelltem Netz automatisch synchronisiert.
+- Pull-to-Refresh und `Jetzt senden` starten einen sofortigen Retry auch dann, wenn vorher bereits ein Retry-Backoff gesetzt war.
+- Offline-Vormerkungen bleiben im Modus `Erfassen` sichtbar, bis sie tatsächlich verarbeitet oder bewusst verworfen wurden.
 - Erfolgreich synchronisierte Einträge verschwinden aus dem Pending-Zustand oder werden als synchronisiert angezeigt.
 - Fehlgeschlagene Einträge zeigen den nächsten Retry-Zeitpunkt und lassen sich manuell erneut versuchen oder verwerfen.
 - Konflikte werden nicht automatisch endlos wiederholt.

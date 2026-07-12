@@ -1,0 +1,40 @@
+appId: ${APP_ID}
+name: iOS contacts management - management role
+tags:
+  - ios
+  - roles
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- assertVisible:
+    id: login-build-tag
+- assertVisible: App-Version ${BUILD_TAG}
+- tapOn:
+    id: login-identifier-input
+- inputText: ${HEGE_SMOKE_IDENTIFIER}
+- tapOn:
+    id: login-pin-input
+- inputText: ${HEGE_SMOKE_PIN}
+- tapOn:
+    id: login-submit-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+- tapOn:
+    id: tab-more
+- tapOn:
+    id: more-contacts-link
+- extendedWaitUntil:
+    visible:
+      id: contacts-screen
+    timeout: 15000
+- assertVisible: Mitglieder der Jagdgesellschaft
+- scrollUntilVisible:
+    element:
+      text: Listen und Kontakte
+    direction: DOWN
+    timeout: 10000
+- assertVisible: Listen und Kontakte
+- assertVisible: Liste anlegen

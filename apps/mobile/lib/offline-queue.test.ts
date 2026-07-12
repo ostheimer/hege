@@ -45,6 +45,11 @@ describe("offline queue", () => {
     expect(createFallwild).toHaveBeenCalledWith(payload);
     expect(uploadFallwildPhoto).toHaveBeenCalledWith("fallwild-created", photo);
     expect(await queue.readOfflineQueue()).toEqual([]);
+    expect(queue.getOfflineQueueSnapshot()).toMatchObject({
+      lastSuccessfulSyncAt: "2026-04-24T10:00:00.000Z",
+      lastSuccessfulSyncCount: 1,
+      lastSuccessfulSyncKinds: ["fallwild-create"]
+    });
   });
 
   it("backs off failed entries before the next automatic retry", async () => {
@@ -66,15 +71,18 @@ describe("offline queue", () => {
     await queue.syncOfflineQueue();
     expect(createFallwild).toHaveBeenCalledTimes(1);
 
-    vi.setSystemTime(new Date("2026-04-24T10:01:00.000Z"));
+    await queue.syncOfflineQueue({ retryFailed: true });
+    expect(createFallwild).toHaveBeenCalledTimes(2);
+
+    vi.setSystemTime(new Date("2026-04-24T10:05:00.000Z"));
     await queue.syncOfflineQueue();
 
     entries = await queue.readOfflineQueue();
-    expect(createFallwild).toHaveBeenCalledTimes(2);
+    expect(createFallwild).toHaveBeenCalledTimes(3);
     expect(entries[0]).toMatchObject({
       status: "failed",
-      attemptCount: 2,
-      nextAttemptAt: "2026-04-24T10:06:00.000Z"
+      attemptCount: 3,
+      nextAttemptAt: "2026-04-24T10:20:00.000Z"
     });
   });
 
@@ -95,7 +103,7 @@ describe("offline queue", () => {
     });
 
     vi.setSystemTime(new Date("2026-04-24T11:00:00.000Z"));
-    await queue.syncOfflineQueue();
+    await queue.syncOfflineQueue({ retryFailed: true });
     expect(createFallwild).toHaveBeenCalledTimes(1);
 
     await queue.retryOfflineQueueEntry(entry.id);
