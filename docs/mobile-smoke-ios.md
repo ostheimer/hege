@@ -47,6 +47,25 @@ EXPO_PUBLIC_API_BASE_URL=https://hege.app/api/v1 pnpm --filter @hege/mobile exec
 
 Nach erfolgreicher Installation die App auf dem iPhone öffnen und die untenstehenden Smoke-Schritte manuell durchführen.
 
+### Gespeicherte Test-Sitzung ohne App-Face-ID starten
+
+Für automatisierte Wiederanlauf- und Queue-Smokes kann ein gekoppeltes, entsperrtes Testgerät die App-eigene Face-ID-Sperre kontrolliert umgehen. Der Harness verändert keinen Production-Code und keine Sitzungstokens. Er sichert die lokale Einstellung, setzt sie nur während des Laufs auf deaktiviert und stellt den ursprünglichen Wert auch bei Fehlern wieder her:
+
+```sh
+HEGE_IOS_DEVICE_ID=<core-device-uuid> \
+pnpm mobile:smoke:ios:session
+```
+
+Wenn bereits ein bewusst erzeugter Queue-Eintrag vorhanden ist, kann der Lauf zusätzlich dessen vollständige Verarbeitung verlangen:
+
+```sh
+HEGE_IOS_DEVICE_ID=<core-device-uuid> \
+HEGE_EXPECT_QUEUE_SYNC=1 \
+pnpm mobile:smoke:ios:session
+```
+
+Der Harness funktioniert ausschließlich über die Entwicklerdienste eines bereits gekoppelten Testgeräts. Die iOS-Gerätesperre selbst wird nicht und darf nicht umgangen werden; das iPhone muss für einen physischen Lauf entsperrt sein. Für vollständig unbeaufsichtigte Abnahmen bleibt der iOS-Simulator der Standard.
+
 ### Simulator-Auswahl
 
 1. Verfügbare iPhone-Simulatoren prüfen:

@@ -262,6 +262,15 @@
 - Erwartung: die Fixture wird nach dem Lauf aus AsyncStorage entfernt
 - Ergänzend muss der Unit-Test für den App-Lebenszyklus belegen, dass `active` einen sofortigen Retry mit `retryFailed: true` auslöst
 
+### TC-AUTO-MOBILE-04: Gespeicherte iPhone-Sitzung im Smoke-Harness
+
+- gekoppeltes und auf iOS-Ebene entsperrtes Testgerät mit gespeicherter Sitzung verwenden
+- `HEGE_IOS_DEVICE_ID=<uuid> pnpm mobile:smoke:ios:session` ausführen
+- Erwartung: der Harness startet die Sitzung ohne manuelle App-Face-ID-Interaktion
+- Erwartung: Sitzungstoken und übrige AsyncStorage-Werte bleiben unverändert
+- Erwartung: die ursprüngliche Face-ID-Einstellung wird auch nach einem Fehler wiederhergestellt
+- mit bewusst vorhandener Queue zusätzlich `HEGE_EXPECT_QUEUE_SYNC=1` setzen und eine anschließend leere Warteschlange verlangen
+
 ### TC-AUTO-WEB-05: Preview-Smoke gegen die PR-URL
 
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` ausfuehren

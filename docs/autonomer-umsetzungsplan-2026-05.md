@@ -66,7 +66,7 @@ Die Test- und Deploy-Strecke muss zuverlässig sein, bevor neue größere Featur
 
 ## A1 - Production-iPhone-Smoke abschließen
 
-> **Status 2026-07-12: weitgehend abgenommen, Queue-Korrektur in Auslieferung.** Das physische iPhone bestätigt Login, Face ID, Kontakte, Anrufen, GPS, Google-Standortauflösung, Kamera und R2-Foto-Upload. Der Offline-Vorgang blieb nach Netzrückkehr zunächst liegen; Build-Tag `.19` korrigiert App-Aktivierung, Pull-to-Refresh und Queue-Sichtbarkeit. Der kontrollierte Simulatorlauf einschließlich Production-Erstellung und Cleanup ist grün. Offen bleibt nur der finale Gegencheck derselben `.19`-OTA auf dem physischen iPhone.
+> **Status 2026-07-12: erledigt.** Das physische iPhone bestätigt Login, Face ID, Kontakte, Anrufen, GPS, Google-Standortauflösung, Kamera, R2-Foto-Upload und den Offline-zu-Online-Sync mit `.19`. Die lokale Queue war danach leer, der Production-Eintrag wurde per API bestätigt und über den geschützten Admin-Cleanup entfernt. Ausgeher-, Schriftführungs- und Revier-Admin-Rechte sind zusätzlich im finalen Maestro-Vorlauf grün. Ein gekoppeltes-Testgerät-Harness automatisiert künftig auch gespeicherte Sitzungen ohne manuelle App-Face-ID-Interaktion.
 
 ### Ziel
 
