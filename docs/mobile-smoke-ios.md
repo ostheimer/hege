@@ -24,6 +24,10 @@ Der Smoke prüft keine vollständige Regression, sondern die wichtigsten nativen
 - Ein vorhandenes internes Login-Testkonto aus den bestehenden Testdaten ist verfügbar.
 - Keine Zugangsdaten, Tokens oder neuen Test-Secrets in dieses Runbook eintragen.
 
+## Automatisierter Simulator-Vorlauf
+
+Build-Tag, Login, Dashboard, Navigation und Kontaktrechte können vor dem physischen Geräte-Smoke mit Maestro geprüft werden. Einrichtung und Befehle stehen in [Mobile-E2E mit Maestro](./mobile-e2e-maestro.md). Der Vorlauf ersetzt Kamera, GPS, Face ID und Offline-Queue auf dem echten iPhone nicht.
+
 ## Simulator- oder Geräteauswahl
 
 Ein physisches iPhone ist für die finale native Abnahme vorzuziehen, wenn Fotoauswahl, Standortfreigabe und Production-API gemeinsam geprüft werden sollen. Der Simulator bleibt der reproduzierbare Standardpfad für lokale Entwicklung.

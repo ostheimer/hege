@@ -110,11 +110,15 @@ describe("POST /api/v1/geo/fallwild-location", () => {
     expect(mockResolveFallwildLocation).not.toHaveBeenCalled();
   });
 
-  it("returns 403 for forbidden roles", async () => {
+  it("allows platform admins to resolve fallwild locations consistently", async () => {
     mockGetRequestContext.mockResolvedValueOnce({
       membershipId: "member-admin",
       revierId: "revier-gaenserndorf",
       role: "platform-admin"
+    });
+    mockResolveFallwildLocation.mockResolvedValueOnce({
+      location: { lat: 48.339, lng: 16.7201 },
+      warnings: []
     });
 
     const response = await POST(
@@ -130,7 +134,10 @@ describe("POST /api/v1/geo/fallwild-location", () => {
       })
     );
 
-    expect(response.status).toBe(403);
-    expect(mockResolveFallwildLocation).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(mockResolveFallwildLocation).toHaveBeenCalledWith({
+      lat: 48.339,
+      lng: 16.7201
+    });
   });
 });

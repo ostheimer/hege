@@ -12,6 +12,7 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [API v1](./api-v1.md)
 - [Roadmap und Sprints](./roadmap-v1.md)
 - [iOS-Smoke-Runbook](./mobile-smoke-ios.md)
+- [Mobile-E2E mit Maestro](./mobile-e2e-maestro.md)
 - [Android-Smoke-Runbook](./mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./maps-google-v1.md)
 - [GIP-Straßenkilometer v1](./gip-strassenkilometer-v1.md)

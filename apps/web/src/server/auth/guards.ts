@@ -23,7 +23,7 @@ export async function requirePageAuth(options: PageGuardOptions = {}): Promise<A
 }
 
 export async function requirePageRoles(
-  allowedRoles: Role[],
+  allowedRoles: readonly Role[],
   options: PageGuardOptions = {}
 ): Promise<AuthContextResponse> {
   const context = await requirePageAuth(options);

@@ -1,3 +1,4 @@
+import { canRoleAccess, rolesForFeature } from "@hege/domain";
 import { notFound } from "next/navigation";
 
 import { requirePageRoles } from "../../../../server/auth/guards";
@@ -14,7 +15,7 @@ interface SitzungDetailPageProps {
 
 export default async function SitzungDetailPage({ params }: SitzungDetailPageProps) {
   const { id } = await params;
-  const viewer = await requirePageRoles(["schriftfuehrer", "revier-admin"], {
+  const viewer = await requirePageRoles(rolesForFeature("sitzungen-manage"), {
     next: `/app/sitzungen/${id}`
   });
   const [sitzung, memberships] = await Promise.all([getSitzungById(id), listRevierMemberships()]);
@@ -25,7 +26,7 @@ export default async function SitzungDetailPage({ params }: SitzungDetailPagePro
 
   return (
     <SitzungDetailClient
-      canApprove={viewer.membership.role === "revier-admin"}
+      canApprove={canRoleAccess(viewer.membership.role, "sitzungen-approve")}
       memberships={memberships}
       sitzung={sitzung}
     />

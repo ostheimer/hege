@@ -8,6 +8,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
+- Web-API: geschützter Fallwild-Cleanup über `DELETE /api/v1/fallwild/:id` für Schriftführung, Revier-Admin und Plattform-Admin; entfernt zugehörige R2-Objekte vor der transaktionalen Datenbankbereinigung und bleibt strikt auf das aktive Revier begrenzt.
+- Mobile-QA: Maestro-Smokes für Build-Tag, Login, Dashboard, Navigation und Kontaktrechte; Feldrolle sowie Schriftführung/Revier-Admin laufen ohne hinterlegte Zugangsdaten über injizierte Test-Credentials. OTA `0.1.0 · 2026-07-12.18`.
+- Geteilte Rollen-/Feature-Matrix in `@hege/domain` für Kontakte, Fallwild, Revierarbeit, Sitzungen und Mitgliederverwaltung; Plattform-Admin ist damit in API, Navigation und Fallbacks konsistent berücksichtigt.
 - Mobile: **In-App-Theme-Umschalter** (Mehr → „Erscheinungsbild": System / Hell / Dunkel), persistiert über `lib/theme-mode.ts`; erlaubt die Wahl des Erscheinungsbilds unabhängig vom iOS-System. „System" folgt `useColorScheme()` (PR #165).
 - Mobile: **eigener Profil-Screen** (`(tabs)/profil`, erreichbar über die tappbare Profil-Zeile im Mehr-Tab und den neuen Initialen-Avatar im Heute-Hero): Identität (Avatar/Name/Rolle/Revier), Erscheinungsbild-Umschalter (Umzug aus Mehr), Face-ID-Entsperren als Schalter, Konto (Benutzername/E-Mail/Abmelden) und BUILD_TAG-Fußzeile; Mehr-Tab dadurch schlanker; OTA `0.1.0 · 2026-06-09.12` (PR #168).
 - **PIN ändern** (Profil → Sicherheit): neuer Endpunkt `POST /api/v1/auth/change-pin` (verlangt die aktuelle PIN als Besitznachweis, scrypt-Rehash; Demo-Store lehnt ab) + aufklappbares Formular im Mobile-Profil mit Client-Validierung; ersetzt den „bald"-Platzhalter; OTA `0.1.0 · 2026-06-10.13` (PR #169).

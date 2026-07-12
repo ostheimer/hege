@@ -1,6 +1,6 @@
 "use client";
 
-import type { AuthContextResponse, Role } from "@hege/domain";
+import { rolesForFeature, type AuthContextResponse, type Role } from "@hege/domain";
 import {
   Ansitz,
   Fallwild,
@@ -50,7 +50,7 @@ const navigation: ReadonlyArray<NavigationItem> = [
     href: "/app/sitzungen",
     label: "Sitzungen",
     icon: Sitzung,
-    allowedRoles: ["schriftfuehrer", "revier-admin", "platform-admin"]
+    allowedRoles: rolesForFeature("sitzungen-manage")
   },
   { href: "/app/ansitze", label: "Ansitze", icon: Ansitz },
   { href: "/app/aufgaben", label: "Aufgaben", icon: ListTodo },
@@ -63,7 +63,7 @@ const navigation: ReadonlyArray<NavigationItem> = [
     href: "/app/mitglieder",
     label: "Mitglieder",
     icon: Mitglied,
-    allowedRoles: ["revier-admin", "platform-admin"]
+    allowedRoles: rolesForFeature("members-manage")
   },
   { href: "/app/benachrichtigungen", label: "Benachrichtigungen", icon: Bell }
 ];
@@ -185,4 +185,3 @@ export function Shell({ children, viewer, notificationIds }: ShellProps) {
     </div>
   );
 }
-

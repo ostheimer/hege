@@ -1,13 +1,10 @@
-import type { Role } from "@hege/domain";
+import { rolesForFeature } from "@hege/domain";
 
 import { sanitizeStorageFileName } from "../../storage/s3";
 
-export const FALLWILD_ALLOWED_ROLES = [
-  "jaeger",
-  "ausgeher",
-  "schriftfuehrer",
-  "revier-admin"
-] as const satisfies readonly Role[];
+export const FALLWILD_ALLOWED_ROLES = rolesForFeature("fallwild-read");
+
+export const FALLWILD_MANAGE_ALLOWED_ROLES = rolesForFeature("fallwild-manage");
 
 export const FALLWILD_PHOTO_CONTENT_TYPES = ["image/jpeg", "image/png"] as const;
 

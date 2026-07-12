@@ -184,6 +184,7 @@ export default function LoginScreen() {
                 placeholder="E-Mail oder Benutzername eingeben"
                 placeholderTextColor={theme.muted}
                 style={styles.input}
+                testID="login-identifier-input"
                 value={identifier}
                 onChangeText={setIdentifier}
               />
@@ -200,6 +201,7 @@ export default function LoginScreen() {
                 placeholderTextColor={theme.muted}
                 secureTextEntry
                 style={styles.input}
+                testID="login-pin-input"
                 value={pin}
                 onChangeText={setPin}
               />
@@ -213,6 +215,7 @@ export default function LoginScreen() {
               style={[styles.primaryButton, isSubmitting ? styles.primaryButtonDisabled : null]}
               onPress={() => void handleLogin()}
               disabled={isSubmitting}
+              testID="login-submit-button"
             >
               {isSubmitting ? (
                 <ActivityIndicator color={theme.onAccent} />
@@ -223,7 +226,7 @@ export default function LoginScreen() {
           </View>
 
           <Text style={styles.footer}>Nach erfolgreichem Login werden Dashboard und Tabs automatisch freigeschaltet.</Text>
-          <Text accessibilityLabel={`App-Version ${BUILD_TAG}`} style={styles.versionLabel}>
+          <Text accessibilityLabel={`App-Version ${BUILD_TAG}`} style={styles.versionLabel} testID="login-build-tag">
             {BUILD_TAG}
           </Text>
         </View>

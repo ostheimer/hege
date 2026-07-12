@@ -31,6 +31,11 @@ interface CreateFallwildCommand extends CreateFallwildInput {
   revierId: string;
 }
 
+interface DeleteFallwildCommand {
+  fallwildId: string;
+  revierId: string;
+}
+
 export interface UploadFallwildPhotoCommand {
   body: Buffer;
   contentType: string;
@@ -143,6 +148,35 @@ export function createFallwildService({
       }
 
       return mapPhotoRecordToDomain(row, storedObject.publicUrl);
+    },
+
+    async delete(command: DeleteFallwildCommand): Promise<{ deleted: true; id: string }> {
+      assertMutationsEnabled(useDemoStore);
+
+      const scope = await repository.findDeleteScope(command.fallwildId, command.revierId);
+
+      if (!scope) {
+        throw new FallwildServiceError("Fallwild-Vorgang wurde nicht gefunden.", 404);
+      }
+
+      for (const objectKey of scope.objectKeys) {
+        await deleteStoredPhoto(objectKey, deleteObject);
+      }
+
+      const deleted = await repository.deleteById(
+        command.fallwildId,
+        command.revierId,
+        scope.mediaSchemaAvailable
+      );
+
+      if (!deleted) {
+        throw new FallwildServiceError("Fallwild-Vorgang wurde nicht gefunden.", 404);
+      }
+
+      return {
+        deleted: true,
+        id: command.fallwildId
+      };
     }
   };
 }
@@ -155,6 +189,10 @@ export async function createFallwildVorgang(command: CreateFallwildCommand) {
 
 export async function uploadFallwildPhoto(command: UploadFallwildPhotoCommand) {
   return defaultService.uploadPhoto(command);
+}
+
+export async function deleteFallwildVorgang(command: DeleteFallwildCommand) {
+  return defaultService.delete(command);
 }
 
 function assertMutationsEnabled(useDemoStore: boolean) {
@@ -207,7 +245,7 @@ async function withStorageAvailability<T>(operation: () => Promise<T>) {
       );
     }
 
-    logStorageWriteFailure(error);
+    logStorageFailure("upload", error);
     throw new FallwildServiceError("Foto konnte nicht im Storage gespeichert werden.", 503);
   }
 }
@@ -220,6 +258,24 @@ async function rollbackStoredPhoto(
     await deleteObject(objectKey);
   } catch {
     // The original DB/schema error is more important than best-effort cleanup.
+  }
+}
+
+async function deleteStoredPhoto(
+  objectKey: string,
+  deleteObject: typeof deleteStorageObject
+) {
+  try {
+    await deleteObject(objectKey);
+  } catch (error) {
+    if (!isServiceUnavailableError(error)) {
+      logStorageFailure("delete", error);
+    }
+
+    throw new FallwildServiceError(
+      readErrorMessage(error) ?? "Fallwild-Foto konnte nicht aus dem Storage gelöscht werden.",
+      503
+    );
   }
 }
 
@@ -243,12 +299,12 @@ function readErrorMessage(error: unknown) {
   return typeof error.message === "string" && error.message.length > 0 ? error.message : undefined;
 }
 
-function logStorageWriteFailure(error: unknown) {
+function logStorageFailure(operation: "upload" | "delete", error: unknown) {
   if (process.env.NODE_ENV === "test") {
     return;
   }
 
-  console.error("Fallwild photo storage upload failed", summarizeErrorForLog(error));
+  console.error(`Fallwild photo storage ${operation} failed`, summarizeErrorForLog(error));
 }
 
 function summarizeErrorForLog(error: unknown) {

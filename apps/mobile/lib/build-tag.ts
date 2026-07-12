@@ -5,4 +5,4 @@
  * statt eines expo-updates-Zugriffs: das Lesen von Updates.channel im
  * OTA-Kontext hat einen nativen Crash ausgeloest.
  */
-export const BUILD_TAG = "0.1.0 · 2026-07-10.17";
+export const BUILD_TAG = "0.1.0 · 2026-07-12.18";

@@ -21,6 +21,7 @@ interface MehrLink {
   label: string;
   description: string;
   icon: keyof typeof Ionicons.glyphMap;
+  testID?: string;
 }
 
 const MEHR_LINKS: ReadonlyArray<MehrLink> = [
@@ -46,7 +47,8 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
     href: "/(tabs)/kontakte",
     label: "Kontakte",
     description: "Mitglieder, Reviernachbarn und Notrufnummern.",
-    icon: "call-outline"
+    icon: "call-outline",
+    testID: "more-contacts-link"
   },
   {
     href: "/(tabs)/protokolle",
@@ -121,6 +123,7 @@ export default function MehrScreen() {
 
   return (
     <ScreenShell
+      testID="more-screen"
       eyebrow="Mehr"
       title="Profil und weitere Bereiche"
       subtitle="Selten genutzte Aufgaben sind hier gebündelt, damit der Heute-Bildschirm fokussiert bleibt."
@@ -167,6 +170,7 @@ export default function MehrScreen() {
               key={entry.href}
               accessibilityRole="link"
               accessibilityLabel={a11yLabel}
+              testID={entry.testID}
               onPress={() => router.push(entry.href as Parameters<typeof router.push>[0])}
               style={({ pressed }) => [styles.linkRow, pressed ? styles.linkRowPressed : null]}
             >

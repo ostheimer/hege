@@ -109,6 +109,8 @@ Der aktuelle Stand wird auf einem echten iPhone gegen Production geprüft: Konta
 
 ## A2 - Echte Karten im Web
 
+> **Status 2026-07-12: im Kern erledigt.** `@vis.gl/react-google-maps` ist im Web-Backoffice integriert; Kartenlage zeigt echte Google Maps für Einrichtungen, Ansitze, Fallwild und Reviermeldungen. Der Fallback ohne Key bleibt nutzbar.
+
 ### Ziel
 
 Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf eine echte, Google-Maps-orientierte Karte umgestellt.
@@ -165,6 +167,8 @@ Backoffice-Karten werden von statischen/platzhalterartigen Darstellungen auf ein
 - Production-Route ist nach Deploy per Browser geprüft.
 
 ## A3 - Echte Karten in der iPhone-App
+
+> **Status 2026-07-12: im Kern erledigt.** `react-native-maps` ist auf den zentralen Mobile-Flächen integriert. Verbleibender Polish: Mein-Standort-Button, explizite Berechtigungszustände in `EntityMap` und Entfernen nicht mehr genutzter Kartenkomponenten.
 
 ### Ziel
 

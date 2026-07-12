@@ -5,7 +5,7 @@ import type {
   RegisteredContact,
   Role
 } from "@hege/domain";
-import { demoData } from "@hege/domain";
+import { canRoleAccess, demoData, rolesForFeature } from "@hege/domain";
 import { randomUUID } from "crypto";
 
 import type { RequestContext } from "../../auth/context";
@@ -23,19 +23,9 @@ import type {
   UpdateContactListInput
 } from "./schemas";
 
-export const CONTACT_READ_ALLOWED_ROLES = [
-  "jaeger",
-  "ausgeher",
-  "schriftfuehrer",
-  "revier-admin",
-  "platform-admin"
-] as const satisfies readonly Role[];
+export const CONTACT_READ_ALLOWED_ROLES = rolesForFeature("contacts-read");
 
-export const CONTACT_MANAGE_ALLOWED_ROLES = [
-  "schriftfuehrer",
-  "revier-admin",
-  "platform-admin"
-] as const satisfies readonly Role[];
+export const CONTACT_MANAGE_ALLOWED_ROLES = rolesForFeature("contacts-manage");
 
 export class ContactsServiceError extends Error {
   constructor(
@@ -364,7 +354,7 @@ export async function deleteContactEntry(context: RequestContext, listId: string
 }
 
 export function canManageContacts(role: Role) {
-  return CONTACT_MANAGE_ALLOWED_ROLES.includes(role as (typeof CONTACT_MANAGE_ALLOWED_ROLES)[number]);
+  return canRoleAccess(role, "contacts-manage");
 }
 
 function assertCanManage(role: Role) {
