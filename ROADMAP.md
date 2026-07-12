@@ -13,13 +13,10 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 
 ## Aktueller Fokus
 
-1. iPhone-/iOS-Geräte-Smoke auf Production mit Foto-Upload, automatischer Standortauflösung und leerer Queue erneut ausführen
-2. Production-Fallwild-Standortauflösung mit gesetztem Google-Server-Key und gebündeltem GIP-Index im nativen iPhone-Smoke prüfen
-3. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
-4. Kontaktlisten im nativen iPhone-Smoke prüfen: Mitgliederliste, freie Listen, Anrufen-Aktion und Rollenrechte für Schriftführung/Admin
-5. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten und bei neuen mobilen Fehlerpfaden zuerst erweitern
-6. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
-7. Mobile Design-System §10: **abgeschlossen** (PRs #134–#172) — Token-Konsolidierung, `<Badge>`, semantische Farbtoken, `<FeedbackBanner>`, `cardSurface()`, Eyebrow/Spacing/Radius, `rnShadow.card`, Dark Mode end-to-end (Aktivierung #159, Adaption + In-App-Umschalter #165/#166, Logo-Chip #169) sowie Labels/Mikrocopy/Haptik/Pull-to-Refresh (#172). Verbleibende §10-Folge-Items (Button-Primitiv `<PrimaryButton>/<SecondaryButton>`, `<FilterSection>` mit Reset, Badge-Restkonsolidierung) sind kleine Refactors — siehe [Mobile-UI-Audit](./docs/mobile-ui-audit.md).
+1. GIP-Bounding-Box mit dem tatsächlichen Revier abgleichen und bei Bedarf größeren Index in Preview/Production aktivieren
+2. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten und bei neuen mobilen Fehlerpfaden zuerst erweitern
+3. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
+4. Mobile Design-System §10: **abgeschlossen** (PRs #134–#172) — Token-Konsolidierung, `<Badge>`, semantische Farbtoken, `<FeedbackBanner>`, `cardSurface()`, Eyebrow/Spacing/Radius, `rnShadow.card`, Dark Mode end-to-end (Aktivierung #159, Adaption + In-App-Umschalter #165/#166, Logo-Chip #169) sowie Labels/Mikrocopy/Haptik/Pull-to-Refresh (#172). Verbleibende §10-Folge-Items (Button-Primitiv `<PrimaryButton>/<SecondaryButton>`, `<FilterSection>` mit Reset, Badge-Restkonsolidierung) sind kleine Refactors — siehe [Mobile-UI-Audit](./docs/mobile-ui-audit.md).
 
 ## Detaildokumente
 

@@ -11,6 +11,7 @@
     "mobile:e2e:ios:core": "bash apps/mobile/scripts/maestro-ios.sh core",
     "mobile:e2e:ios:queue": "bash apps/mobile/scripts/maestro-ios.sh queue",
     "mobile:e2e:ios:roles": "bash apps/mobile/scripts/maestro-ios.sh roles",
+    "mobile:smoke:ios:session": "bash apps/mobile/scripts/ios-device-session-smoke.sh",
     "test": "turbo test",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
