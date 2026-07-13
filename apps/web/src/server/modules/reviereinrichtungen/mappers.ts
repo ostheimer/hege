@@ -13,6 +13,17 @@ import type {
 } from "../../db/schema";
 import { normalizeDeAtVisibleText } from "../../text/de-at";
 
+export type ReviereinrichtungRecordForMapping = Omit<
+  ReviereinrichtungRecord,
+  "orientationDegrees" | "details" | "createdByMembershipId" | "createdAt" | "updatedAt"
+> &
+  Partial<
+    Pick<
+      ReviereinrichtungRecord,
+      "orientationDegrees" | "details" | "createdByMembershipId" | "createdAt" | "updatedAt"
+    >
+  >;
+
 export function mapDemoReviereinrichtungToListItem(
   entry: Reviereinrichtung
 ): ReviereinrichtungListItem {
@@ -29,7 +40,7 @@ export function mapDemoReviereinrichtungToListItem(
 }
 
 export function mapDbReviereinrichtungToListItem(
-  entry: ReviereinrichtungRecord,
+  entry: ReviereinrichtungRecordForMapping,
   kontrollen: ReviereinrichtungKontrolleRecord[],
   wartungen: ReviereinrichtungWartungRecord[],
   photos: PhotoAsset[] = []

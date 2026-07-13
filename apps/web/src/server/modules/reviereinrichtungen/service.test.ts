@@ -36,6 +36,32 @@ describe("reviereinrichtungen service", () => {
     });
   });
 
+  it("meldet vor der Reviereinrichtungs-Migration einen klaren 503-Fehler", async () => {
+    const repository = createMemoryRepository();
+    repository.insert = vi.fn(async () => {
+      throw Object.assign(new Error('column "orientation_degrees" does not exist'), {
+        code: "42703"
+      });
+    });
+    const service = createReviereinrichtungenService({
+      repository,
+      useDemoStore: false
+    });
+
+    await expect(
+      service.create({
+        revierId: "revier-1",
+        createdByMembershipId: "member-1",
+        type: "hochstand",
+        name: "Legacy-Hochstand",
+        location: { lat: 48.3, lng: 16.7 }
+      })
+    ).rejects.toMatchObject({
+      status: 503,
+      message: "Reviereinrichtungen müssen in dieser Umgebung zuerst migriert werden."
+    });
+  });
+
   it("speichert ein Foto unter dem revierbezogenen Objektpfad", async () => {
     const repository = createMemoryRepository({
       scope: { einrichtungId: "einrichtung-1", revierId: "revier-1", tenantKey: "gaenserndorf" }

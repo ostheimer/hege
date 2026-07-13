@@ -2,6 +2,7 @@ import type { PhotoAsset, Reviereinrichtung, ReviereinrichtungListItem } from "@
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { getDb } from "../../db/client";
+import { isMissingColumnError } from "../../db/compat";
 import {
   reviereinrichtungKontrollen,
   reviereinrichtungWartungen,
@@ -11,7 +12,10 @@ import {
 } from "../../db/schema";
 import { buildStoragePublicUrl, isStorageConfigured } from "../../storage/s3";
 import { normalizeDeAtVisibleText } from "../../text/de-at";
-import { mapDbReviereinrichtungToListItem } from "./mappers";
+import {
+  mapDbReviereinrichtungToListItem,
+  type ReviereinrichtungRecordForMapping
+} from "./mappers";
 
 export interface ReviereinrichtungenRepository {
   listByRevier(revierId: string): Promise<ReviereinrichtungListItem[]>;
@@ -46,11 +50,7 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
 
   return {
     async listByRevier(revierId) {
-      const entries = await db
-        .select()
-        .from(reviereinrichtungen)
-        .where(eq(reviereinrichtungen.revierId, revierId))
-        .orderBy(reviereinrichtungen.name);
+      const entries = await listReviereinrichtungRows(db, revierId);
 
       if (entries.length === 0) {
         return [];
@@ -177,6 +177,39 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
       return row;
     }
   };
+}
+
+async function listReviereinrichtungRows(
+  db: ReturnType<typeof getDb>,
+  revierId: string
+): Promise<ReviereinrichtungRecordForMapping[]> {
+  try {
+    return await db
+      .select()
+      .from(reviereinrichtungen)
+      .where(eq(reviereinrichtungen.revierId, revierId))
+      .orderBy(reviereinrichtungen.name);
+  } catch (error) {
+    if (!isMissingColumnError(error, "reviereinrichtungen", "orientation_degrees")) {
+      throw error;
+    }
+  }
+
+  return db
+    .select({
+      id: reviereinrichtungen.id,
+      revierId: reviereinrichtungen.revierId,
+      type: reviereinrichtungen.type,
+      name: reviereinrichtungen.name,
+      status: reviereinrichtungen.status,
+      locationLat: reviereinrichtungen.locationLat,
+      locationLng: reviereinrichtungen.locationLng,
+      locationLabel: reviereinrichtungen.locationLabel,
+      beschreibung: reviereinrichtungen.beschreibung
+    })
+    .from(reviereinrichtungen)
+    .where(eq(reviereinrichtungen.revierId, revierId))
+    .orderBy(reviereinrichtungen.name);
 }
 
 function mapPhotoRecordToDomain(record: ReviereinrichtungPhotoRecord): PhotoAsset {

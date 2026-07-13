@@ -1,7 +1,7 @@
 import type { PhotoAsset, ReviereinrichtungListItem } from "@hege/domain";
 import { randomUUID } from "node:crypto";
 
-import { isMissingTableError } from "../../db/compat";
+import { isMissingColumnError, isMissingTableError } from "../../db/compat";
 import { getServerEnv } from "../../env";
 import { deleteStorageObject, putStorageObject } from "../../storage/s3";
 import {
@@ -75,22 +75,33 @@ export function createReviereinrichtungenService({
       assertMutationsEnabled(useDemoStore);
       const createdAt = getNow();
 
-      return repository.insert({
-        id: generateId(),
-        revierId: command.revierId,
-        createdByMembershipId: command.createdByMembershipId,
-        createdAt,
-        type: command.type,
-        name: command.name,
-        status: command.status ?? "gut",
-        location: command.location,
-        beschreibung: command.beschreibung,
-        orientationDegrees: command.orientationDegrees,
-        details: command.details,
-        photos: [],
-        kontrollen: [],
-        wartung: []
-      });
+      try {
+        return await repository.insert({
+          id: generateId(),
+          revierId: command.revierId,
+          createdByMembershipId: command.createdByMembershipId,
+          createdAt,
+          type: command.type,
+          name: command.name,
+          status: command.status ?? "gut",
+          location: command.location,
+          beschreibung: command.beschreibung,
+          orientationDegrees: command.orientationDegrees,
+          details: command.details,
+          photos: [],
+          kontrollen: [],
+          wartung: []
+        });
+      } catch (error) {
+        if (isMissingColumnError(error, "reviereinrichtungen", "orientation_degrees")) {
+          throw new ReviereinrichtungServiceError(
+            "Reviereinrichtungen müssen in dieser Umgebung zuerst migriert werden.",
+            503
+          );
+        }
+
+        throw error;
+      }
     },
 
     async uploadPhoto(command) {
