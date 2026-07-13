@@ -17,10 +17,12 @@ import type {
   GeoPoint,
   Geschlecht,
   LoginPayload,
+  LocationWeather,
   PhotoAsset,
   ProtokollDetail,
   ProtokollListItem,
   Reviereinrichtung,
+  ReviereinrichtungDetails,
   ReviereinrichtungListItem,
   Reviermeldung,
   ReviermeldungKategorie,
@@ -84,6 +86,16 @@ export interface CreateFallwildRequest {
   strasse?: string;
   roadReference?: FallwildRoadReference;
   note?: string;
+}
+
+export interface CreateReviereinrichtungRequest {
+  type: Reviereinrichtung["type"];
+  name: string;
+  status?: Reviereinrichtung["status"];
+  location: GeoPoint;
+  beschreibung?: string;
+  orientationDegrees?: number;
+  details?: ReviereinrichtungDetails;
 }
 
 export interface CreateReviermeldungRequest {
@@ -158,6 +170,10 @@ export interface FallwildLocationSuggestionResponse {
 }
 
 export interface FallwildPhotoUploadResponse {
+  photo: PhotoAsset;
+}
+
+export interface ReviereinrichtungPhotoUploadResponse {
   photo: PhotoAsset;
 }
 
@@ -327,6 +343,15 @@ export async function createFallwild(payload: CreateFallwildRequest): Promise<Mu
   });
 }
 
+export async function createReviereinrichtung(
+  payload: CreateReviereinrichtungRequest
+): Promise<MutationResponse> {
+  return requestJson<MutationResponse>("/v1/reviereinrichtungen", {
+    method: "POST",
+    body: payload
+  });
+}
+
 export async function createReviermeldung(payload: CreateReviermeldungRequest): Promise<MutationResponse> {
   return requestJson<MutationResponse>("/v1/reviermeldungen", {
     method: "POST",
@@ -450,6 +475,33 @@ export async function uploadFallwildPhoto(
   });
 }
 
+export async function uploadReviereinrichtungPhoto(
+  einrichtungId: string,
+  attachment: LocalPendingPhoto
+): Promise<ReviereinrichtungPhotoUploadResponse> {
+  const formData = new FormData();
+  formData.append(
+    "file",
+    {
+      uri: attachment.uri,
+      name: attachment.fileName,
+      type: attachment.mimeType
+    } as never
+  );
+
+  if (attachment.title) {
+    formData.append("title", attachment.title);
+  }
+
+  return requestJson<ReviereinrichtungPhotoUploadResponse>(
+    `/v1/reviereinrichtungen/${encodeURIComponent(einrichtungId)}/fotos`,
+    {
+      method: "POST",
+      body: formData
+    }
+  );
+}
+
 export async function fetchReviereinrichtungenList(): Promise<ReviereinrichtungListItem[]> {
   return requestJson<ReviereinrichtungListItem[]>("/v1/reviereinrichtungen", {
     fallback: async () => {
@@ -457,6 +509,11 @@ export async function fetchReviereinrichtungenList(): Promise<ReviereinrichtungL
       return fallbackReviereinrichtungenList(me.revier.id);
     }
   });
+}
+
+export async function fetchLocationWeather(lat: number, lng: number): Promise<LocationWeather> {
+  const search = new URLSearchParams({ lat: String(lat), lng: String(lng) });
+  return requestJson<LocationWeather>(`/v1/weather/point?${search.toString()}`);
 }
 
 export async function fetchProtokolleList(): Promise<ProtokollListItem[]> {

@@ -191,6 +191,20 @@ Erwartung:
 - Die Vorschau zeigt Dateiname und Anhang nachvollziehbar an.
 - Beim Speichern im Test-Revier wird der Foto-Upload abgeschlossen oder landet nachvollziehbar in der Offline-Queue.
 
+## Reviereinrichtungen-Smoke
+
+1. `Mehr` → `Reviereinrichtungen` öffnen und `Erfassen` wählen.
+2. Einen passenden Typ wählen, einen eindeutigen Testnamen eintragen und den iPhone-Standort übernehmen.
+3. Bei Hochstand, Kanzel, Leiter, Drückjagdbock, Bodenstand oder Wildkamera die Ausrichtung per Kompass übernehmen und bei Ansitzeinrichtungen Personenanzahl, Baujahr und Zugang prüfen.
+4. Bei Fütterung, Salzlecke oder Kirrung Zielwildart, Futter/Salz, Menge, Intervall und Betriebszeitraum prüfen.
+5. Ein Testfoto aufnehmen oder aus der Mediathek wählen und speichern.
+6. Erwartung: Die App zeigt eine eindeutige Erfolgsmeldung und wechselt zu `Karte & Bestand`; kein leeres Formular steht unter der Meldung.
+7. Den neuen Pin auf der Karte und den Eintrag über die Suche in der Liste öffnen.
+8. Bei einer Ansitzeinrichtung Windrichtung/-stärke, Böen, Sonnenaufgang und Sonnenuntergang prüfen.
+9. Den Testdatensatz nach der Abnahme über den vereinbarten administrativen Cleanup entfernen.
+
+Der Simulator-Vorlauf ist mit `pnpm mobile:e2e:ios:reviereinrichtungen` automatisiert. Kamera, realer Kompass und der physische GPS-Sensor bleiben Bestandteil dieses Geräte-Smokes.
+
 ## Queue-Sync-Smoke
 
 Der Queue-Sync soll zeigen, dass Kernaktionen bei kurzzeitig fehlendem Netz vorgemerkt und später synchronisiert werden. Der aktuelle Pfad nutzt Queue v2 mit separaten Foto-Upload-Einträgen, Retry-Backoff und manuellen Aktionen für problematische Einträge.

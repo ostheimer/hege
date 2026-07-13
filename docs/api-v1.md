@@ -75,9 +75,18 @@ Liefert:
 ### Reviereinrichtungen
 
 - `GET /api/v1/reviereinrichtungen`
+- `POST /api/v1/reviereinrichtungen`
 - `GET /api/v1/reviereinrichtungen/export.csv`
+- `POST /api/v1/reviereinrichtungen/:id/fotos`
 - `GET /api/v1/reviereinrichtungen/:id` — **(noch nicht implementiert, Route-Handler fehlt)**
 - `POST /api/v1/reviereinrichtungen/:id/kontrollen` — **(noch nicht implementiert, Route-Handler fehlt)**
+- `GET /api/v1/weather/point?lat=:lat&lng=:lng`
+
+`POST /api/v1/reviereinrichtungen` akzeptiert Typ, Name, Zustand, Standort, optionale Ausrichtung von `0` bis kleiner `360`, Beschreibung und typabhängige Details. Jäger, Schriftführung, Revier-Admin und Plattform-Admin dürfen erfassen. Die Route antwortet mit `201` und der angelegten Reviereinrichtung.
+
+`POST /api/v1/reviereinrichtungen/:id/fotos` akzeptiert genau eine JPEG- oder PNG-Datei als `multipart/form-data` mit optionalem Feld `title`. Pro Einrichtung sind höchstens drei Dateien mit jeweils höchstens `10 MB` zulässig; Storage- oder Legacy-Schema-Probleme liefern `503` statt eines unklaren Serverfehlers.
+
+`GET /api/v1/weather/point` liefert für gültige Koordinaten aktuelle Temperatur, Niederschlag, Windrichtung, Windstärke und Böen aus dem GeoSphere-Austria-Nowcast sowie Dämmerung, Sonnenaufgang, Sonnenuntergang und Abenddämmerung. Wetterwerte werden fünf Minuten privat gecacht; wenn der externe Dienst nicht antwortet, bleiben die Sonnenzeiten verfügbar.
 
 ### Fallwild
 
@@ -284,7 +293,7 @@ Diese Ressourcen bleiben für die nächste Ausbaustufe vorgesehen und werden fac
 
 - Ansitze lesen und eigene Ansitze aendern
 - Fallwild erfassen und Fallwild-Fotos hochladen
-- Reviereinrichtungen lesen
+- Reviereinrichtungen lesen, erfassen und Fotos hochladen
 - veroeffentlichte Protokolle lesen
 
 ## Fehlerfaelle

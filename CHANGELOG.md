@@ -8,6 +8,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/en/1
 
 ### Added
 
+- Reviereinrichtungen v2: Mobile-Erfassung für 18 Einrichtungstypen mit GPS oder Kartenposition, optionaler Ausrichtung, typabhängigen Ansitz-/Fütterungsdaten, Zustimmung, Beschreibung und bis zu drei Fotos; neue Datensätze erscheinen unmittelbar in Karte und Bestand.
+- Reviereinrichtungen-API: `POST /api/v1/reviereinrichtungen`, Foto-Upload über `POST /api/v1/reviereinrichtungen/:id/fotos` und standortbezogene Wetter-/Sonnenzeiten über `GET /api/v1/weather/point`; aktuelle Wetterwerte kommen von GeoSphere Austria, Sonnenzeiten werden serverseitig berechnet.
+- Mobile Reviereinrichtungen: Queue-v2-Fallback inklusive Create-zu-Foto-Upload-Kette, automatischer Synchronisierung beim App-Aktivieren, manueller Wiederholung und sicheren Maestro-Fixtures. iOS-Erfassung, Karten-Pin, Bestandsuche, Wind und Sonnenzeiten sind auf einem iPhone-17-Pro-Simulator mit iOS 26.4 automatisiert abgenommen; Build-Tag `0.1.0 · 2026-07-13.20`.
 - Web-API: geschützter Fallwild-Cleanup über `DELETE /api/v1/fallwild/:id` für Schriftführung, Revier-Admin und Plattform-Admin; entfernt zugehörige R2-Objekte vor der transaktionalen Datenbankbereinigung und bleibt strikt auf das aktive Revier begrenzt.
 - Mobile-QA: Maestro-Smokes für Build-Tag, Login, Dashboard, Navigation und Kontaktrechte; Feldrolle sowie Schriftführung/Revier-Admin laufen ohne hinterlegte Zugangsdaten über injizierte Test-Credentials. OTA `0.1.0 · 2026-07-12.18`.
 - Mobile-QA: reproduzierbarer Maestro-Queue-Smoke mit sicherer Simulator-Fixture; prüft Offline-Vormerkungen und die sichtbare Aktion `Jetzt senden` im Erfassungsmodus, ohne vorhandene Warteschlangen zu überschreiben.

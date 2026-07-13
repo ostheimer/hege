@@ -26,7 +26,12 @@ describe("reviereinrichtungen mappers", () => {
         locationLat: 47.91,
         locationLng: 13.52,
         locationLabel: "Testhang",
-        beschreibung: "Testbeschreibung"
+        beschreibung: "Testbeschreibung",
+        orientationDegrees: 270,
+        details: { capacityPersons: 2 },
+        createdByMembershipId: "member-admin",
+        createdAt: "2026-04-01T10:00:00.000Z",
+        updatedAt: "2026-04-01T10:00:00.000Z"
       },
       [
         {
@@ -52,6 +57,8 @@ describe("reviereinrichtungen mappers", () => {
 
     expect(item).toMatchObject({
       id: "einrichtung-99",
+      orientationDegrees: 270,
+      details: { capacityPersons: 2 },
       letzteKontrolleAt: "2026-04-03T10:00:00.000Z",
       offeneWartungen: 1
     });

@@ -3,6 +3,7 @@ import type {
   Reviereinrichtung,
   ReviereinrichtungKontrolle,
   ReviereinrichtungListItem,
+  PhotoAsset,
   WartungsEintrag
 } from "@hege/domain";
 import type {
@@ -30,7 +31,8 @@ export function mapDemoReviereinrichtungToListItem(
 export function mapDbReviereinrichtungToListItem(
   entry: ReviereinrichtungRecord,
   kontrollen: ReviereinrichtungKontrolleRecord[],
-  wartungen: ReviereinrichtungWartungRecord[]
+  wartungen: ReviereinrichtungWartungRecord[],
+  photos: PhotoAsset[] = []
 ): ReviereinrichtungListItem {
   const mappedKontrollen = kontrollen.map(mapKontrolleRecordToDomain);
   const mappedWartungen = wartungen.map(mapWartungRecordToDomain);
@@ -49,7 +51,11 @@ export function mapDbReviereinrichtungToListItem(
       label: normalizeDeAtVisibleText(entry.locationLabel) ?? undefined
     },
     beschreibung: normalizeDeAtVisibleText(entry.beschreibung) ?? undefined,
-    photos: [],
+    orientationDegrees: entry.orientationDegrees ?? undefined,
+    details: entry.details ?? undefined,
+    createdAt: entry.createdAt,
+    createdByMembershipId: entry.createdByMembershipId ?? undefined,
+    photos,
     kontrollen: sortedKontrollen,
     wartung: sortedWartungen,
     letzteKontrolleAt: sortedKontrollen[0]?.createdAt,

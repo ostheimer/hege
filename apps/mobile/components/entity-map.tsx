@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { useMemo } from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE, type MapPressEvent } from "react-native-maps";
 import type { GeoPoint } from "@hege/domain";
 
 import type { ThemeColors } from "../lib/theme";
@@ -32,6 +32,7 @@ export interface EntityPin {
 
 interface EntityMapProps {
   pins: ReadonlyArray<EntityPin>;
+  testID?: string;
   revierCenter?: RevierCenter;
   /** Pin-Farbe — Domain-Tab-spezifisch. Default theme.accent (Ansitz). */
   pinColor?: string;
@@ -40,6 +41,8 @@ interface EntityMapProps {
    * oder zur Detail-Route navigieren.
    */
   onPinPress?: (pin: EntityPin) => void;
+  /** Tap auf die Karte, etwa um den Standort eines neuen Objekts zu setzen. */
+  onMapPress?: (location: GeoPoint) => void;
   /**
    * Fixe Höhe in px. Default `null` = `flex: 1`, füllt den Eltern-
    * Container. Praktisch zum Einbetten in ScrollView-Tabs, wo man
@@ -67,9 +70,11 @@ interface EntityMapProps {
  */
 export function EntityMap({
   pins,
+  testID,
   revierCenter,
   pinColor,
   onPinPress,
+  onMapPress,
   height = null
 }: EntityMapProps) {
   const styles = useThemedStyles(createStyles);
@@ -90,7 +95,7 @@ export function EntityMap({
 
   if (!SHOULD_RENDER_NATIVE_MAP) {
     return (
-      <View style={[containerStyle, styles.fallback]}>
+      <View style={[containerStyle, styles.fallback]} testID={testID}>
         <Text style={styles.fallbackTitle}>Karte nicht aktiv</Text>
         <Text style={styles.fallbackCopy}>
           Karte wird mit Google-Maps-Key aktiviert. Liste bleibt unter dem Toggle erreichbar.
@@ -100,7 +105,7 @@ export function EntityMap({
   }
 
   return (
-    <View style={containerStyle}>
+    <View style={containerStyle} testID={testID}>
       <MapView
         key={regionKey}
         provider={MAP_PROVIDER}
@@ -108,8 +113,20 @@ export function EntityMap({
         initialRegion={initialRegion}
         showsUserLocation
         showsMyLocationButton={false}
-        showsCompass={false}
+        showsCompass
         toolbarEnabled={false}
+        onPress={
+          onMapPress
+            ? (event: MapPressEvent) => {
+                void Haptics.selectionAsync();
+                onMapPress({
+                  lat: event.nativeEvent.coordinate.latitude,
+                  lng: event.nativeEvent.coordinate.longitude,
+                  source: "manual"
+                });
+              }
+            : undefined
+        }
       >
         {pins.map((pin) => (
           <Marker

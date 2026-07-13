@@ -10,6 +10,8 @@
     "mobile:e2e:ios": "bash apps/mobile/scripts/maestro-ios.sh core",
     "mobile:e2e:ios:core": "bash apps/mobile/scripts/maestro-ios.sh core",
     "mobile:e2e:ios:queue": "bash apps/mobile/scripts/maestro-ios.sh queue",
+    "mobile:e2e:ios:reviereinrichtungen": "bash apps/mobile/scripts/maestro-ios.sh reviereinrichtungen",
+    "mobile:e2e:ios:reviereinrichtungen:queue": "bash apps/mobile/scripts/maestro-ios.sh reviereinrichtungen-queue",
     "mobile:e2e:ios:roles": "bash apps/mobile/scripts/maestro-ios.sh roles",
     "mobile:smoke:ios:session": "bash apps/mobile/scripts/ios-device-session-smoke.sh",
     "test": "turbo test",
@@ -24,5 +26,19 @@
     "turbo": "^2.5.0",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "packageExtensions": {
+      "@expo/vector-icons@14.1.0": {
+        "peerDependencies": {
+          "@types/react": "*"
+        }
+      },
+      "react-native-safe-area-context@5.4.0": {
+        "peerDependencies": {
+          "@types/react": "*"
+        }
+      }
+    }
   }
 }

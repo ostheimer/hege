@@ -10,7 +10,10 @@ Maestro ergänzt den manuellen Geräte-Smoke um reproduzierbare iOS-Simulator-Fl
 - Navigation über `Mehr` zu `Kontakte`,
 - ausgeblendete Pflegefläche für Feldrollen,
 - sichtbare Kontaktpflege für Schriftführung und Revier-Admin,
-- sichtbare Offline-Vormerkungen und `Jetzt senden` im Fallwild-Erfassungsmodus.
+- sichtbare Offline-Vormerkungen und `Jetzt senden` im Fallwild-Erfassungsmodus,
+- Reviereinrichtung per simuliertem GPS erfassen, speichern, als Karten-Pin und in der Suche finden,
+- Winddaten und Sonnenzeiten einer Ansitzeinrichtung anzeigen,
+- persistierte Offline-Reviereinrichtungen über eine sichere Simulator-Fixture prüfen.
 
 Kamera, echtes GPS, Face ID und der echte Offline-Netzwechsel bleiben im physischen [iOS-Smoke-Runbook](./mobile-smoke-ios.md). Die Queue-Oberfläche und der App-Lebenszyklus werden vorher kontrolliert im Simulator geprüft. Maestro unterstützt lokale iOS-Läufe offiziell auf Simulatoren, nicht auf physischen iPhones.
 
@@ -49,7 +52,19 @@ Für die Warteschlangen-Oberfläche muss der Simulator bereits angemeldet und di
 pnpm mobile:e2e:ios:queue
 ```
 
+Reviereinrichtungen werden mit einem lokalen API-Server, gesetztem Simulator-GPS und einem Testkonto geprüft:
+
+```sh
+HEGE_SMOKE_IDENTIFIER=<username> \
+HEGE_SMOKE_PIN=<pin> \
+pnpm mobile:e2e:ios:reviereinrichtungen
+
+pnpm mobile:e2e:ios:reviereinrichtungen:queue
+```
+
 Der Runner beendet die App, injiziert ausschließlich im Simulator einen konfliktbehafteten Fallwild-Eintrag, prüft `Offline-Vormerkungen` und `Jetzt senden` im Modus `Erfassen` und entfernt die Fixture anschließend wieder. Eine vorhandene Warteschlange wird niemals überschrieben.
+
+Der Reviereinrichtungs-Queue-Runner verwendet denselben Schutzvertrag: Er bricht bei vorhandenen Vormerkungen ab, injiziert nur `Offline Testkanzel`, prüft die sichtbare Konfliktmeldung und räumt den Eintrag auch nach einem fehlgeschlagenen Testlauf wieder auf.
 
 Optionale Variablen:
 
@@ -60,4 +75,4 @@ Die Flows liegen unter `.maestro/`. Test-IDs sind nur stabile Automatisierungsan
 
 ## Verifizierter Lauf
 
-Am 2026-07-12 liefen die Flows mit Maestro `2.6.1` auf einem iPhone-16e-Simulator mit iOS 26.2 erfolgreich für Ausgeher, Schriftführung und Revier-Admin. Der Queue-Flow lief mit Build-Tag `0.1.0 · 2026-07-12.19` grün; die Fixture war danach wieder entfernt.
+Am 2026-07-13 liefen der kombinierte Reviereinrichtungs-Flow und der separate Wetter-Flow mit Maestro `2.6.1` auf einem iPhone-17-Pro-Simulator mit iOS 26.4 grün. GPS-Erfassung, Speichern, Karten-Pin, Suche, Wind und Sonnenzeiten waren sichtbar. Der Reviereinrichtungs-Queue-Flow lief ebenfalls grün und entfernte die Fixture anschließend; Build-Tag `0.1.0 · 2026-07-13.20`.

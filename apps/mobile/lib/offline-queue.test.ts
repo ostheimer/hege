@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CreateFallwildRequest } from "./api";
+import type { CreateFallwildRequest, CreateReviereinrichtungRequest } from "./api";
 import type { LocalPendingPhoto } from "./fallwild-photos";
 
 const payload: CreateFallwildRequest = {
@@ -17,6 +17,14 @@ const photo: LocalPendingPhoto = {
   uri: "file:///tmp/photo-1.jpg",
   fileName: "photo-1.jpg",
   mimeType: "image/jpeg"
+};
+
+const einrichtungPayload: CreateReviereinrichtungRequest = {
+  type: "kanzel",
+  name: "Nordkanzel",
+  location: { lat: 48.3, lng: 16.7, label: "Nordhang" },
+  orientationDegrees: 315,
+  details: { capacityPersons: 2 }
 };
 
 describe("offline queue", () => {
@@ -49,6 +57,28 @@ describe("offline queue", () => {
       lastSuccessfulSyncAt: "2026-04-24T10:00:00.000Z",
       lastSuccessfulSyncCount: 1,
       lastSuccessfulSyncKinds: ["fallwild-create"]
+    });
+  });
+
+  it("syncs facility creation before its queued photos", async () => {
+    const createReviereinrichtung = vi.fn(async () => ({ id: "einrichtung-created" }));
+    const uploadReviereinrichtungPhoto = vi.fn(async () => ({
+      photo: {
+        id: "photo-stored",
+        title: "stored",
+        url: "https://example.test/einrichtung.jpg",
+        createdAt: "2026-04-24T10:00:00.000Z"
+      }
+    }));
+    const { queue } = await loadQueueModule({ createReviereinrichtung, uploadReviereinrichtungPhoto });
+
+    await queue.queueReviereinrichtungCreate(einrichtungPayload, [photo]);
+
+    await expect(queue.syncOfflineQueue()).resolves.toEqual([]);
+    expect(createReviereinrichtung).toHaveBeenCalledWith(einrichtungPayload);
+    expect(uploadReviereinrichtungPhoto).toHaveBeenCalledWith("einrichtung-created", photo);
+    expect(queue.getOfflineQueueSnapshot()).toMatchObject({
+      lastSuccessfulSyncKinds: ["reviereinrichtung-create"]
     });
   });
 
@@ -122,6 +152,7 @@ describe("offline queue", () => {
 async function loadQueueModule({
   createAnsitz = vi.fn(async () => ({ id: "ansitz-created" })),
   createFallwild = vi.fn(async () => ({ id: "fallwild-created" })),
+  createReviereinrichtung = vi.fn(async () => ({ id: "einrichtung-created" })),
   uploadFallwildPhoto = vi.fn(async () => ({
     photo: {
       id: "photo-stored",
@@ -129,11 +160,21 @@ async function loadQueueModule({
       url: "https://example.test/photo.jpg",
       createdAt: "2026-04-24T10:00:00.000Z"
     }
+  })),
+  uploadReviereinrichtungPhoto = vi.fn(async () => ({
+    photo: {
+      id: "photo-stored",
+      title: "stored",
+      url: "https://example.test/einrichtung.jpg",
+      createdAt: "2026-04-24T10:00:00.000Z"
+    }
   }))
 }: {
   createAnsitz?: ReturnType<typeof vi.fn>;
   createFallwild?: ReturnType<typeof vi.fn>;
+  createReviereinrichtung?: ReturnType<typeof vi.fn>;
   uploadFallwildPhoto?: ReturnType<typeof vi.fn>;
+  uploadReviereinrichtungPhoto?: ReturnType<typeof vi.fn>;
 }) {
   const storage = new Map<string, string>();
   const AsyncStorage = {
@@ -149,10 +190,12 @@ async function loadQueueModule({
   vi.doMock("./api", () => ({
     createAnsitz,
     createFallwild,
+    createReviereinrichtung,
     isRecoverableMutationError: (error: unknown) =>
       error instanceof TypeError ||
       (typeof error === "object" && error !== null && (error as { recoverable?: boolean }).recoverable === true),
-    uploadFallwildPhoto
+    uploadFallwildPhoto,
+    uploadReviereinrichtungPhoto
   }));
 
   return {
@@ -160,6 +203,8 @@ async function loadQueueModule({
     AsyncStorage,
     createAnsitz,
     createFallwild,
-    uploadFallwildPhoto
+    createReviereinrichtung,
+    uploadFallwildPhoto,
+    uploadReviereinrichtungPhoto
   };
 }

@@ -21,11 +21,21 @@ case "$flow" in
   roles)
     flow_path="$repo_root/.maestro/ios-contacts-management.yaml"
     ;;
+  reviereinrichtungen)
+    flow_path="$repo_root/.maestro/ios-reviereinrichtungen-smoke.yaml"
+    simulator="${HEGE_SIMULATOR_UDID:-booted}"
+    latitude="${HEGE_SMOKE_LATITUDE:-48.335970}"
+    longitude="${HEGE_SMOKE_LONGITUDE:-16.732315}"
+    xcrun simctl location "$simulator" set "$latitude,$longitude"
+    ;;
   queue)
     HEGE_APP_ID="$app_id" exec "$repo_root/apps/mobile/scripts/maestro-ios-queue-fixture.sh"
     ;;
+  reviereinrichtungen-queue)
+    HEGE_APP_ID="$app_id" exec "$repo_root/apps/mobile/scripts/maestro-ios-reviereinrichtungen-queue-fixture.sh"
+    ;;
   *)
-    echo "Unbekannter Flow '$flow'. Erlaubt: core, queue, roles." >&2
+    echo "Unbekannter Flow '$flow'. Erlaubt: core, queue, reviereinrichtungen, reviereinrichtungen-queue, roles." >&2
     exit 2
     ;;
 esac

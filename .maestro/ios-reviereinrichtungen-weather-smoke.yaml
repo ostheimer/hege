@@ -1,0 +1,44 @@
+appId: ${APP_ID}
+name: iOS Ansitzeinrichtung - weather details
+tags:
+  - ios
+  - reviereinrichtungen
+  - weather
+---
+- launchApp
+- tapOn:
+    id: tab-more
+- tapOn:
+    id: more-reviereinrichtungen-link
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtungen-screen
+    timeout: 15000
+- tapOn: Karte & Bestand
+- tapOn: Liste
+- repeat:
+    times: 8
+    commands:
+      - swipe:
+          start: 7%, 20%
+          end: 7%, 85%
+          duration: 500
+- tapOn:
+    id: reviereinrichtungen-search
+- eraseText
+- inputText: Kanzel Aderklaa Nord
+- hideKeyboard
+- repeat:
+    times: 2
+    commands:
+      - swipe:
+          start: 7%, 85%
+          end: 7%, 20%
+          duration: 500
+- tapOn: Reviereinrichtung Kanzel Aderklaa Nord
+- extendedWaitUntil:
+    visible: Jagdliches Wetter
+    timeout: 15000
+- assertVisible: Wind
+- assertVisible: Sonnenaufgang
+- assertVisible: Sonnenuntergang

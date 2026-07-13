@@ -16,6 +16,18 @@ export interface PickedFallwildPhotoAsset {
   mimeType?: string | null;
 }
 
+export interface PendingPhotoContext {
+  idPrefix: string;
+  filePrefix: string;
+  titlePrefix: string;
+}
+
+const FALLWILD_PHOTO_CONTEXT: PendingPhotoContext = {
+  idPrefix: "fallwild-photo",
+  filePrefix: "fallwild",
+  titlePrefix: "Fallwild-Foto"
+};
+
 export function getRemainingFallwildPhotoSlots(existingCount: number) {
   const safeCount = Number.isFinite(existingCount) ? Math.max(0, Math.trunc(existingCount)) : 0;
   return Math.max(0, MAX_FALLWILD_PHOTOS - safeCount);
@@ -28,6 +40,14 @@ export function limitFallwildPhotoAttachments(attachments: LocalPendingPhoto[]) 
 export function mergePickedFallwildPhotos(
   currentAttachments: LocalPendingPhoto[],
   pickedAssets: PickedFallwildPhotoAsset[]
+) {
+  return mergePickedPhotos(currentAttachments, pickedAssets, FALLWILD_PHOTO_CONTEXT);
+}
+
+export function mergePickedPhotos(
+  currentAttachments: LocalPendingPhoto[],
+  pickedAssets: PickedFallwildPhotoAsset[],
+  context: PendingPhotoContext
 ) {
   const current = limitFallwildPhotoAttachments(currentAttachments);
   const slots = getRemainingFallwildPhotoSlots(current.length);
@@ -44,7 +64,7 @@ export function mergePickedFallwildPhotos(
       break;
     }
 
-    const photo = normalizePickedFallwildPhoto(asset, current.length + nextPhotos.length);
+    const photo = normalizePickedPhoto(asset, current.length + nextPhotos.length, context);
 
     if (!photo) {
       continue;
@@ -60,6 +80,14 @@ export function normalizePickedFallwildPhoto(
   asset: PickedFallwildPhotoAsset,
   index: number
 ): LocalPendingPhoto | null {
+  return normalizePickedPhoto(asset, index, FALLWILD_PHOTO_CONTEXT);
+}
+
+function normalizePickedPhoto(
+  asset: PickedFallwildPhotoAsset,
+  index: number,
+  context: PendingPhotoContext
+): LocalPendingPhoto | null {
   const uri = asset.uri.trim();
 
   if (!uri) {
@@ -67,14 +95,14 @@ export function normalizePickedFallwildPhoto(
   }
 
   const mimeType = normalizeFallwildPhotoMimeType(asset);
-  const fileName = normalizeFallwildPhotoFileName(asset, index, mimeType);
+  const fileName = normalizePhotoFileName(asset, index, mimeType, context.filePrefix);
 
   return {
-    id: createFallwildPhotoId(asset, index),
+    id: createPhotoId(asset, index, context.idPrefix),
     uri,
     fileName,
     mimeType,
-    title: normalizeFallwildPhotoTitle(asset, index)
+    title: normalizePhotoTitle(asset, index, context.titlePrefix)
   };
 }
 
@@ -114,13 +142,14 @@ export function isLocalPendingPhoto(value: unknown): value is LocalPendingPhoto 
   );
 }
 
-function normalizeFallwildPhotoFileName(
+function normalizePhotoFileName(
   asset: PickedFallwildPhotoAsset,
   index: number,
-  mimeType: LocalPendingPhoto["mimeType"]
+  mimeType: LocalPendingPhoto["mimeType"],
+  filePrefix: string
 ) {
   const sourceName = getSourceFileName(asset);
-  const fallbackStem = `fallwild-${index + 1}-${hashStableValue(asset.assetId?.trim() || asset.uri)}`;
+  const fallbackStem = `${filePrefix}-${index + 1}-${hashStableValue(asset.assetId?.trim() || asset.uri)}`;
   const stem = sanitizeFileStem(sourceName ? stripFileExtension(sourceName) : fallbackStem);
   const extension = mimeType === "image/png" ? "png" : "jpg";
 
@@ -135,20 +164,20 @@ function normalizeFallwildPhotoFileName(
 const GENERIC_PHOTO_NAME_PATTERN =
   /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|img[-_ ]?\d+|dsc[-_ ]?\d*|image[-_ ]?\d*|photo[-_ ]?\d*|[0-9a-f]{16,})$/i;
 
-function normalizeFallwildPhotoTitle(asset: PickedFallwildPhotoAsset, index: number) {
+function normalizePhotoTitle(asset: PickedFallwildPhotoAsset, index: number, titlePrefix: string) {
   const sourceName = getSourceFileName(asset);
   const title = sourceName ? stripFileExtension(sourceName).trim() : "";
 
   if (!title || GENERIC_PHOTO_NAME_PATTERN.test(title)) {
-    return `Fallwild-Foto ${index + 1}`;
+    return `${titlePrefix} ${index + 1}`;
   }
 
   return title;
 }
 
-function createFallwildPhotoId(asset: PickedFallwildPhotoAsset, index: number) {
+function createPhotoId(asset: PickedFallwildPhotoAsset, index: number, idPrefix: string) {
   const sourceId = asset.assetId?.trim() || asset.uri.trim();
-  return `fallwild-photo-${index + 1}-${hashStableValue(sourceId)}`;
+  return `${idPrefix}-${index + 1}-${hashStableValue(sourceId)}`;
 }
 
 function withUniquePhotoId(photo: LocalPendingPhoto, usedIds: Set<string>): LocalPendingPhoto {

@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { ListFilterChips } from "../../../components/list-filter-chips";
 import { ListSearchBar } from "../../../components/list-search-bar";
 import { StateView } from "../../../components/state-view";
-import { formatEinrichtungZustand } from "../../../lib/labels";
+import { formatEinrichtungTyp, formatEinrichtungZustand } from "../../../lib/labels";
 import { filterBySearch, hasActiveSearch } from "../../../lib/list-search";
 
 type TypFilter = "alle" | EinrichtungTyp;
@@ -132,11 +132,22 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
         options={[
           { key: "alle", label: "Alle" },
           { key: "hochstand", label: "Hochstand" },
+          { key: "kanzel", label: "Kanzel" },
+          { key: "ansitzleiter", label: "Ansitzleiter" },
+          { key: "drueckjagdbock", label: "Drückjagdbock" },
+          { key: "bodenstand", label: "Bodenstand" },
           { key: "fuetterung", label: "Fütterung" },
           { key: "salzlecke", label: "Salzlecke" },
           { key: "kirrung", label: "Kirrung" },
           { key: "kamera", label: "Kamera" },
-          { key: "wildacker", label: "Wildacker" }
+          { key: "wildacker", label: "Wildacker" },
+          { key: "wasserstelle", label: "Wasserstelle" },
+          { key: "suhle", label: "Suhle" },
+          { key: "jagdhuette", label: "Jagdhütte" },
+          { key: "wildzaun", label: "Wildzaun" },
+          { key: "schranke", label: "Schranke" },
+          { key: "jagdsteig", label: "Jagdsteig" },
+          { key: "wildrettungspunkt", label: "Wildrettungspunkt" }
         ]}
       />
 
@@ -181,9 +192,23 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
         <div className="card-grid">
           {visibleEntries.map((entry) => (
             <article key={entry.id} className="detail-card">
+              {entry.photos[0] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={entry.photos[0].url}
+                  alt={entry.photos[0].title}
+                  style={{
+                    width: "100%",
+                    aspectRatio: "16 / 9",
+                    objectFit: "cover",
+                    borderRadius: 10,
+                    background: "var(--surface-soft)",
+                  }}
+                />
+              ) : null}
               <div className="detail-card-header">
                 <div>
-                  <p className="eyebrow">{entry.type}</p>
+                  <p className="eyebrow">{formatEinrichtungTyp(entry.type)}</p>
                   <h2>{entry.name}</h2>
                 </div>
                 <span
@@ -200,6 +225,9 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
               <p>
                 {entry.location.lat.toFixed(4)}, {entry.location.lng.toFixed(4)}
               </p>
+              {entry.orientationDegrees !== undefined ? (
+                <p>Ausrichtung: {Math.round(entry.orientationDegrees)}°</p>
+              ) : null}
 
               <div className="simple-list">
                 <div>
@@ -217,6 +245,10 @@ export function ReviereinrichtungenListClient({ entries }: ReviereinrichtungenLi
                 <div>
                   <strong>Kontrollen gesamt</strong>
                   <span>{entry.kontrollen.length}</span>
+                </div>
+                <div>
+                  <strong>Fotos</strong>
+                  <span>{entry.photos.length}</span>
                 </div>
               </div>
             </article>

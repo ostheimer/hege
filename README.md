@@ -14,7 +14,7 @@ Reviermanagement-Plattform für Jagdgesellschaften in Österreich. Das Repositor
 Die erste produktive Ausbaustufe liefert jetzt gemeinsame Typen, persistente Route Handler in `apps/web` und nutzbare UI-Screens für:
 
 - Ansitz bekanntgeben
-- Reviereinrichtungen lesen
+- Reviereinrichtungen mit Standort, Ausrichtung, Fotos und Fachdaten erfassen und auf der Karte führen
 - Fallwild dokumentieren
 - Fallwild-Fotos hochladen
 - Sitzungen und Protokolle bearbeiten und lesen
@@ -23,6 +23,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 
 - Drizzle-Konfiguration und Migrationen für Auth, Ansitze, Fallwild, `media_assets`, Reviereinrichtungen, Sitzungen, Protokolle, Dokumente, Notifications und Fallwild-Standortmetadaten
 - Route Handler für `auth`, `me`, `dashboard`, `ansitze`, `fallwild`, `reviereinrichtungen`, `protokolle`, `sitzungen`, `documents` und `geo`
+- Reviereinrichtungen über `GET/POST /api/v1/reviereinrichtungen`, Foto-Upload über `POST /api/v1/reviereinrichtungen/:id/fotos` und standortbezogene Wetter-/Sonnenzeiten über `GET /api/v1/weather/point`
 - Fallwild-Detail und Foto-Upload über `GET /api/v1/fallwild/:id` und `POST /api/v1/fallwild/:id/fotos`
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, iPhone-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver und gespeicherte Standort-/Straßenkilometer-Metadaten
 - Reviermeldungen und Aufgaben als API-/Datenmodell-Slice über `GET/POST/PATCH /api/v1/reviermeldungen` und `/api/v1/aufgaben`
@@ -44,6 +45,7 @@ Die bestehende NestJS-API bleibt als Referenzpfad im Repository. Die produktive 
 - Mobile-Tab `Meldungen` für Reviermeldungen und Aufgaben: Meldung erfassen, Aufgaben lesen und Aufgabenstatus ändern
 - lokaler iPhone-Smoke für `Meldungen` vom 2026-05-05: Login, Aufgabenliste, Statusänderung auf `In Arbeit` und neue Reviermeldung `Smoke Test` wurden gegen `http://10.0.0.242:3000/api/v1` mit `200`/`201` bestätigt
 - Mobile Fallwild-Fotoauswahl mit Queue-v2-Weitergabe, Retry-Backoff und sichtbaren Aktionen für problematische Uploads
+- Mobile Reviereinrichtungen mit 18 Typen, GPS/Kartenposition, optionaler Ausrichtung, Ansitz-/Fütterungsdetails, drei Fotos, Offline-Queue sowie Karte/Liste; Ansitzeinrichtungen zeigen Wind, Böen, Temperatur, Niederschlag, Dämmerung und Sonnenzeiten
 - dokumentierten iPhone-/iOS-Simulator-Smoke als primären nativen Expo-Abnahmepfad; der Lauf vom 2026-04-26 bestätigt Queue-v2-Fehleranzeigen, R2-Storage ist auf Production aktiviert und ein direkter Fallwild-Foto-Upload gegen `hege.app` ist verifiziert
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest für Route Handler, Services und Server-Queries
@@ -146,7 +148,8 @@ Wichtige Testwege:
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines für die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
 - `pnpm --filter @hege/web smoke:preview -- <preview-url>` prüft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
 - `pnpm --filter @hege/web smoke:release -- <production-url>` prüft denselben Read-Contract gegen einen produktiven Deploy.
-- `pnpm mobile:e2e:ios:core` prüft Build-Tag, Login, Dashboard, Navigation und Feldrollen-Kontaktrechte auf einem iOS-Simulator; `pnpm mobile:e2e:ios:roles` prüft die Pflegefläche für Schriftführung und Revier-Admin; `pnpm mobile:e2e:ios:queue` injiziert eine sichere Queue-Fixture und prüft die Warteschlangen-UI im Erfassungsmodus.
+- `pnpm mobile:e2e:ios:core` prüft Build-Tag, Login, Dashboard, Navigation und Feldrollen-Kontaktrechte auf einem iOS-Simulator; `pnpm mobile:e2e:ios:roles` prüft die Pflegefläche für Schriftführung und Revier-Admin; `pnpm mobile:e2e:ios:queue` prüft die Fallwild-Warteschlange.
+- `pnpm mobile:e2e:ios:reviereinrichtungen` prüft GPS-Erfassung, Speichern, Karten-Pin, Bestandsuche und Wetterdetails; `pnpm mobile:e2e:ios:reviereinrichtungen:queue` injiziert eine sichere Reviereinrichtungs-Fixture und entfernt sie nach dem Lauf wieder.
 - `HEGE_IOS_DEVICE_ID=<uuid> pnpm mobile:smoke:ios:session` startet eine gespeicherte Sitzung auf einem gekoppelten, entsperrten Test-iPhone ohne manuelle App-Face-ID-Interaktion und stellt die ursprüngliche Sperre danach wieder her.
 - `.github/workflows/preview-smoke.yml` startet denselben Smoke automatisch bei erfolgreichen Preview-Deployment-Statusmeldungen und erlaubt einen manuellen Start per `workflow_dispatch`.
 - `.github/workflows/release-check.yml` startet den produktionsfaehigen Release-Check automatisch bei erfolgreichen Production-Deployment-Statusmeldungen und erlaubt ebenfalls einen manuellen Start per `workflow_dispatch`.
