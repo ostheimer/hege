@@ -166,6 +166,30 @@
 - Erwartung: die Antwort enthaelt die Reviereinrichtungen des aktiven Reviers
 - Erwartung: Status, letzte Kontrolle und offene Wartungen sind vorhanden
 
+### TC-API-REVIER-02: Reviereinrichtung anlegen
+
+- Mit einer `jaeger`-, `schriftfuehrer`-, `revier-admin`- oder `platform-admin`-Session `POST /api/v1/reviereinrichtungen` aufrufen
+- Typ, Name, Standort, Zustand und optional Ausrichtung sowie typabhängige Details senden
+- Erwartung: die Route antwortet mit `201` und legt den Datensatz im aktiven Revier an
+- Erwartung: Ausrichtung außerhalb `0 <= Grad < 360`, ungültige Koordinaten oder unbekannte Typen liefern `400`
+- Erwartung: Rollen ohne Erfassungsrecht erhalten `403`
+
+### TC-API-REVIER-03: Reviereinrichtungsfoto hochladen
+
+- Eine vorhandene Reviereinrichtung des aktiven Reviers verwenden
+- `POST /api/v1/reviereinrichtungen/:id/fotos` als `multipart/form-data` mit einem JPEG oder PNG aufrufen
+- Erwartung: die Route antwortet mit `201` und `{ photo }`
+- Erwartung: höchstens drei Fotos mit jeweils höchstens `10 MB` werden akzeptiert
+- Erwartung: fremde IDs liefern `404`, ungültige Dateien `400`/`422` und fehlendes Storage `503`
+
+### TC-API-REVIER-04: Wetter und Sonnenzeiten für einen Kartenpunkt
+
+- Mit einer leseberechtigten Session `GET /api/v1/weather/point?lat=48.33597&lng=16.732315` aufrufen
+- Erwartung: Windrichtung, Windstärke, Böen, Temperatur und Niederschlag werden aus dem GeoSphere-Nowcast geliefert
+- Erwartung: Dämmerung, Sonnenaufgang, Sonnenuntergang und Abenddämmerung sind in jedem erfolgreichen Response vorhanden
+- Erwartung: bei Ausfall des Wetterproviders bleibt die Antwort mit `weatherAvailable: false` und Sonnenzeiten nutzbar
+- Erwartung: fehlende oder ungültige Koordinaten liefern `400`
+
 ### TC-API-PROT-01: Freigegebene Protokolle lesen
 
 - Web-App lokal starten
@@ -529,6 +553,44 @@
 - Tab `Einrichtungen` oeffnen
 - Erwartung: die Liste wird per `GET /api/v1/reviereinrichtungen` geladen
 - Erwartung: Status und letzte Kontrolle werden angezeigt
+
+### TC-MOB-REV-02: Reviereinrichtung mit GPS und Ausrichtung erfassen
+
+- `Mehr` → `Reviereinrichtungen` öffnen und im Modus `Erfassen` einen Ansitztyp wählen
+- Name eingeben, iPhone-GPS übernehmen und optional Ausrichtung per Kompass oder Gradzahl setzen
+- Ansitzdetails, Beschreibung und bis zu drei Fotos ergänzen
+- Erwartung: nach `Reviereinrichtung speichern` erscheint eine eindeutige Erfolgsmeldung
+- Erwartung: die App wechselt zu `Karte & Bestand`; das leere Formular bleibt nicht unter der Erfolgsmeldung stehen
+
+### TC-MOB-REV-03: Reviereinrichtung auf Karte und in der Suche finden
+
+- Eine neue Einrichtung speichern oder einen vorhandenen Seed verwenden
+- Im Bestand zwischen `Karte` und `Liste` wechseln und nach dem Namen suchen
+- Erwartung: der Karten-Pin und genau die gefilterte Listenkarte sind sichtbar
+- Erwartung: Pull-to-Refresh lädt Serverdaten neu; ein separater Aktualisieren-Button ist nicht vorhanden
+
+### TC-MOB-REV-04: Jagdliches Wetter an einer Ansitzeinrichtung
+
+- In Karte oder Liste eine Ansitzeinrichtung öffnen
+- Erwartung: Windrichtung und Windstärke sowie, soweit verfügbar, Böen, Temperatur und Niederschlag sind sichtbar
+- Erwartung: Dämmerung, Sonnenaufgang, Sonnenuntergang und Abenddämmerung werden in Ortszeit angezeigt
+- Erwartung: die Quelle `GeoSphere Austria` ist ausgewiesen
+
+### TC-MOB-REV-05: Reviereinrichtung offline vormerken und synchronisieren
+
+- Netzwerk deaktivieren und eine Einrichtung mit optionalen Fotos speichern
+- Erwartung: der Create-Eintrag erscheint in `Offline-Vormerkungen` und als vorgemerkter Bestand/Karten-Pin
+- Netzwerk aktivieren oder die App erneut in den Vordergrund bringen
+- Erwartung: Create wird automatisch übertragen; Foto-Uploads folgen erst mit der Server-ID
+- Erwartung: nach vollständigem Erfolg verschwinden Queue-Eintrag und veraltete Vormerkungs-Meldung
+- Erwartung: `failed`/`conflict` bleiben mit `Erneut versuchen` und `Verwerfen` sichtbar
+
+### TC-MOB-REV-06: Automatisierte iOS-Smokes
+
+- `pnpm mobile:e2e:ios:reviereinrichtungen` mit lokalem API-Server und Testkonto ausführen
+- Erwartung: Login, simuliertes GPS, Speichern, Karten-Pin, Suche, Wetter und Sonnenzeiten laufen grün
+- Bei leerer echter Queue `pnpm mobile:e2e:ios:reviereinrichtungen:queue` ausführen
+- Erwartung: die persistierte Fixture `Offline Testkanzel` und ihre Konfliktmeldung sind sichtbar; die Fixture wird danach entfernt
 
 ### TC-MOB-PROT-01: Protokolle lesen
 

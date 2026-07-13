@@ -26,6 +26,10 @@ export function getOfflineQueueEntryKindLabel(kind: OfflineOperation["kind"]) {
       return "Fallwild";
     case "fallwild-photo-upload":
       return "Foto";
+    case "reviereinrichtung-create":
+      return "Reviereinrichtung";
+    case "reviereinrichtung-photo-upload":
+      return "Einrichtungsfoto";
     default:
       return kind;
   }
@@ -51,8 +55,10 @@ export function getOfflineQueueStatusLabel(status: OfflineQueueStatus) {
 export function getOfflineQueueEntryAttachmentHint(entry: OfflineOperation) {
   switch (entry.kind) {
     case "fallwild-photo-upload":
+    case "reviereinrichtung-photo-upload":
       return `Anhang: ${entry.attachment.fileName}`;
     case "fallwild-create":
+    case "reviereinrichtung-create":
       return entry.payload.attachments && entry.payload.attachments.length > 0
         ? `${formatPhotoCount(entry.payload.attachments.length)} vorgemerkt`
         : "Ohne Foto";

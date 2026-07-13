@@ -1,4 +1,4 @@
-import type { EinrichtungZustand, Role } from "@hege/domain";
+import type { EinrichtungTyp, EinrichtungZustand, Role } from "@hege/domain";
 
 /**
  * Geteilte deutsche UI-Labels fuer Domain-Identifier (F-06/F-07).
@@ -40,4 +40,28 @@ export function formatEinrichtungZustand(zustand: EinrichtungZustand): string {
     default:
       return zustand;
   }
+}
+
+export function formatEinrichtungTyp(type: EinrichtungTyp): string {
+  const labels: Record<EinrichtungTyp, string> = {
+    hochstand: "Hochstand",
+    kanzel: "Kanzel",
+    ansitzleiter: "Ansitzleiter",
+    drueckjagdbock: "Drückjagdbock",
+    bodenstand: "Bodenstand",
+    fuetterung: "Fütterung",
+    salzlecke: "Salzlecke",
+    kirrung: "Kirrung",
+    kamera: "Wildkamera",
+    wildacker: "Wildacker",
+    wasserstelle: "Wasserstelle",
+    suhle: "Suhle",
+    jagdhuette: "Jagdhütte",
+    wildzaun: "Wildzaun",
+    schranke: "Schranke",
+    jagdsteig: "Jagdsteig",
+    wildrettungspunkt: "Wildrettungspunkt"
+  };
+
+  return labels[type];
 }

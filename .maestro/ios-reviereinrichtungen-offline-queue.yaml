@@ -1,0 +1,22 @@
+appId: ${APP_ID}
+name: iOS Reviereinrichtungen - offline queue visibility
+tags:
+  - ios
+  - queue
+  - reviereinrichtungen
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: tab-more
+    timeout: 15000
+- tapOn:
+    id: tab-more
+- tapOn:
+    id: more-reviereinrichtungen-link
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtung-offline-queue
+    timeout: 15000
+- assertVisible: Offline Testkanzel
+- assertVisible: Kontrollierter Simulator-Konflikt

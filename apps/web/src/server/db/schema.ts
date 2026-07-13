@@ -20,6 +20,7 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -199,7 +200,7 @@ export const mediaAssets = pgTable(
     revierId: text("revier_id")
       .notNull()
       .references(() => reviere.id),
-    entityType: text("entity_type").$type<"fallwild">().notNull(),
+    entityType: text("entity_type").$type<"fallwild" | "reviereinrichtung">().notNull(),
     entityId: text("entity_id").notNull(),
     uploadedByMembershipId: text("uploaded_by_membership_id")
       .notNull()
@@ -248,7 +249,12 @@ export const reviereinrichtungen = pgTable(
     locationLat: doublePrecision("location_lat").notNull(),
     locationLng: doublePrecision("location_lng").notNull(),
     locationLabel: text("location_label"),
-    beschreibung: text("beschreibung")
+    beschreibung: text("beschreibung"),
+    orientationDegrees: doublePrecision("orientation_degrees"),
+    details: jsonb("details").$type<import("@hege/domain").ReviereinrichtungDetails>(),
+    createdByMembershipId: text("created_by_membership_id").references(() => memberships.id),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull().defaultNow()
   },
   (table) => [
     index("reviereinrichtungen_revier_idx").on(table.revierId),

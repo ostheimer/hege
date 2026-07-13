@@ -10,6 +10,7 @@ interface SearchInputProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
+  testID?: string;
   /** Erlaubt automatische Hinweis-Anpassung im Aufrufer (z.B. "Such Wildart, Gemeinde, Notiz..."). */
   accessibilityLabel?: string;
 }
@@ -27,7 +28,8 @@ export function SearchInput({
   value,
   onChangeText,
   placeholder = "Suchen...",
-  accessibilityLabel
+  accessibilityLabel,
+  testID
 }: SearchInputProps) {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
@@ -37,6 +39,7 @@ export function SearchInput({
     <View style={styles.container}>
       <Ionicons color={theme.muted} name="search" size={16} />
       <TextInput
+        testID={testID}
         accessibilityLabel={accessibilityLabel ?? placeholder}
         autoCapitalize="none"
         autoCorrect={false}

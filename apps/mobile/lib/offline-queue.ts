@@ -10,10 +10,13 @@ import {
 import {
   createAnsitz,
   createFallwild,
+  createReviereinrichtung,
   isRecoverableMutationError,
   type CreateAnsitzRequest,
-  type CreateFallwildRequest
+  type CreateFallwildRequest,
+  type CreateReviereinrichtungRequest
 } from "./api";
+import { limitReviereinrichtungPhotoAttachments } from "./reviereinrichtung-photos";
 
 const STORAGE_KEY = "hege.offline-queue";
 const RETRY_BACKOFF_MINUTES = [1, 5, 15, 60] as const;
@@ -36,6 +39,10 @@ interface QueuedFallwildCreatePayload extends CreateFallwildRequest {
   attachments?: LocalPendingPhoto[];
 }
 
+interface QueuedReviereinrichtungCreatePayload extends CreateReviereinrichtungRequest {
+  attachments?: LocalPendingPhoto[];
+}
+
 export interface OfflineAnsitzOperation extends OfflineQueueEntryBase {
   kind: "ansitz-create";
   payload: CreateAnsitzRequest;
@@ -52,7 +59,23 @@ export interface OfflineFallwildPhotoUploadOperation extends OfflineQueueEntryBa
   attachment: LocalPendingPhoto;
 }
 
-export type OfflineOperation = OfflineAnsitzOperation | OfflineFallwildOperation | OfflineFallwildPhotoUploadOperation;
+export interface OfflineReviereinrichtungOperation extends OfflineQueueEntryBase {
+  kind: "reviereinrichtung-create";
+  payload: QueuedReviereinrichtungCreatePayload;
+}
+
+export interface OfflineReviereinrichtungPhotoUploadOperation extends OfflineQueueEntryBase {
+  kind: "reviereinrichtung-photo-upload";
+  einrichtungId: string;
+  attachment: LocalPendingPhoto;
+}
+
+export type OfflineOperation =
+  | OfflineAnsitzOperation
+  | OfflineFallwildOperation
+  | OfflineFallwildPhotoUploadOperation
+  | OfflineReviereinrichtungOperation
+  | OfflineReviereinrichtungPhotoUploadOperation;
 
 interface OfflineQueueSnapshot {
   hydrated: boolean;
@@ -225,6 +248,60 @@ export async function queueFallwildPhotoUploads(
   return nextEntries;
 }
 
+export async function queueReviereinrichtungCreate(
+  payload: CreateReviereinrichtungRequest,
+  attachments: LocalPendingPhoto[] = []
+): Promise<OfflineReviereinrichtungOperation> {
+  const queuedAttachments = limitReviereinrichtungPhotoAttachments(attachments);
+  const entry: OfflineReviereinrichtungOperation = {
+    id: createQueueId("reviereinrichtung"),
+    kind: "reviereinrichtung-create",
+    title:
+      queuedAttachments.length > 0
+        ? `${payload.name} (${formatPhotoCount(queuedAttachments.length)} vorgemerkt)`
+        : payload.name,
+    createdAt: new Date().toISOString(),
+    status: "pending",
+    attemptCount: 0,
+    payload: {
+      ...payload,
+      attachments: queuedAttachments.length > 0 ? cloneAttachments(queuedAttachments) : undefined
+    }
+  };
+
+  await appendEntry(entry);
+  return entry;
+}
+
+export async function queueReviereinrichtungPhotoUploads(
+  einrichtungId: string,
+  attachments: LocalPendingPhoto[]
+): Promise<OfflineOperation[]> {
+  await ensureHydrated();
+  const queuedAttachments = limitReviereinrichtungPhotoAttachments(attachments);
+
+  if (queuedAttachments.length === 0) {
+    return snapshot.entries;
+  }
+
+  const nextEntries = [
+    ...queuedAttachments.map<OfflineReviereinrichtungPhotoUploadOperation>((attachment) => ({
+      id: createQueueId("reviereinrichtung-photo"),
+      kind: "reviereinrichtung-photo-upload",
+      title: attachment.title ?? attachment.fileName,
+      createdAt: new Date().toISOString(),
+      status: "pending",
+      attemptCount: 0,
+      einrichtungId,
+      attachment: cloneAttachment(attachment)
+    })),
+    ...snapshot.entries
+  ];
+
+  await persistEntries(nextEntries);
+  return nextEntries;
+}
+
 export async function discardOfflineQueueEntry(entryId: string): Promise<OfflineOperation[]> {
   await ensureHydrated();
   return removeEntry(entryId);
@@ -321,9 +398,22 @@ async function runQueueSync() {
         if (attachments.length > 0) {
           await queueFallwildPhotoUploads(created.id, attachments);
         }
-      } else {
+      } else if (entry.kind === "fallwild-photo-upload") {
         await patchEntry(entry.id, syncPatch("uploading"));
         await uploadFallwildPhoto(entry.fallwildId, entry.attachment);
+        await removeEntry(entry.id);
+      } else if (entry.kind === "reviereinrichtung-create") {
+        await patchEntry(entry.id, syncPatch("syncing"));
+        const created = await createReviereinrichtung(stripReviereinrichtungAttachments(entry.payload));
+        await removeEntry(entry.id);
+
+        const attachments = entry.payload.attachments ?? [];
+        if (attachments.length > 0) {
+          await queueReviereinrichtungPhotoUploads(created.id, attachments);
+        }
+      } else {
+        await patchEntry(entry.id, syncPatch("uploading"));
+        await uploadReviereinrichtungPhoto(entry.einrichtungId, entry.attachment);
         await removeEntry(entry.id);
       }
     } catch (error) {
@@ -527,6 +617,27 @@ function normalizeOfflineOperation(value: unknown): OfflineOperation | null {
     };
   }
 
+  if (base.kind === "reviereinrichtung-create") {
+    const attachments = base.payload.attachments
+      ? limitReviereinrichtungPhotoAttachments(base.payload.attachments)
+      : undefined;
+
+    return {
+      ...base,
+      payload: {
+        ...base.payload,
+        attachments: attachments && attachments.length > 0 ? attachments : undefined
+      }
+    };
+  }
+
+  if (base.kind === "reviereinrichtung-photo-upload") {
+    return {
+      ...base,
+      attachment: cloneAttachment(base.attachment)
+    };
+  }
+
   return base;
 }
 
@@ -546,7 +657,11 @@ function isOfflineOperation(value: unknown): value is OfflineOperation {
       ? isCreateAnsitzPayload(entry.payload)
       : entry.kind === "fallwild-create"
         ? isQueuedFallwildCreatePayload(entry.payload)
-        : isOfflineFallwildPhotoUploadPayload(entry);
+        : entry.kind === "fallwild-photo-upload"
+          ? isOfflineFallwildPhotoUploadPayload(entry)
+          : entry.kind === "reviereinrichtung-create"
+            ? isQueuedReviereinrichtungCreatePayload(entry.payload)
+            : isOfflineReviereinrichtungPhotoUploadPayload(entry);
 
   return (
     typeof entry.id === "string" &&
@@ -555,7 +670,11 @@ function isOfflineOperation(value: unknown): value is OfflineOperation {
     typeof entry.attemptCount === "number" &&
     (entry.nextAttemptAt == null || typeof entry.nextAttemptAt === "string") &&
     (entry.status === "pending" || entry.status === "syncing" || entry.status === "uploading" || entry.status === "failed" || entry.status === "conflict") &&
-    (entry.kind === "ansitz-create" || entry.kind === "fallwild-create" || entry.kind === "fallwild-photo-upload") &&
+    (entry.kind === "ansitz-create" ||
+      entry.kind === "fallwild-create" ||
+      entry.kind === "fallwild-photo-upload" ||
+      entry.kind === "reviereinrichtung-create" ||
+      entry.kind === "reviereinrichtung-photo-upload") &&
     hasValidPayload
   );
 }
@@ -579,6 +698,13 @@ function stripAttachments(payload: QueuedFallwildCreatePayload): CreateFallwildR
   return createPayload;
 }
 
+function stripReviereinrichtungAttachments(
+  payload: QueuedReviereinrichtungCreatePayload
+): CreateReviereinrichtungRequest {
+  const { attachments: _attachments, ...createPayload } = payload;
+  return createPayload;
+}
+
 function normalizeOptionalString(value: unknown) {
   return typeof value === "string" && value.length > 0 ? value : undefined;
 }
@@ -597,6 +723,28 @@ async function uploadFallwildPhoto(fallwildId: string, attachment: LocalPendingP
   }
 
   await uploader(fallwildId, attachment);
+}
+
+async function uploadReviereinrichtungPhoto(
+  einrichtungId: string,
+  attachment: LocalPendingPhoto
+) {
+  const api = await import("./api");
+  const uploader = (api as typeof api & {
+    uploadReviereinrichtungPhoto?: (
+      einrichtungId: string,
+      attachment: LocalPendingPhoto
+    ) => Promise<{ photo: PhotoAsset }>;
+  }).uploadReviereinrichtungPhoto;
+
+  if (!uploader) {
+    throw Object.assign(new Error("Foto-Upload ist nicht verfügbar."), {
+      status: 503,
+      code: "service-unavailable"
+    });
+  }
+
+  await uploader(einrichtungId, attachment);
 }
 
 function isConflictError(error: unknown) {
@@ -649,6 +797,36 @@ function isOfflineFallwildPhotoUploadPayload(value: unknown): value is OfflineFa
     typeof payload.fallwildId === "string" &&
     isLocalPendingPhoto(payload.attachment)
   );
+}
+
+function isQueuedReviereinrichtungCreatePayload(
+  value: unknown
+): value is QueuedReviereinrichtungCreatePayload {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const payload = value as Partial<QueuedReviereinrichtungCreatePayload>;
+
+  return (
+    typeof payload.type === "string" &&
+    typeof payload.name === "string" &&
+    payload.location != null &&
+    (payload.attachments == null ||
+      (Array.isArray(payload.attachments) && payload.attachments.every(isLocalPendingPhoto)))
+  );
+}
+
+function isOfflineReviereinrichtungPhotoUploadPayload(
+  value: unknown
+): value is OfflineReviereinrichtungPhotoUploadOperation {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+
+  const payload = value as Partial<OfflineReviereinrichtungPhotoUploadOperation>;
+
+  return typeof payload.einrichtungId === "string" && isLocalPendingPhoto(payload.attachment);
 }
 
 function setSnapshot(nextSnapshot: OfflineQueueSnapshot) {

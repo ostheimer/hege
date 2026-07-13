@@ -16,11 +16,22 @@ export type AnsitzStatus = "active" | "completed";
 
 export type EinrichtungTyp =
   | "hochstand"
+  | "kanzel"
+  | "ansitzleiter"
+  | "drueckjagdbock"
+  | "bodenstand"
   | "fuetterung"
   | "salzlecke"
   | "kirrung"
   | "kamera"
-  | "wildacker";
+  | "wildacker"
+  | "wasserstelle"
+  | "suhle"
+  | "jagdhuette"
+  | "wildzaun"
+  | "schranke"
+  | "jagdsteig"
+  | "wildrettungspunkt";
 
 export type EinrichtungZustand = "gut" | "wartung-faellig" | "gesperrt";
 
@@ -199,9 +210,43 @@ export interface Reviereinrichtung {
   status: EinrichtungZustand;
   location: GeoPoint;
   beschreibung?: string;
+  orientationDegrees?: number;
+  details?: ReviereinrichtungDetails;
+  createdAt?: string;
+  createdByMembershipId?: string;
   photos: PhotoAsset[];
   kontrollen: ReviereinrichtungKontrolle[];
   wartung: WartungsEintrag[];
+}
+
+export interface ReviereinrichtungDetails {
+  capacityPersons?: number;
+  constructionYear?: number;
+  accessNote?: string;
+  ownerConsentAt?: string;
+  targetSpecies?: string;
+  feedType?: string;
+  feedQuantityKg?: number;
+  feedInterval?: string;
+  operationStart?: string;
+  operationEnd?: string;
+}
+
+export interface LocationWeather {
+  source: "geosphere-austria";
+  retrievedAt: string;
+  validAt?: string;
+  location: GeoPoint;
+  weatherAvailable: boolean;
+  temperatureC?: number;
+  windSpeedKmh?: number;
+  windDirectionDegrees?: number;
+  windGustKmh?: number;
+  precipitationMm?: number;
+  sunriseAt: string;
+  sunsetAt: string;
+  dawnAt: string;
+  duskAt: string;
 }
 
 export interface ReviereinrichtungListItem extends Reviereinrichtung {
@@ -452,6 +497,18 @@ export interface CreateFallwildPayload {
   roadReference?: FallwildRoadReference;
   bergungsStatus: BergungsStatus;
   note?: string;
+}
+
+export interface CreateReviereinrichtungPayload {
+  revierId: string;
+  createdByMembershipId: string;
+  type: EinrichtungTyp;
+  name: string;
+  status?: EinrichtungZustand;
+  location: GeoPoint;
+  beschreibung?: string;
+  orientationDegrees?: number;
+  details?: ReviereinrichtungDetails;
 }
 
 export interface CreateReviermeldungPayload {

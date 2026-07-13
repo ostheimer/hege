@@ -1,0 +1,110 @@
+appId: ${APP_ID}
+name: iOS Reviereinrichtungen - create, map and weather
+tags:
+  - ios
+  - reviereinrichtungen
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- openLink: exp+hege-revier://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081
+- launchApp
+- tapOn:
+    text: Öffnen
+    optional: true
+- tapOn:
+    text: Continue
+    optional: true
+- tapOn:
+    text: Reload
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: login-build-tag
+    timeout: 60000
+- tapOn:
+    id: login-identifier-input
+- inputText: ${HEGE_SMOKE_IDENTIFIER}
+- tapOn:
+    id: login-pin-input
+- inputText: ${HEGE_SMOKE_PIN}
+- tapOn:
+    id: login-submit-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+- tapOn:
+    id: tab-more
+- tapOn:
+    id: more-reviereinrichtungen-link
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtungen-screen
+    timeout: 15000
+- assertVisible:
+    id: reviereinrichtung-form
+- tapOn:
+    id: reviereinrichtung-name
+- inputText: Maestro Nordkanzel
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-current-location
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: reviereinrichtung-current-location
+- tapOn:
+    text: Beim Verwenden der App erlauben
+    optional: true
+- extendedWaitUntil:
+    visible: GPS-Genauigkeit.*
+    timeout: 15000
+- repeat:
+    times: 8
+    commands:
+      - swipe:
+          start: 7%, 85%
+          end: 7%, 20%
+          duration: 500
+- assertVisible:
+    id: reviereinrichtung-submit
+- tapOn:
+    id: reviereinrichtung-submit
+- repeat:
+    times: 8
+    commands:
+      - swipe:
+          start: 7%, 20%
+          end: 7%, 85%
+          duration: 500
+- extendedWaitUntil:
+    visible: Reviereinrichtung gespeichert
+    timeout: 15000
+- assertVisible:
+    id: reviereinrichtungen-map
+- scrollUntilVisible:
+    element:
+      text: Liste
+    direction: UP
+    timeout: 15000
+- tapOn: Liste
+- tapOn:
+    id: reviereinrichtungen-search
+- eraseText
+- inputText: Maestro Nordkanzel
+- hideKeyboard
+- repeat:
+    times: 2
+    commands:
+      - swipe:
+          start: 7%, 85%
+          end: 7%, 20%
+          duration: 500
+- tapOn: Reviereinrichtung Maestro Nordkanzel
+- extendedWaitUntil:
+    visible: Jagdliches Wetter
+    timeout: 15000
+- assertVisible: Sonnenaufgang
+- assertVisible: Sonnenuntergang

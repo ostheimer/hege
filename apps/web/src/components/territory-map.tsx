@@ -4,7 +4,7 @@ import type { AnsitzSession, FallwildVorgang, GeoPoint, Reviereinrichtung } from
 import { APIProvider, AdvancedMarker, Map, Pin } from "@vis.gl/react-google-maps";
 import { useMemo, useState } from "react";
 
-import { formatEinrichtungZustand } from "../lib/labels";
+import { formatEinrichtungTyp, formatEinrichtungZustand } from "../lib/labels";
 
 const MAP_ID_FALLBACK = "hege-revier-map";
 const FALLBACK_CENTER = { lat: 48.339, lng: 16.72 };
@@ -53,8 +53,12 @@ export function TerritoryMap({
           position: { lat: entry.location.lat, lng: entry.location.lng },
           description: entry.beschreibung ?? entry.location.label,
           meta: [
-            { label: "Typ", value: formatEinrichtungType(entry.type) },
+            { label: "Typ", value: formatEinrichtungTyp(entry.type) },
             { label: "Status", value: formatEinrichtungZustand(entry.status) },
+            ...(entry.orientationDegrees !== undefined
+              ? [{ label: "Ausrichtung", value: `${Math.round(entry.orientationDegrees)}°` }]
+              : []),
+            { label: "Fotos", value: `${entry.photos.length}` },
             { label: "Offene Wartungen", value: `${entry.wartung.filter((item) => item.status === "offen").length}` }
           ],
           href: "/app/reviereinrichtungen"
@@ -259,23 +263,6 @@ export function summarizeMarkers(markers: TerritoryMarker[]): string {
     .map((type) => (counts[type] > 0 ? `${counts[type]}× ${type}` : null))
     .filter(Boolean)
     .join(", ");
-}
-
-function formatEinrichtungType(type: Reviereinrichtung["type"]) {
-  switch (type) {
-    case "hochstand":
-      return "Hochstand";
-    case "fuetterung":
-      return "Fütterung";
-    case "salzlecke":
-      return "Salzlecke";
-    case "kirrung":
-      return "Kirrung";
-    case "kamera":
-      return "Wildkamera";
-    case "wildacker":
-      return "Wildacker";
-  }
 }
 
 function formatBergungsStatus(status: FallwildVorgang["bergungsStatus"]) {

@@ -1,14 +1,23 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Modal, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Image, Linking, Modal, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native";
 import type {
   AnsitzSession,
-  EinrichtungTyp,
   FallwildVorgang,
+  GeoPoint,
+  LocationWeather,
   Reviermeldung,
   Reviereinrichtung
 } from "@hege/domain";
 
+import { fetchLocationWeather } from "../lib/api";
 import { formatEinrichtungZustand } from "../lib/format";
+import {
+  formatDirection,
+  formatEinrichtungTyp,
+  formatWindDirection,
+  isAnsitzeinrichtung
+} from "../lib/reviereinrichtung";
 import {
   formatReviermeldungCategoryLabel,
   formatReviermeldungStatusLabel,
@@ -207,6 +216,7 @@ function AnsitzDetails({
           <Text style={styles.noteText}>{ansitz.note}</Text>
         </View>
       ) : null}
+      <LocationWeatherDetails location={ansitz.location} styles={styles} />
     </View>
   );
 }
@@ -269,14 +279,151 @@ function EinrichtungDetails({
         value={offeneWartungen === 0 ? "Keine" : `${offeneWartungen}`}
         styles={styles}
       />
+      {einrichtung.orientationDegrees !== undefined ? (
+        <DetailRow
+          label={einrichtung.type === "kamera" ? "Blickrichtung" : "Ausrichtung"}
+          value={formatDirection(einrichtung.orientationDegrees)}
+          styles={styles}
+        />
+      ) : null}
+      {einrichtung.details?.capacityPersons !== undefined ? (
+        <DetailRow label="Personen" value={`${einrichtung.details.capacityPersons}`} styles={styles} />
+      ) : null}
+      {einrichtung.details?.constructionYear !== undefined ? (
+        <DetailRow label="Baujahr" value={`${einrichtung.details.constructionYear}`} styles={styles} />
+      ) : null}
+      {einrichtung.details?.targetSpecies ? (
+        <DetailRow label="Zielwildart" value={einrichtung.details.targetSpecies} styles={styles} />
+      ) : null}
+      {einrichtung.details?.feedType ? (
+        <DetailRow label="Futter" value={einrichtung.details.feedType} styles={styles} />
+      ) : null}
+      {einrichtung.details?.feedQuantityKg !== undefined ? (
+        <DetailRow label="Futtermenge" value={`${einrichtung.details.feedQuantityKg} kg`} styles={styles} />
+      ) : null}
+      {einrichtung.details?.feedInterval ? (
+        <DetailRow label="Intervall" value={einrichtung.details.feedInterval} styles={styles} />
+      ) : null}
+      {einrichtung.details?.operationStart ? (
+        <DetailRow label="Betriebsbeginn" value={formatDate(einrichtung.details.operationStart)} styles={styles} />
+      ) : null}
+      {einrichtung.details?.operationEnd ? (
+        <DetailRow label="Betriebsende" value={formatDate(einrichtung.details.operationEnd)} styles={styles} />
+      ) : null}
+      {einrichtung.details?.ownerConsentAt ? (
+        <DetailRow label="Zustimmung" value={formatDate(einrichtung.details.ownerConsentAt)} styles={styles} />
+      ) : null}
       {einrichtung.location.label ? (
         <DetailRow label="Position" value={einrichtung.location.label} styles={styles} />
+      ) : null}
+      {einrichtung.details?.accessNote ? (
+        <View style={styles.noteBlock}>
+          <Text style={styles.detailLabel}>Zugang</Text>
+          <Text style={styles.noteText}>{einrichtung.details.accessNote}</Text>
+        </View>
       ) : null}
       {einrichtung.beschreibung ? (
         <View style={styles.noteBlock}>
           <Text style={styles.detailLabel}>Beschreibung</Text>
           <Text style={styles.noteText}>{einrichtung.beschreibung}</Text>
         </View>
+      ) : null}
+      {einrichtung.photos.length > 0 ? (
+        <View style={styles.photoSection}>
+          <Text style={styles.detailLabel}>Fotos</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.photoRow}>
+            {einrichtung.photos.map((photo) => (
+              <Image
+                key={photo.id}
+                accessibilityLabel={photo.title}
+                source={{ uri: photo.url }}
+                style={styles.detailPhoto}
+              />
+            ))}
+          </ScrollView>
+        </View>
+      ) : null}
+      {isAnsitzeinrichtung(einrichtung.type) ? (
+        <LocationWeatherDetails location={einrichtung.location} styles={styles} />
+      ) : null}
+    </View>
+  );
+}
+
+function LocationWeatherDetails({
+  location,
+  styles
+}: {
+  location: GeoPoint;
+  styles: ReturnType<typeof createStyles>;
+}) {
+  const [weather, setWeather] = useState<LocationWeather | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    setIsLoading(true);
+    setError(null);
+
+    void fetchLocationWeather(location.lat, location.lng)
+      .then((result) => {
+        if (active) setWeather(result);
+      })
+      .catch((fetchError) => {
+        if (active) setError(fetchError instanceof Error ? fetchError.message : "Wetterdaten sind nicht verfügbar.");
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [location.lat, location.lng]);
+
+  return (
+    <View style={styles.weatherBlock}>
+      <View style={styles.weatherHeader}>
+        <Ionicons name="partly-sunny-outline" size={20} color={styles.noteText.color} />
+        <Text style={styles.weatherTitle}>Jagdliches Wetter</Text>
+      </View>
+      {isLoading ? <ActivityIndicator /> : null}
+      {error ? <Text style={styles.weatherUnavailable}>{error}</Text> : null}
+      {weather ? (
+        <>
+          {weather.weatherAvailable ? (
+            <>
+              <DetailRow
+                label="Wind"
+                value={`${formatWindDirection(weather.windDirectionDegrees ?? 0)} · ${formatWeatherNumber(weather.windSpeedKmh)} km/h`}
+                styles={styles}
+              />
+              {weather.windGustKmh !== undefined ? (
+                <DetailRow label="Böen" value={`${formatWeatherNumber(weather.windGustKmh)} km/h`} styles={styles} />
+              ) : null}
+              {weather.temperatureC !== undefined ? (
+                <DetailRow label="Temperatur" value={`${formatWeatherNumber(weather.temperatureC)} °C`} styles={styles} />
+              ) : null}
+              {weather.precipitationMm !== undefined ? (
+                <DetailRow label="Niederschlag" value={`${formatWeatherNumber(weather.precipitationMm)} mm`} styles={styles} />
+              ) : null}
+            </>
+          ) : (
+            <Text style={styles.weatherUnavailable}>Aktuelle Wetterwerte sind vorübergehend nicht verfügbar.</Text>
+          )}
+          <DetailRow label="Dämmerung" value={formatTime(weather.dawnAt)} styles={styles} />
+          <DetailRow label="Sonnenaufgang" value={formatTime(weather.sunriseAt)} styles={styles} />
+          <DetailRow label="Sonnenuntergang" value={formatTime(weather.sunsetAt)} styles={styles} />
+          <DetailRow label="Abenddämmerung" value={formatTime(weather.duskAt)} styles={styles} />
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="GeoSphere Austria öffnen"
+            onPress={() => void Linking.openURL("https://data.hub.geosphere.at/")}
+          >
+            <Text style={styles.attribution}>Wetterdaten: GeoSphere Austria</Text>
+          </Pressable>
+        </>
       ) : null}
     </View>
   );
@@ -340,6 +487,35 @@ function formatDateTime(value: string): string {
   }
 }
 
+function formatDate(value: string): string {
+  try {
+    return new Intl.DateTimeFormat("de-AT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "Europe/Vienna"
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function formatTime(value: string): string {
+  try {
+    return new Intl.DateTimeFormat("de-AT", {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "Europe/Vienna"
+    }).format(new Date(value));
+  } catch {
+    return value;
+  }
+}
+
+function formatWeatherNumber(value: number | undefined): string {
+  return value === undefined ? "–" : new Intl.NumberFormat("de-AT", { maximumFractionDigits: 1 }).format(value);
+}
+
 function formatGeschlecht(value: string): string {
   switch (value) {
     case "maennlich":
@@ -365,26 +541,6 @@ function formatBergungsStatus(value: string): string {
       return value;
   }
 }
-
-function formatEinrichtungTyp(type: EinrichtungTyp): string {
-  switch (type) {
-    case "hochstand":
-      return "Hochstand";
-    case "fuetterung":
-      return "Fütterung";
-    case "salzlecke":
-      return "Salzlecke";
-    case "kirrung":
-      return "Kirrung";
-    case "kamera":
-      return "Kamera";
-    case "wildacker":
-      return "Wildacker";
-    default:
-      return type;
-  }
-}
-
 
 const createStyles = (theme: ThemeColors) =>
   ({
@@ -460,15 +616,15 @@ const createStyles = (theme: ThemeColors) =>
       borderBottomColor: theme.muted
     },
     detailLabel: {
-      flex: 0.45,
+      flex: 0.48,
       fontSize: 12,
       textTransform: "uppercase",
-      letterSpacing: 1.1,
+      letterSpacing: 0,
       color: theme.muted,
       fontWeight: "600"
     },
     detailValue: {
-      flex: 0.55,
+      flex: 0.52,
       fontSize: 15,
       color: theme.ink,
       fontWeight: "500"
@@ -484,6 +640,46 @@ const createStyles = (theme: ThemeColors) =>
       fontSize: 14,
       lineHeight: 20,
       color: theme.ink
+    },
+    photoSection: {
+      gap: spacing.sm,
+      marginTop: spacing.sm
+    },
+    photoRow: {
+      gap: spacing.sm
+    },
+    detailPhoto: {
+      width: 220,
+      height: 150,
+      borderRadius: 12,
+      backgroundColor: theme.card
+    },
+    weatherBlock: {
+      gap: spacing.sm,
+      padding: 14,
+      marginTop: spacing.sm,
+      borderRadius: 16,
+      backgroundColor: theme.card
+    },
+    weatherHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm
+    },
+    weatherTitle: {
+      fontSize: 17,
+      fontWeight: "700",
+      color: theme.ink
+    },
+    weatherUnavailable: {
+      fontSize: 14,
+      lineHeight: 20,
+      color: theme.muted
+    },
+    attribution: {
+      fontSize: 12,
+      color: theme.muted,
+      textDecorationLine: "underline"
     },
     footer: {
       paddingHorizontal: 20,

@@ -35,7 +35,8 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
     href: "/(tabs)/reviereinrichtungen",
     label: "Reviereinrichtungen",
     description: "Hochstände, Fütterungen und Wartungen.",
-    icon: "map-outline"
+    icon: "map-outline",
+    testID: "more-reviereinrichtungen-link"
   },
   {
     href: "/(tabs)/revierarbeit",

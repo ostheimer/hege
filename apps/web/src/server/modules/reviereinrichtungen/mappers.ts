@@ -3,6 +3,7 @@ import type {
   Reviereinrichtung,
   ReviereinrichtungKontrolle,
   ReviereinrichtungListItem,
+  PhotoAsset,
   WartungsEintrag
 } from "@hege/domain";
 import type {
@@ -11,6 +12,17 @@ import type {
   ReviereinrichtungWartungRecord
 } from "../../db/schema";
 import { normalizeDeAtVisibleText } from "../../text/de-at";
+
+export type ReviereinrichtungRecordForMapping = Omit<
+  ReviereinrichtungRecord,
+  "orientationDegrees" | "details" | "createdByMembershipId" | "createdAt" | "updatedAt"
+> &
+  Partial<
+    Pick<
+      ReviereinrichtungRecord,
+      "orientationDegrees" | "details" | "createdByMembershipId" | "createdAt" | "updatedAt"
+    >
+  >;
 
 export function mapDemoReviereinrichtungToListItem(
   entry: Reviereinrichtung
@@ -28,9 +40,10 @@ export function mapDemoReviereinrichtungToListItem(
 }
 
 export function mapDbReviereinrichtungToListItem(
-  entry: ReviereinrichtungRecord,
+  entry: ReviereinrichtungRecordForMapping,
   kontrollen: ReviereinrichtungKontrolleRecord[],
-  wartungen: ReviereinrichtungWartungRecord[]
+  wartungen: ReviereinrichtungWartungRecord[],
+  photos: PhotoAsset[] = []
 ): ReviereinrichtungListItem {
   const mappedKontrollen = kontrollen.map(mapKontrolleRecordToDomain);
   const mappedWartungen = wartungen.map(mapWartungRecordToDomain);
@@ -49,7 +62,11 @@ export function mapDbReviereinrichtungToListItem(
       label: normalizeDeAtVisibleText(entry.locationLabel) ?? undefined
     },
     beschreibung: normalizeDeAtVisibleText(entry.beschreibung) ?? undefined,
-    photos: [],
+    orientationDegrees: entry.orientationDegrees ?? undefined,
+    details: entry.details ?? undefined,
+    createdAt: entry.createdAt,
+    createdByMembershipId: entry.createdByMembershipId ?? undefined,
+    photos,
     kontrollen: sortedKontrollen,
     wartung: sortedWartungen,
     letzteKontrolleAt: sortedKontrollen[0]?.createdAt,
