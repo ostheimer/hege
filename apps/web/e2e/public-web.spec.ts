@@ -17,14 +17,25 @@ test.describe("Public web and onboarding contracts", () => {
     await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole("heading", {
-        name: "Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche."
+        name: "Das Revier. Gemeinsam im Blick."
       })
     ).toBeVisible();
-    // 4 statische Links + je 1 "Bereits Kunde?" pro Self-Serve-Plan (starter, revier).
-    await expect(page.locator('a[href="/login"]')).toHaveCount(6);
-    await expect(page.locator('a[href="/registrieren?plan=starter"]')).toBeVisible();
-    await expect(page.locator('a[href="/registrieren?plan=revier"]')).toBeVisible();
-    await expect(page.locator('a[href="mailto:info@hege.app?subject=hege%20Organisation"]')).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Das Revier führen, ohne den Überblick zu verlieren." })
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Draußen erfassen. Im Team weiterarbeiten." })
+    ).toBeVisible();
+
+    // Header, Hero, Produktkapitel, Pakete, CTA und Footer bleiben direkt verlinkt.
+    await expect(page.locator('a[href="/login"]')).toHaveCount(8);
+    await expect(page.locator('a[href="/registrieren?plan=starter"]')).toHaveCount(2);
+    await expect(page.locator('a[href="/registrieren?plan=revier"]')).toHaveCount(5);
+    await expect(
+      page.locator('a[href="mailto:info@hege.app?subject=hege%20Organisation"]')
+    ).toHaveCount(2);
+    await expect(page.locator(".public-footer")).toContainText("info@hege.app");
+    await expect(page.locator(".public-footer")).toContainText("© 2026 hege.app");
   });
 
   test("redirects authenticated users from /login to /app", async ({ page }) => {

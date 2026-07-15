@@ -39,7 +39,7 @@ test.describe("Auth und geschuetzte Routen", () => {
     await expect(page).toHaveURL(/\/$/);
     await expect(
       page.getByRole("heading", {
-        name: "Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche."
+        name: "Das Revier. Gemeinsam im Blick."
       })
     ).toBeVisible();
   });
