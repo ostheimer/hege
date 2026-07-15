@@ -24,7 +24,7 @@ export async function runSmoke(baseUrl, options = {}) {
 
   await checkHtmlPage(baseUrl, "/", {
     label: "/",
-    expectedText: ["Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche.", "Passendes Paket wählen"]
+    expectedText: ["Das Revier.", "Gemeinsam ", "im Blick.", "Revier starten"]
   });
 
   await checkHtmlPage(baseUrl, "/login", {

@@ -9,21 +9,24 @@ import {
   Reviereinrichtung,
   Sitzung
 } from "@hege/icons";
-import { LayoutDashboard } from "lucide-react";
+import {
+  CloudOff,
+  CloudUpload,
+  FileCheck2,
+  LayoutDashboard,
+  MapPin,
+  MapPinned,
+  RefreshCw,
+  Smartphone,
+  UsersRound
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 /**
- * Live-gerenderter Produkt-Showcase fuer die oeffentliche Landing-Seite.
- *
- * Statt statischer PNG-Screenshots zeigen wir das Produkt als HTML/CSS-
- * Komposition in den Marken-Tokens. Das hat drei Vorteile:
- *  - scharf bei jeder Pixeldichte (kein Image-Resampling, kein Asset-Pipeline)
- *  - aenderungstreu — wenn Tokens, Logo oder Icons sich aendern, zieht der
- *    Showcase automatisch nach
- *  - keine LCP-Last durch grosse Hero-Bilder
- *
- * Das ist eine Illustration, kein Screenshot — die Werte sind eingefroren
- * und enthalten keine echten Mandantendaten. Das `aria-label` auf der Bühne
- * macht das fuer Screenreader explizit.
+ * Live-gerenderte Produktvorschau fuer die oeffentliche Landing-Seite.
+ * Alle Werte sind eingefrorene Beispieldaten und enthalten keine
+ * Mandantendaten. Karten- und Revierbilder sind statische Marketing-Assets.
  */
 
 interface SidebarItem {
@@ -42,6 +45,37 @@ const SIDEBAR_ITEMS: ReadonlyArray<SidebarItem> = [
   { label: "Mitglieder", Icon: Mitglied }
 ];
 
+const CAPABILITIES = [
+  {
+    title: "Dashboard für Revierleitung und Lagebild",
+    Icon: LayoutDashboard
+  },
+  {
+    title: "Sitzungen, Versionen, Freigaben und PDF-Download",
+    Icon: Protokoll
+  },
+  {
+    title: "Ansitze, Reviereinrichtungen und Fallwild",
+    Icon: Reviereinrichtung
+  },
+  {
+    title: "Mobile Erfassung mit Queue und Offline-Vormerkung",
+    Icon: CloudUpload
+  }
+] as const;
+
+const BACKOFFICE_POINTS = [
+  { label: "Lagebild auf einen Blick", Icon: MapPinned },
+  { label: "Klare Rollen und Freigaben", Icon: UsersRound },
+  { label: "Saubere Dokumentation", Icon: FileCheck2 }
+] as const;
+
+const MOBILE_POINTS = [
+  { label: "Für iOS und Android", Icon: Smartphone },
+  { label: "Offline vorgemerkt", Icon: CloudOff },
+  { label: "Später automatisch synchronisiert", Icon: RefreshCw }
+] as const;
+
 const METRICS = [
   { label: "Offene Wartungen", value: "3", trend: "−2 vs. Vorwoche" },
   { label: "Aktive Ansitze", value: "12", trend: "Jetzt im Revier" },
@@ -49,10 +83,11 @@ const METRICS = [
 ] as const;
 
 const MAP_PINS = [
-  { x: 22, y: 32, label: "Hochstand" },
+  { x: 22, y: 34, label: "Hochstand" },
   { x: 58, y: 24, label: "Fütterung" },
-  { x: 71, y: 58, label: "Hochstand" },
-  { x: 38, y: 70, label: "Salzleck" }
+  { x: 76, y: 58, label: "Hochstand" },
+  { x: 40, y: 72, label: "Salzleck" },
+  { x: 64, y: 76, label: "Ansitz" }
 ] as const;
 
 interface MobileTile {
@@ -69,18 +104,83 @@ const MOBILE_TILES: ReadonlyArray<MobileTile> = [
 
 export function PublicShowcase() {
   return (
-    <section className="public-showcase" aria-label="Produkt-Vorschau">
-      <div className="public-section-head">
-        <p className="eyebrow">Backoffice und App</p>
-        <h2>Eine Datenbasis, zwei Oberflächen.</h2>
-        <p className="public-section-note public-section-note-left">
-          Web für Revierleitung und Schriftführung, App fürs Jagdteam im Feld. Die Werte unten sind
-          eine Illustration, keine Screenshots.
-        </p>
+    <section className="public-showcase" id="produkt" aria-label="Produkt-Vorschau">
+      <div className="public-showcase-intro">
+        <div className="public-section-head public-section-head-centered">
+          <p className="eyebrow">Backoffice und App</p>
+          <h2>Eine Datenbasis, zwei Oberflächen.</h2>
+          <p className="public-section-note public-section-note-left">
+            Web für Revierleitung und Schriftführung, App fürs Jagdteam im Feld.
+          </p>
+        </div>
+
+        <div className="public-capability-grid">
+          {CAPABILITIES.map(({ title, Icon }) => (
+            <article key={title} className="public-capability-item">
+              <span aria-hidden="true">
+                <Icon size={32} strokeWidth={1.45} />
+              </span>
+              <p>{title}</p>
+            </article>
+          ))}
+        </div>
       </div>
 
-      <div className="public-showcase-stage">
+      <div className="public-backoffice-chapter" id="web-backend">
         <BackofficeMockup />
+        <article className="public-product-copy">
+          <p className="eyebrow">Web-Backend</p>
+          <h2>Das Revier führen, ohne den Überblick zu verlieren.</h2>
+          <p>
+            Offene Aufgaben, aktive Ansitze und freizugebende Protokolle laufen in einer klaren
+            Arbeitsoberfläche zusammen.
+          </p>
+          <ul className="public-product-points">
+            {BACKOFFICE_POINTS.map(({ label, Icon }) => (
+              <li key={label}>
+                <span aria-hidden="true">
+                  <Icon size={19} strokeWidth={1.7} />
+                </span>
+                {label}
+              </li>
+            ))}
+          </ul>
+          <Link className="public-inline-link" href="/login">
+            Web-Backend entdecken <span aria-hidden="true">→</span>
+          </Link>
+        </article>
+      </div>
+
+      <div className="public-mobile-chapter" id="mobile-app">
+        <Image
+          className="public-mobile-chapter-image"
+          src="/landing/noe-rehwild-waldrand.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+        />
+        <div className="public-mobile-chapter-overlay" aria-hidden="true" />
+        <article className="public-product-copy public-mobile-copy">
+          <p className="eyebrow">Mobile App</p>
+          <h2>Draußen erfassen. Im Team weiterarbeiten.</h2>
+          <p>
+            Kurze Wege im Revier: Meldungen und Ansitze direkt am Ort erfassen – auch bei schlechter
+            Verbindung.
+          </p>
+          <ul className="public-product-points">
+            {MOBILE_POINTS.map(({ label, Icon }) => (
+              <li key={label}>
+                <span aria-hidden="true">
+                  <Icon size={19} strokeWidth={1.7} />
+                </span>
+                {label}
+              </li>
+            ))}
+          </ul>
+          <Link className="public-inline-link" href="#rollen">
+            App kennenlernen <span aria-hidden="true">→</span>
+          </Link>
+        </article>
         <MobileMockup />
       </div>
     </section>
@@ -120,7 +220,7 @@ function BackofficeMockup() {
           <div className="public-mockup-user">
             <span className="public-mockup-avatar">JG</span>
             <div>
-              <strong>Jaegerschaft</strong>
+              <strong>Jägerschaft</strong>
               <small>Revier-Admin</small>
             </div>
           </div>
@@ -146,19 +246,25 @@ function BackofficeMockup() {
           </div>
 
           <div className="public-mockup-map" aria-hidden="true">
-            <div className="public-mockup-map-grid" />
-            {MAP_PINS.map((pin, index) => (
+            <Image
+              className="public-mockup-map-image"
+              src="/landing/noe-revier-map.png"
+              alt=""
+              fill
+              sizes="(max-width: 720px) 75vw, 760px"
+            />
+            {MAP_PINS.map((pin) => (
               <span
-                key={`${pin.label}-${index}`}
+                key={`${pin.label}-${pin.x}-${pin.y}`}
                 className="public-mockup-pin"
                 style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
               >
-                <span className="public-mockup-pin-dot" />
+                <MapPin size={22} strokeWidth={1.8} fill="#173328" />
               </span>
             ))}
             <div className="public-mockup-map-caption">
               <span className="eyebrow">Reviergebiet</span>
-              <strong>4 Einrichtungen sichtbar</strong>
+              <strong>5 Einrichtungen sichtbar</strong>
             </div>
           </div>
         </div>

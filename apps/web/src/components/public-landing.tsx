@@ -1,3 +1,5 @@
+import { Mitglied, Protokoll, Reviereinrichtung, Sitzung } from "@hege/icons";
+import { CloudOff, LayoutDashboard, Minus, MonitorSmartphone, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -7,19 +9,23 @@ import { PublicShowcase } from "./public-showcase";
 const features = [
   {
     title: "Revierbetrieb auf einer Linie",
-    text: "Ansitze, Einrichtungen, Fallwild und Protokolle greifen auf dieselbe Revierbasis zu."
+    text: "Ansitze, Einrichtungen, Fallwild und Protokolle greifen auf dieselbe Revierbasis zu.",
+    Icon: Reviereinrichtung
   },
   {
     title: "Freigaben ohne Medienbruch",
-    text: "Sitzungen, Versionen, Freigaben und Dokument-Download bleiben in einem klaren Arbeitsfluss."
+    text: "Sitzungen, Versionen, Freigaben und Dokument-Download bleiben in einem klaren Arbeitsfluss.",
+    Icon: Protokoll
   },
   {
     title: "Backoffice und App zusammen",
-    text: "Web für Leitung und Schriftführung, App für Jagdteam und Meldungen aus dem Feld."
+    text: "Web für Leitung und Schriftführung, App für Jagdteam und Meldungen aus dem Feld.",
+    Icon: MonitorSmartphone
   },
   {
     title: "Offline zuerst gedacht",
-    text: "Ansitz- und Fallwild-Einträge können unterwegs vorgemerkt und später synchronisiert werden."
+    text: "Ansitz- und Fallwild-Einträge können unterwegs vorgemerkt und später synchronisiert werden.",
+    Icon: CloudOff
   }
 ] as const;
 
@@ -27,24 +33,27 @@ const useCases = [
   {
     eyebrow: "Revierleitung",
     title: "Schneller Überblick statt verstreuter Tabellen",
-    text: "Offene Wartungen, aktive Ansitze und aktuelle Meldungen stehen ohne Wechsel zwischen Werkzeugen bereit."
+    text: "Offene Wartungen, aktive Ansitze und aktuelle Meldungen stehen ohne Wechsel zwischen Werkzeugen bereit.",
+    Icon: LayoutDashboard
   },
   {
     eyebrow: "Schriftführung",
     title: "Sitzungen bis zur Freigabe sauber führen",
-    text: "Agenda, Beschlüsse, Versionen und PDF-Download folgen einem nachvollziehbaren Ablauf."
+    text: "Agenda, Beschlüsse, Versionen und PDF-Download folgen einem nachvollziehbaren Ablauf.",
+    Icon: Sitzung
   },
   {
     eyebrow: "Jagdteam",
     title: "Weniger Tippen, mehr Feldarbeit",
-    text: "Ansitz und Fallwild lassen sich direkt erfassen, auch wenn die Verbindung nicht perfekt ist."
+    text: "Ansitz und Fallwild lassen sich direkt erfassen, auch wenn die Verbindung nicht perfekt ist.",
+    Icon: Mitglied
   }
 ] as const;
 
 const faq = [
   {
     q: "Ist hege nur für das Backoffice gedacht?",
-    a: "Nein. Die Plattform verbindet das interne Reviermanagement mit einer klaren öffentlichen Produktseite und einem späteren Self-Serve-Einstieg."
+    a: "Nein. hege verbindet das interne Reviermanagement im Web mit der mobilen Erfassung draußen. Die App funktioniert auch offline und synchronisiert, sobald wieder Verbindung besteht."
   },
   {
     q: "Was kostet der Einstieg?",
@@ -56,7 +65,7 @@ const faq = [
   },
   {
     q: "Funktioniert die App auch unterwegs?",
-    a: "Ja. Die mobilen Kernflows sind auf kurze Erfassung, Queue und spätere Synchronisierung ausgelegt."
+    a: "Ja. Die mobilen Kernabläufe sind auf kurze Erfassung, Offline-Vormerkung und spätere Synchronisierung ausgelegt."
   }
 ] as const;
 
@@ -65,8 +74,8 @@ export function PublicLanding() {
     <main className="public-landing">
       <div className="public-landing-shell">
         <header className="public-topbar">
-          <div className="public-brand">
-            <div className="public-brand-mark" aria-hidden="true">
+          <Link className="public-brand" href="/" aria-label="hege.app Startseite">
+            <span className="public-brand-mark" aria-hidden="true">
               <Image
                 className="brand-logo-image"
                 src="/brand/hege-logo-mark.png"
@@ -75,19 +84,25 @@ export function PublicLanding() {
                 height={48}
                 priority
               />
-            </div>
-            <div>
+            </span>
+            <span>
               <strong>hege.app</strong>
-              <p className="eyebrow">Reviermanagement</p>
-            </div>
-          </div>
+              <span className="eyebrow">Reviermanagement</span>
+            </span>
+          </Link>
+
+          <nav className="public-topbar-nav" aria-label="Hauptnavigation">
+            <Link href="#produkt">Produkt</Link>
+            <Link href="#rollen">Für Reviere</Link>
+            <Link href="#preise">Preise</Link>
+          </nav>
 
           <nav className="public-topbar-actions" aria-label="Schnellzugriff">
             <Link className="button-control button-control-secondary" href="/login">
               Anmelden
             </Link>
-            <Link className="button-control" href="#preise">
-              Preise ansehen
+            <Link className="button-control" href="/registrieren?plan=revier">
+              Revier starten
             </Link>
           </nav>
 
@@ -97,9 +112,12 @@ export function PublicLanding() {
               <span className="public-mobile-menu-line" />
               <span className="public-mobile-menu-line" />
             </summary>
-            <nav className="public-mobile-menu-panel" aria-label="Mobiler Schnellzugriff">
-              <Link href="/login">Anmelden</Link>
+            <nav className="public-mobile-menu-panel" aria-label="Mobile Navigation">
+              <Link href="#produkt">Produkt</Link>
+              <Link href="#rollen">Für Reviere</Link>
               <Link href="#preise">Preise</Link>
+              <Link href="/login">Anmelden</Link>
+              <Link href="/registrieren?plan=revier">Revier starten</Link>
             </nav>
           </details>
         </header>
@@ -111,12 +129,16 @@ export function PublicLanding() {
             alt=""
             fill
             priority
-            sizes="(max-width: 1240px) 100vw, 1240px"
+            sizes="100vw"
           />
           <div className="public-hero-overlay" aria-hidden="true" />
           <div className="public-hero-copy">
             <p className="eyebrow">Revierdigitalisierung</p>
-            <h1>Revierbetrieb, Protokolle und Feldmeldungen in einer klaren Oberfläche.</h1>
+            <h1>
+              <span>Das Revier. </span>
+              <span>Gemeinsam </span>
+              <span>im Blick.</span>
+            </h1>
             <p className="public-hero-text">
               Die hege App für Android und iOS sowie die Webapp verbinden die Arbeit im Backoffice
               mit der Erfassung draußen. Für Jagdleitung, Schriftführung und Jagdteam, die ohne
@@ -124,43 +146,25 @@ export function PublicLanding() {
             </p>
 
             <div className="public-hero-actions">
-              <Link className="button-control" href="#preise">
-                Passendes Paket wählen
+              <Link className="button-control" href="/registrieren?plan=revier">
+                Revier starten
               </Link>
               <Link className="button-control button-control-secondary" href="/login">
                 Anmelden
               </Link>
             </div>
 
-            <dl className="public-stat-row" aria-label="Kurzfakten">
-              <div className="public-stat">
-                <dt>1 Datenbasis</dt>
-                <dd>Web und App greifen auf dieselben Revierdaten zu.</dd>
-              </div>
-              <div className="public-stat">
-                <dt>3 Rollen</dt>
-                <dd>Revier-Admin, Schriftführung und Jagdteam im selben System.</dd>
-              </div>
-              <div className="public-stat">
-                <dt>Offline-Fokus</dt>
-                <dd>Feldmeldungen laufen mit Queue und späterer Synchronisierung.</dd>
-              </div>
-            </dl>
-          </div>
-
-          <aside className="public-hero-panel">
-            <p className="eyebrow">Was hege abdeckt</p>
-            <ul className="public-hero-list">
-              <li>Dashboard für Revierleitung und Lagebild</li>
-              <li>Sitzungen, Versionen, Freigaben und PDF-Download</li>
-              <li>Ansitze, Reviereinrichtungen und Fallwild</li>
-              <li>Mobile Erfassung mit Queue und Offline-Vormerkung</li>
+            <ul className="public-proof-line" aria-label="Kurzfakten">
+              <li>1 Datenbasis</li>
+              <li>3 Rollen</li>
+              <li>Offline-Fokus</li>
             </ul>
-            <div className="public-proof">
-              <span>Für Jagdgesellschaften in Österreich</span>
-              <strong>einfacher Einstieg, klare Rollen, saubere Datenbasis.</strong>
-            </div>
-          </aside>
+
+            <p className="public-hero-proof">
+              Für Jagdgesellschaften in Österreich –
+              <strong> einfacher Einstieg, klare Rollen, saubere Datenbasis.</strong>
+            </p>
+          </div>
         </section>
 
         <PublicShowcase />
@@ -171,47 +175,55 @@ export function PublicLanding() {
             src="/landing/noe-rehwild-waldrand.jpg"
             alt=""
             fill
-            sizes="(max-width: 1240px) calc(100vw - 28px), 1240px"
+            sizes="100vw"
           />
         </section>
 
-        <section className="public-section" id="features">
-          <div className="public-section-head">
+        <section className="public-section public-section-benefits" id="features">
+          <div className="public-section-head public-section-head-centered">
             <p className="eyebrow">Nutzen</p>
             <h2>Warum hege im Alltag weniger Reibung erzeugt.</h2>
           </div>
 
           <div className="public-feature-grid">
-            {features.map((feature) => (
-              <article key={feature.title} className="public-card public-feature-card">
-                <h3>{feature.title}</h3>
-                <p>{feature.text}</p>
+            {features.map(({ title, text, Icon }) => (
+              <article key={title} className="public-feature-card">
+                <span className="public-editorial-icon" aria-hidden="true">
+                  <Icon size={28} strokeWidth={1.5} />
+                </span>
+                <h3>{title}</h3>
+                <p>{text}</p>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="public-section">
-          <div className="public-section-head">
+        <section className="public-section public-section-roles" id="rollen">
+          <div className="public-section-head public-section-head-centered">
             <p className="eyebrow">Rollen</p>
             <h2>Jeder sieht, was er wirklich braucht.</h2>
           </div>
 
           <div className="public-usecase-grid">
-            {useCases.map((item) => (
-              <article key={item.title} className="public-card public-usecase-card">
-                <span>{item.eyebrow}</span>
-                <h3>{item.title}</h3>
-                <p>{item.text}</p>
+            {useCases.map(({ eyebrow, title, text, Icon }) => (
+              <article key={title} className="public-usecase-card">
+                <span className="public-editorial-icon" aria-hidden="true">
+                  <Icon size={28} strokeWidth={1.5} />
+                </span>
+                <div>
+                  <span className="public-item-eyebrow">{eyebrow}</span>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="public-section" id="preise">
+        <section className="public-section public-section-pricing" id="preise">
           <div className="public-section-head public-section-head-row">
             <div>
-              <p className="eyebrow">Pricing</p>
+              <p className="eyebrow">Preise</p>
               <h2>Transparente Pakete mit klarem Einstieg.</h2>
             </div>
             <p className="public-section-note">
@@ -221,11 +233,11 @@ export function PublicLanding() {
 
           <div className="public-pricing-grid">
             {PUBLIC_PRICING_PLANS.map((plan) => (
-              <article key={plan.key} className="public-card public-pricing-card">
+              <article key={plan.key} className="public-pricing-card">
                 <div className="public-pricing-head">
                   <div>
-                    <p className="eyebrow">{plan.audience}</p>
                     <h3>{plan.name}</h3>
+                    <p className="public-pricing-audience">{plan.audience}</p>
                   </div>
                   <div className="public-price">{plan.priceLabel}</div>
                 </div>
@@ -243,11 +255,11 @@ export function PublicLanding() {
                     {plan.ctaLabel}
                   </Link>
                   {plan.isSelfServe ? (
-                    <Link className="button-control button-control-secondary" href="/login">
+                    <Link className="public-text-link" href="/login">
                       Bereits Kunde? Anmelden
                     </Link>
                   ) : (
-                    <a className="button-control button-control-secondary" href="mailto:info@hege.app">
+                    <a className="public-text-link" href="mailto:info@hege.app">
                       Kurz anfragen
                     </a>
                   )}
@@ -257,16 +269,22 @@ export function PublicLanding() {
           </div>
         </section>
 
-        <section className="public-section">
+        <section className="public-section public-section-faq">
           <div className="public-section-head">
             <p className="eyebrow">FAQ</p>
             <h2>Die wichtigsten Fragen auf einen Blick.</h2>
           </div>
 
           <div className="public-faq-grid">
-            {faq.map((entry) => (
-              <details key={entry.q} className="public-card public-faq-card">
-                <summary>{entry.q}</summary>
+            {faq.map((entry, index) => (
+              <details key={entry.q} className="public-faq-card" open={index === 0}>
+                <summary>
+                  <span>{entry.q}</span>
+                  <span className="public-faq-icon" aria-hidden="true">
+                    <Plus className="public-faq-icon-plus" size={19} />
+                    <Minus className="public-faq-icon-minus" size={19} />
+                  </span>
+                </summary>
                 <p>{entry.a}</p>
               </details>
             ))}
@@ -279,7 +297,7 @@ export function PublicLanding() {
             src="/landing/noe-revierarbeit-cta.jpg"
             alt=""
             fill
-            sizes="(max-width: 1240px) calc(100vw - 28px), 1240px"
+            sizes="100vw"
           />
           <div className="public-cta-overlay" aria-hidden="true" />
           <div>
@@ -297,8 +315,43 @@ export function PublicLanding() {
         </section>
 
         <footer className="public-footer">
-          <span>Kontakt: info@hege.app</span>
-          <span>Produkt für Reviermanagement in Österreich</span>
+          <div className="public-footer-main">
+            <div className="public-footer-brand">
+              <div className="public-footer-brand-lockup">
+                <span className="public-footer-mark" aria-hidden="true">
+                  <Image src="/brand/hege-logo-mark.png" alt="" width={42} height={42} />
+                </span>
+                <strong>hege.app</strong>
+              </div>
+              <p>Reviermanagement für Jagdgesellschaften in Österreich</p>
+              <a href="mailto:info@hege.app">info@hege.app</a>
+            </div>
+
+            <nav className="public-footer-nav" aria-label="Footer-Navigation">
+              <div>
+                <strong>Produkt</strong>
+                <Link href="#web-backend">Web-Backend</Link>
+                <Link href="#mobile-app">Mobile App</Link>
+                <Link href="#preise">Preise</Link>
+              </div>
+              <div>
+                <strong>Für Reviere</strong>
+                <Link href="/registrieren?plan=starter">Starter</Link>
+                <Link href="/registrieren?plan=revier">Revier</Link>
+                <a href="mailto:info@hege.app?subject=hege%20Organisation">Organisation</a>
+              </div>
+              <div>
+                <strong>Einstieg</strong>
+                <Link href="/login">Anmelden</Link>
+                <Link href="#preise">Registrierung</Link>
+              </div>
+            </nav>
+          </div>
+
+          <div className="public-footer-bottom">
+            <span>© 2026 hege.app</span>
+            <span>Produkt für Reviermanagement in Österreich</span>
+          </div>
         </footer>
       </div>
     </main>
