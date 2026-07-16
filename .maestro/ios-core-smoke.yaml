@@ -27,6 +27,20 @@ tags:
 - assertVisible:
     id: more-screen
 - tapOn:
+    id: more-about-link
+- extendedWaitUntil:
+    visible:
+      id: about-screen
+    timeout: 15000
+- assertVisible:
+    id: about-build-tag
+- assertVisible: App-Stand ${BUILD_TAG}
+- back
+- extendedWaitUntil:
+    visible:
+      id: more-screen
+    timeout: 15000
+- tapOn:
     id: more-contacts-link
 - extendedWaitUntil:
     visible:
