@@ -1,6 +1,7 @@
 import { Linking, Platform, Pressable, Text, View } from "react-native";
 
 import { ScreenShell } from "../components/screen-shell";
+import { BUILD_TAG } from "../lib/build-tag";
 import type { ThemeColors } from "../lib/theme";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
@@ -56,6 +57,7 @@ export default function UeberHegeScreen() {
 
   return (
     <ScreenShell
+      testID="about-screen"
       eyebrow="Über"
       title="hege"
       subtitle="Reviermanagement für Jagdgesellschaften in Österreich — Backoffice im Web, Erfassung in der App."
@@ -64,6 +66,7 @@ export default function UeberHegeScreen() {
         <View style={styles.card}>
           <Text style={styles.sectionEyebrow}>Build-Information</Text>
           <DetailRow label="App-Version" value={APP_VERSION} styles={styles} />
+          <DetailRow label="App-Stand" value={BUILD_TAG} styles={styles} testID="about-build-tag" />
           <DetailRow label="Expo-SDK" value={EXPO_SDK} styles={styles} />
           <DetailRow label="Channel" value={RELEASE_CHANNEL} styles={styles} />
           <DetailRow label="Plattform" value={platform} styles={styles} />
@@ -125,13 +128,20 @@ interface DetailRowProps {
   label: string;
   value: string;
   styles: ReturnType<typeof createStyles>;
+  testID?: string;
 }
 
-function DetailRow({ label, value, styles }: DetailRowProps) {
+function DetailRow({ label, value, styles, testID }: DetailRowProps) {
   return (
     <View style={styles.detailRow}>
       <Text style={styles.detailLabel}>{label}</Text>
-      <Text style={styles.detailValue}>{value}</Text>
+      <Text
+        accessibilityLabel={testID ? `${label} ${value}` : undefined}
+        style={styles.detailValue}
+        testID={testID}
+      >
+        {value}
+      </Text>
     </View>
   );
 }
@@ -156,9 +166,11 @@ const createStyles = (theme: ThemeColors) =>
       color: theme.muted
     },
     detailValue: {
+      flexShrink: 1,
       fontSize: 13,
       color: theme.ink,
-      fontWeight: "600"
+      fontWeight: "600",
+      textAlign: "right"
     },
     linkRow: {
       paddingVertical: spacing.sm,

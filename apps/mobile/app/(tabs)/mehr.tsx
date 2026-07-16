@@ -61,7 +61,8 @@ const MEHR_LINKS: ReadonlyArray<MehrLink> = [
     href: "/ueber-hege",
     label: "Über hege",
     description: "Version, Build, Open-Source-Lizenzen.",
-    icon: "information-circle-outline"
+    icon: "information-circle-outline",
+    testID: "more-about-link"
   }
 ];
 
