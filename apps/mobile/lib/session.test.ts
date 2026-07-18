@@ -102,6 +102,9 @@ async function loadSessionModule({ isDeviceUnlockEnabled }: { isDeviceUnlockEnab
   vi.doMock("./device-unlock", () => ({
     isDeviceUnlockEnabled: vi.fn(async () => isDeviceUnlockEnabled)
   }));
+  vi.doMock("./offline-queue", () => ({
+    bindOfflineQueueToMembership: vi.fn(async () => [])
+  }));
 
   return {
     module: await import("./session"),

@@ -47,6 +47,7 @@ describe("offline queue", () => {
     }));
     const { queue } = await loadQueueModule({ createFallwild, uploadFallwildPhoto });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     await queue.queueFallwildCreate(payload, [photo]);
 
     await expect(queue.syncOfflineQueue()).resolves.toEqual([]);
@@ -72,6 +73,7 @@ describe("offline queue", () => {
     }));
     const { queue } = await loadQueueModule({ createReviereinrichtung, uploadReviereinrichtungPhoto });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     await queue.queueReviereinrichtungCreate(einrichtungPayload, [photo]);
 
     await expect(queue.syncOfflineQueue()).resolves.toEqual([]);
@@ -88,6 +90,7 @@ describe("offline queue", () => {
     });
     const { queue } = await loadQueueModule({ createFallwild });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     await queue.queueFallwildCreate(payload);
     await queue.syncOfflineQueue();
 
@@ -122,6 +125,7 @@ describe("offline queue", () => {
     });
     const { queue } = await loadQueueModule({ createFallwild });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     const entry = await queue.queueFallwildCreate(payload);
     await queue.syncOfflineQueue();
 
@@ -146,6 +150,31 @@ describe("offline queue", () => {
 
     await queue.syncOfflineQueue();
     expect(createFallwild).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not sync another membership's queued entries after logout", async () => {
+    const createFallwild = vi.fn(async () => ({ id: "fallwild-created" }));
+    const { queue, AsyncStorage } = await loadQueueModule({ createFallwild });
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    await queue.queueFallwildCreate(payload);
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-b");
+    await queue.syncOfflineQueue();
+
+    expect(createFallwild).not.toHaveBeenCalled();
+    expect(await queue.readOfflineQueue()).toEqual([]);
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    expect(await queue.readOfflineQueue()).toHaveLength(1);
+
+    await queue.syncOfflineQueue();
+    expect(createFallwild).toHaveBeenCalledTimes(1);
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      "hege.offline-queue.member-a",
+      expect.any(String)
+    );
   });
 });
 
@@ -181,6 +210,9 @@ async function loadQueueModule({
     getItem: vi.fn(async (key: string) => storage.get(key) ?? null),
     setItem: vi.fn(async (key: string, value: string) => {
       storage.set(key, value);
+    }),
+    removeItem: vi.fn(async (key: string) => {
+      storage.delete(key);
     })
   };
 

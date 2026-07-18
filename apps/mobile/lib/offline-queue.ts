@@ -18,8 +18,42 @@ import {
 } from "./api";
 import { limitReviereinrichtungPhotoAttachments } from "./reviereinrichtung-photos";
 
-const STORAGE_KEY = "hege.offline-queue";
+const LEGACY_STORAGE_KEY = "hege.offline-queue";
 const RETRY_BACKOFF_MINUTES = [1, 5, 15, 60] as const;
+
+function scopedStorageKey(membershipId: string) {
+  return `${LEGACY_STORAGE_KEY}.${membershipId}`;
+}
+
+let activeMembershipId: string | null = null;
+
+function getActiveStorageKey() {
+  return activeMembershipId ? scopedStorageKey(activeMembershipId) : LEGACY_STORAGE_KEY;
+}
+
+export async function bindOfflineQueueToMembership(membershipId: string | null) {
+  if (membershipId === activeMembershipId) {
+    return snapshot.entries;
+  }
+
+  activeMembershipId = membershipId;
+  hydratePromise = null;
+  syncPromise = null;
+  setSnapshot({
+    hydrated: false,
+    entries: [],
+    isSyncing: false,
+    lastSuccessfulSyncCount: 0,
+    lastSuccessfulSyncKinds: []
+  });
+
+  if (!membershipId) {
+    return [];
+  }
+
+  await migrateLegacyQueueIfNeeded(membershipId);
+  return ensureHydrated();
+}
 
 export type OfflineQueueStatus = "pending" | "syncing" | "uploading" | "failed" | "conflict";
 export type { LocalPendingPhoto } from "./fallwild-photos";
@@ -326,6 +360,10 @@ export async function retryOfflineQueueEntry(entryId: string): Promise<OfflineOp
 export async function syncOfflineQueue(
   options: SyncOfflineQueueOptions = {}
 ): Promise<OfflineOperation[]> {
+  if (!activeMembershipId) {
+    return [];
+  }
+
   await ensureHydrated();
 
   if (syncPromise) {
@@ -439,7 +477,32 @@ async function runQueueSync() {
   return snapshot.entries;
 }
 
+async function migrateLegacyQueueIfNeeded(membershipId: string) {
+  const scopedKey = scopedStorageKey(membershipId);
+  const [legacyRaw, scopedRaw] = await Promise.all([
+    AsyncStorage.getItem(LEGACY_STORAGE_KEY),
+    AsyncStorage.getItem(scopedKey)
+  ]);
+
+  if (!legacyRaw || scopedRaw) {
+    return;
+  }
+
+  const legacyEntries = parseQueue(legacyRaw);
+  if (legacyEntries.length === 0) {
+    await AsyncStorage.removeItem(LEGACY_STORAGE_KEY);
+    return;
+  }
+
+  await AsyncStorage.setItem(scopedKey, legacyRaw);
+  await AsyncStorage.removeItem(LEGACY_STORAGE_KEY);
+}
+
 async function appendEntry(entry: OfflineOperation) {
+  if (!activeMembershipId) {
+    throw new Error("Offline queue is not bound to an authenticated membership.");
+  }
+
   const entries = await ensureHydrated();
   const nextEntries = [entry, ...entries];
   await persistEntries(nextEntries);
@@ -539,7 +602,7 @@ async function ensureHydrated(): Promise<OfflineOperation[]> {
   }
 
   hydratePromise = (async () => {
-    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    const raw = await AsyncStorage.getItem(getActiveStorageKey());
     const entries = parseQueue(raw);
 
     setSnapshot({
@@ -559,7 +622,11 @@ async function ensureHydrated(): Promise<OfflineOperation[]> {
 }
 
 async function persistEntries(entries: OfflineOperation[]) {
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  if (!activeMembershipId) {
+    return;
+  }
+
+  await AsyncStorage.setItem(scopedStorageKey(activeMembershipId), JSON.stringify(entries));
   setSnapshot({
     ...snapshot,
     hydrated: true,
