@@ -27,8 +27,8 @@ function scopedStorageKey(membershipId: string) {
 
 let activeMembershipId: string | null = null;
 
-function getActiveStorageKey() {
-  return activeMembershipId ? scopedStorageKey(activeMembershipId) : LEGACY_STORAGE_KEY;
+export function getBoundOfflineQueueMembershipId() {
+  return activeMembershipId;
 }
 
 interface BindOfflineQueueOptions {
@@ -175,6 +175,8 @@ export async function readOfflineQueue(): Promise<OfflineOperation[]> {
 }
 
 export async function submitAnsitzWithOfflineFallback(payload: CreateAnsitzRequest): Promise<QueueMutationResult> {
+  const membershipId = activeMembershipId;
+
   try {
     const result = await createAnsitz(payload);
     void syncOfflineQueue();
@@ -197,7 +199,7 @@ export async function submitAnsitzWithOfflineFallback(payload: CreateAnsitzReque
       payload
     };
 
-    await appendEntry(entry);
+    await appendEntry(entry, membershipId);
 
     return {
       mode: "queued",
@@ -210,12 +212,14 @@ export async function submitFallwildWithOfflineFallback(
   payload: CreateFallwildRequest,
   attachments: LocalPendingPhoto[] = []
 ): Promise<QueueMutationResult> {
+  const membershipId = activeMembershipId;
+
   try {
     const result = await createFallwild(payload);
     const queuedAttachments = limitFallwildPhotoAttachments(attachments);
 
     if (queuedAttachments.length > 0) {
-      await queueFallwildPhotoUploads(result.id, queuedAttachments);
+      await queueFallwildPhotoUploads(result.id, queuedAttachments, membershipId);
       void syncOfflineQueue();
     }
 
@@ -228,7 +232,7 @@ export async function submitFallwildWithOfflineFallback(
       throw error;
     }
 
-    const entry = await queueFallwildCreate(payload, attachments);
+    const entry = await queueFallwildCreate(payload, attachments, membershipId);
 
     return {
       mode: "queued",
@@ -239,7 +243,8 @@ export async function submitFallwildWithOfflineFallback(
 
 export async function queueFallwildCreate(
   payload: CreateFallwildRequest,
-  attachments: LocalPendingPhoto[] = []
+  attachments: LocalPendingPhoto[] = [],
+  membershipId: string | null = activeMembershipId
 ): Promise<OfflineFallwildOperation> {
   const queuedAttachments = limitFallwildPhotoAttachments(attachments);
   const entry: OfflineFallwildOperation = {
@@ -258,15 +263,18 @@ export async function queueFallwildCreate(
     }
   };
 
-  await appendEntry(entry);
+  await appendEntry(entry, membershipId);
   return entry;
 }
 
 export async function queueFallwildPhotoUploads(
   fallwildId: string,
-  attachments: LocalPendingPhoto[]
+  attachments: LocalPendingPhoto[],
+  membershipId: string | null = activeMembershipId
 ): Promise<OfflineOperation[]> {
   await ensureHydrated();
+  assertOfflineQueueMembershipActive(membershipId);
+
   const queuedAttachments = limitFallwildPhotoAttachments(attachments);
 
   if (queuedAttachments.length === 0) {
@@ -287,13 +295,14 @@ export async function queueFallwildPhotoUploads(
     ...snapshot.entries
   ];
 
-  await persistEntries(nextEntries);
+  await persistEntries(nextEntries, membershipId);
   return nextEntries;
 }
 
 export async function queueReviereinrichtungCreate(
   payload: CreateReviereinrichtungRequest,
-  attachments: LocalPendingPhoto[] = []
+  attachments: LocalPendingPhoto[] = [],
+  membershipId: string | null = activeMembershipId
 ): Promise<OfflineReviereinrichtungOperation> {
   const queuedAttachments = limitReviereinrichtungPhotoAttachments(attachments);
   const entry: OfflineReviereinrichtungOperation = {
@@ -312,15 +321,18 @@ export async function queueReviereinrichtungCreate(
     }
   };
 
-  await appendEntry(entry);
+  await appendEntry(entry, membershipId);
   return entry;
 }
 
 export async function queueReviereinrichtungPhotoUploads(
   einrichtungId: string,
-  attachments: LocalPendingPhoto[]
+  attachments: LocalPendingPhoto[],
+  membershipId: string | null = activeMembershipId
 ): Promise<OfflineOperation[]> {
   await ensureHydrated();
+  assertOfflineQueueMembershipActive(membershipId);
+
   const queuedAttachments = limitReviereinrichtungPhotoAttachments(attachments);
 
   if (queuedAttachments.length === 0) {
@@ -341,7 +353,7 @@ export async function queueReviereinrichtungPhotoUploads(
     ...snapshot.entries
   ];
 
-  await persistEntries(nextEntries);
+  await persistEntries(nextEntries, membershipId);
   return nextEntries;
 }
 
@@ -369,18 +381,27 @@ export async function retryOfflineQueueEntry(entryId: string): Promise<OfflineOp
 export async function syncOfflineQueue(
   options: SyncOfflineQueueOptions = {}
 ): Promise<OfflineOperation[]> {
-  if (!activeMembershipId) {
+  const membershipId = activeMembershipId;
+
+  if (!membershipId) {
     return [];
   }
 
   await ensureHydrated();
+
+  if (membershipId !== activeMembershipId) {
+    return [];
+  }
 
   if (syncPromise) {
     return syncPromise;
   }
 
   if (options.retryFailed) {
-    await resetRetryableFailures();
+    await resetRetryableFailures(membershipId);
+    if (membershipId !== activeMembershipId) {
+      return [];
+    }
   }
 
   if (snapshot.entries.length === 0) {
@@ -391,14 +412,17 @@ export async function syncOfflineQueue(
     return snapshot.entries;
   }
 
-  syncPromise = runQueueSync().finally(() => {
-    syncPromise = null;
+  const currentSyncPromise = runQueueSync(membershipId).finally(() => {
+    if (syncPromise === currentSyncPromise) {
+      syncPromise = null;
+    }
   });
+  syncPromise = currentSyncPromise;
 
   return syncPromise;
 }
 
-async function resetRetryableFailures() {
+async function resetRetryableFailures(membershipId: string) {
   const hasRetryableFailures = snapshot.entries.some((entry) => entry.status === "failed");
 
   if (!hasRetryableFailures) {
@@ -415,11 +439,12 @@ async function resetRetryableFailures() {
             nextAttemptAt: undefined
           }
         : entry
-    )
+    ),
+    membershipId
   );
 }
 
-async function runQueueSync() {
+async function runQueueSync(membershipId: string) {
   const initialEntries = snapshot.entries;
 
   setSnapshot({
@@ -432,41 +457,57 @@ async function runQueueSync() {
   while (entry) {
     try {
       if (entry.kind === "ansitz-create") {
-        await patchEntry(entry.id, syncPatch("syncing"));
+        await patchEntry(entry.id, syncPatch("syncing"), membershipId);
+        if (membershipId !== activeMembershipId) return [];
         await createAnsitz(entry.payload);
-        await removeEntry(entry.id);
+        if (membershipId !== activeMembershipId) return [];
+        await removeEntry(entry.id, membershipId);
       } else if (entry.kind === "fallwild-create") {
-        await patchEntry(entry.id, syncPatch("syncing"));
+        await patchEntry(entry.id, syncPatch("syncing"), membershipId);
+        if (membershipId !== activeMembershipId) return [];
         const created = await createFallwild(stripAttachments(entry.payload));
+        if (membershipId !== activeMembershipId) return [];
 
-        await removeEntry(entry.id);
+        await removeEntry(entry.id, membershipId);
 
         const attachments = entry.payload.attachments ?? [];
         if (attachments.length > 0) {
-          await queueFallwildPhotoUploads(created.id, attachments);
+          await queueFallwildPhotoUploads(created.id, attachments, membershipId);
         }
       } else if (entry.kind === "fallwild-photo-upload") {
-        await patchEntry(entry.id, syncPatch("uploading"));
+        await patchEntry(entry.id, syncPatch("uploading"), membershipId);
+        if (membershipId !== activeMembershipId) return [];
         await uploadFallwildPhoto(entry.fallwildId, entry.attachment);
-        await removeEntry(entry.id);
+        if (membershipId !== activeMembershipId) return [];
+        await removeEntry(entry.id, membershipId);
       } else if (entry.kind === "reviereinrichtung-create") {
-        await patchEntry(entry.id, syncPatch("syncing"));
+        await patchEntry(entry.id, syncPatch("syncing"), membershipId);
+        if (membershipId !== activeMembershipId) return [];
         const created = await createReviereinrichtung(stripReviereinrichtungAttachments(entry.payload));
-        await removeEntry(entry.id);
+        if (membershipId !== activeMembershipId) return [];
+        await removeEntry(entry.id, membershipId);
 
         const attachments = entry.payload.attachments ?? [];
         if (attachments.length > 0) {
-          await queueReviereinrichtungPhotoUploads(created.id, attachments);
+          await queueReviereinrichtungPhotoUploads(created.id, attachments, membershipId);
         }
       } else {
-        await patchEntry(entry.id, syncPatch("uploading"));
+        await patchEntry(entry.id, syncPatch("uploading"), membershipId);
+        if (membershipId !== activeMembershipId) return [];
         await uploadReviereinrichtungPhoto(entry.einrichtungId, entry.attachment);
-        await removeEntry(entry.id);
+        if (membershipId !== activeMembershipId) return [];
+        await removeEntry(entry.id, membershipId);
       }
     } catch (error) {
-      await patchEntry(entry.id, failurePatch(entry.attemptCount + 1, error));
+      if (membershipId !== activeMembershipId) {
+        return [];
+      }
+      await patchEntry(entry.id, failurePatch(entry.attemptCount + 1, error), membershipId);
     }
 
+    if (membershipId !== activeMembershipId) {
+      return [];
+    }
     entry = getNextSyncableEntry();
   }
 
@@ -507,21 +548,30 @@ async function migrateLegacyQueueIfNeeded(membershipId: string) {
   await AsyncStorage.removeItem(LEGACY_STORAGE_KEY);
 }
 
-async function appendEntry(entry: OfflineOperation) {
-  if (!activeMembershipId) {
-    throw new Error("Offline queue is not bound to an authenticated membership.");
-  }
-
+async function appendEntry(
+  entry: OfflineOperation,
+  membershipId: string | null = activeMembershipId
+) {
+  assertOfflineQueueMembershipActive(membershipId);
   const entries = await ensureHydrated();
+  assertOfflineQueueMembershipActive(membershipId);
   const nextEntries = [entry, ...entries];
-  await persistEntries(nextEntries);
+  await persistEntries(nextEntries, membershipId);
   return nextEntries;
 }
 
-async function removeEntry(entryId: string) {
+async function removeEntry(
+  entryId: string,
+  membershipId: string | null = activeMembershipId
+) {
   const entries = await ensureHydrated();
+
+  if (!membershipId || membershipId !== activeMembershipId) {
+    return [];
+  }
+
   const nextEntries = entries.filter((entry) => entry.id !== entryId);
-  await persistEntries(nextEntries);
+  await persistEntries(nextEntries, membershipId);
   return nextEntries;
 }
 
@@ -529,9 +579,15 @@ async function patchEntry(
   entryId: string,
   patch:
     | Partial<OfflineOperation>
-    | ((entry: OfflineOperation) => Partial<OfflineOperation>)
+    | ((entry: OfflineOperation) => Partial<OfflineOperation>),
+  membershipId: string | null = activeMembershipId
 ) {
   const entries = await ensureHydrated();
+
+  if (!membershipId || membershipId !== activeMembershipId) {
+    return [];
+  }
+
   const nextEntries = entries.map((entry) => {
     if (entry.id !== entryId) {
       return entry;
@@ -545,7 +601,7 @@ async function patchEntry(
     } as OfflineOperation;
   });
 
-  await persistEntries(nextEntries);
+  await persistEntries(nextEntries, membershipId);
   return nextEntries;
 }
 
@@ -602,6 +658,12 @@ function calculateNextAttemptAt(attemptCount: number) {
 }
 
 async function ensureHydrated(): Promise<OfflineOperation[]> {
+  const membershipId = activeMembershipId;
+
+  if (!membershipId) {
+    return [];
+  }
+
   if (snapshot.hydrated) {
     return snapshot.entries;
   }
@@ -610,9 +672,13 @@ async function ensureHydrated(): Promise<OfflineOperation[]> {
     return hydratePromise;
   }
 
-  hydratePromise = (async () => {
-    const raw = await AsyncStorage.getItem(getActiveStorageKey());
+  const currentHydratePromise = (async () => {
+    const raw = await AsyncStorage.getItem(scopedStorageKey(membershipId));
     const entries = parseQueue(raw);
+
+    if (membershipId !== activeMembershipId) {
+      return [];
+    }
 
     setSnapshot({
       entries,
@@ -624,23 +690,46 @@ async function ensureHydrated(): Promise<OfflineOperation[]> {
 
     return entries;
   })().finally(() => {
-    hydratePromise = null;
+    if (hydratePromise === currentHydratePromise) {
+      hydratePromise = null;
+    }
   });
+  hydratePromise = currentHydratePromise;
 
   return hydratePromise;
 }
 
-async function persistEntries(entries: OfflineOperation[]) {
-  if (!activeMembershipId) {
+async function persistEntries(
+  entries: OfflineOperation[],
+  membershipId: string | null = activeMembershipId
+) {
+  if (!membershipId) {
     return;
   }
 
-  await AsyncStorage.setItem(scopedStorageKey(activeMembershipId), JSON.stringify(entries));
+  await AsyncStorage.setItem(scopedStorageKey(membershipId), JSON.stringify(entries));
+
+  if (membershipId !== activeMembershipId) {
+    return;
+  }
+
   setSnapshot({
     ...snapshot,
     hydrated: true,
     entries
   });
+}
+
+export function assertOfflineQueueMembershipActive(
+  membershipId: string | null
+): asserts membershipId is string {
+  if (!membershipId) {
+    throw new Error("Offline queue is not bound to an authenticated membership.");
+  }
+
+  if (membershipId !== activeMembershipId) {
+    throw new Error("Offline queue membership changed during the operation.");
+  }
 }
 
 function parseQueue(raw: string | null): OfflineOperation[] {

@@ -209,6 +209,62 @@ describe("offline queue", () => {
     );
     expect(await AsyncStorage.getItem("hege.offline-queue")).toBeNull();
   });
+
+  it("does not move photo uploads to a new membership while a sync is in flight", async () => {
+    let resolveCreate: ((value: { id: string }) => void) | undefined;
+    const createFallwild = vi.fn(
+      () =>
+        new Promise<{ id: string }>((resolve) => {
+          resolveCreate = resolve;
+        })
+    );
+    const uploadFallwildPhoto = vi.fn(async () => ({
+      photo: {
+        id: "photo-stored",
+        title: "stored",
+        url: "https://example.test/photo.jpg",
+        createdAt: "2026-04-24T10:00:00.000Z"
+      }
+    }));
+    const { queue } = await loadQueueModule({ createFallwild, uploadFallwildPhoto });
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    await queue.queueFallwildCreate(payload, [photo]);
+    const syncMemberA = queue.syncOfflineQueue();
+    await vi.waitFor(() => expect(createFallwild).toHaveBeenCalledTimes(1));
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-b");
+    resolveCreate?.({ id: "fallwild-member-a" });
+    await syncMemberA;
+
+    expect(uploadFallwildPhoto).not.toHaveBeenCalled();
+    expect(await queue.readOfflineQueue()).toEqual([]);
+  });
+
+  it("does not queue a failed submission after the membership changed", async () => {
+    let rejectCreate: ((reason: unknown) => void) | undefined;
+    const createFallwild = vi.fn(
+      () =>
+        new Promise<{ id: string }>((_resolve, reject) => {
+          rejectCreate = reject;
+        })
+    );
+    const { queue } = await loadQueueModule({ createFallwild });
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    const submission = queue.submitFallwildWithOfflineFallback(payload, [photo]);
+    await vi.waitFor(() => expect(createFallwild).toHaveBeenCalledTimes(1));
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-b");
+    rejectCreate?.(new TypeError("network down"));
+
+    await expect(submission).rejects.toThrow(
+      "Offline queue membership changed during the operation."
+    );
+    expect(await queue.readOfflineQueue()).toEqual([]);
+  });
 });
 
 async function loadQueueModule({

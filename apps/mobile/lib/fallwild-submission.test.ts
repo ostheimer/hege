@@ -38,7 +38,7 @@ describe("fallwild submission", () => {
       uploadedCount: 0,
       queuedCount: 1
     });
-    expect(queueFallwildCreate).toHaveBeenCalledWith(payload, [photo]);
+    expect(queueFallwildCreate).toHaveBeenCalledWith(payload, [photo], "member-a");
   });
 
   it("queues remaining photos when upload fails recoverably", async () => {
@@ -59,7 +59,11 @@ describe("fallwild submission", () => {
       queuedCount: 1
     });
     expect(uploadFallwildPhoto).toHaveBeenCalledTimes(2);
-    expect(queueFallwildPhotoUploads).toHaveBeenCalledWith("fallwild-created", [secondPhoto]);
+    expect(queueFallwildPhotoUploads).toHaveBeenCalledWith(
+      "fallwild-created",
+      [secondPhoto],
+      "member-a"
+    );
   });
 
   it("throws non-recoverable upload errors without queueing photos", async () => {
@@ -74,9 +78,25 @@ describe("fallwild submission", () => {
     await expect(module.submitFallwildSubmission(payload, [photo])).rejects.toThrow("validation failed");
     expect(queueFallwildPhotoUploads).not.toHaveBeenCalled();
   });
+
+  it("does not start photo uploads after the membership changed", async () => {
+    const uploadFallwildPhoto = vi.fn(async () => ({ photo: { id: "stored" } }));
+    const { module } = await loadSubmissionModule({
+      assertOfflineQueueMembershipActive: vi.fn(() => {
+        throw new Error("Offline queue membership changed during the operation.");
+      }),
+      uploadFallwildPhoto
+    });
+
+    await expect(module.submitFallwildSubmission(payload, [photo])).rejects.toThrow(
+      "Offline queue membership changed during the operation."
+    );
+    expect(uploadFallwildPhoto).not.toHaveBeenCalled();
+  });
 });
 
 async function loadSubmissionModule({
+  assertOfflineQueueMembershipActive = vi.fn(),
   createFallwild = vi.fn(async () => ({ id: "fallwild-created" })),
   queueFallwildCreate = vi.fn(async () => undefined),
   queueFallwildPhotoUploads = vi.fn(async () => []),
@@ -89,6 +109,7 @@ async function loadSubmissionModule({
     }
   }))
 }: {
+  assertOfflineQueueMembershipActive?: ReturnType<typeof vi.fn>;
   createFallwild?: ReturnType<typeof vi.fn>;
   queueFallwildCreate?: ReturnType<typeof vi.fn>;
   queueFallwildPhotoUploads?: ReturnType<typeof vi.fn>;
@@ -111,6 +132,8 @@ async function loadSubmissionModule({
     uploadFallwildPhoto
   }));
   vi.doMock("./offline-queue", () => ({
+    assertOfflineQueueMembershipActive,
+    getBoundOfflineQueueMembershipId: () => "member-a",
     queueFallwildCreate,
     queueFallwildPhotoUploads
   }));
