@@ -31,7 +31,14 @@ function getActiveStorageKey() {
   return activeMembershipId ? scopedStorageKey(activeMembershipId) : LEGACY_STORAGE_KEY;
 }
 
-export async function bindOfflineQueueToMembership(membershipId: string | null) {
+interface BindOfflineQueueOptions {
+  migrateLegacy?: boolean;
+}
+
+export async function bindOfflineQueueToMembership(
+  membershipId: string | null,
+  options: BindOfflineQueueOptions = {}
+) {
   if (membershipId === activeMembershipId) {
     return snapshot.entries;
   }
@@ -51,7 +58,9 @@ export async function bindOfflineQueueToMembership(membershipId: string | null) 
     return [];
   }
 
-  await migrateLegacyQueueIfNeeded(membershipId);
+  if (options.migrateLegacy) {
+    await migrateLegacyQueueIfNeeded(membershipId);
+  }
   return ensureHydrated();
 }
 

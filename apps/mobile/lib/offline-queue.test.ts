@@ -176,6 +176,39 @@ describe("offline queue", () => {
       expect.any(String)
     );
   });
+
+  it("does not assign an unscoped legacy queue to the next membership", async () => {
+    const createFallwild = vi.fn(async () => ({ id: "fallwild-created" }));
+    const { queue, AsyncStorage } = await loadQueueModule({ createFallwild });
+    const legacyEntry = {
+      id: "fallwild-legacy",
+      kind: "fallwild-create",
+      title: "Fallwild Test",
+      createdAt: "2026-04-24T09:00:00.000Z",
+      status: "pending",
+      attemptCount: 0,
+      payload
+    };
+
+    await AsyncStorage.setItem("hege.offline-queue", JSON.stringify([legacyEntry]));
+    await queue.bindOfflineQueueToMembership("member-b");
+    await queue.syncOfflineQueue();
+
+    expect(createFallwild).not.toHaveBeenCalled();
+    expect(await AsyncStorage.getItem("hege.offline-queue.member-b")).toBeNull();
+    expect(await AsyncStorage.getItem("hege.offline-queue")).toBe(
+      JSON.stringify([legacyEntry])
+    );
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-a", { migrateLegacy: true });
+
+    expect(await queue.readOfflineQueue()).toEqual([legacyEntry]);
+    expect(await AsyncStorage.getItem("hege.offline-queue.member-a")).toBe(
+      JSON.stringify([legacyEntry])
+    );
+    expect(await AsyncStorage.getItem("hege.offline-queue")).toBeNull();
+  });
 });
 
 async function loadQueueModule({

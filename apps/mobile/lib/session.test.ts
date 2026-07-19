@@ -55,7 +55,9 @@ describe("session restore", () => {
   });
 
   it("restores a saved session as locked when device unlock is active", async () => {
-    const { module } = await loadSessionModule({ isDeviceUnlockEnabled: true });
+    const { module, bindOfflineQueueToMembership } = await loadSessionModule({
+      isDeviceUnlockEnabled: true
+    });
 
     await expect(module.restoreSession()).resolves.toMatchObject({
       status: "locked",
@@ -71,6 +73,9 @@ describe("session restore", () => {
     expect(module.getSessionSnapshot()).toMatchObject({
       status: "authenticated",
       hydrated: true
+    });
+    expect(bindOfflineQueueToMembership).toHaveBeenCalledWith("membership-1", {
+      migrateLegacy: true
     });
   });
 
@@ -102,12 +107,14 @@ async function loadSessionModule({ isDeviceUnlockEnabled }: { isDeviceUnlockEnab
   vi.doMock("./device-unlock", () => ({
     isDeviceUnlockEnabled: vi.fn(async () => isDeviceUnlockEnabled)
   }));
+  const bindOfflineQueueToMembership = vi.fn(async () => []);
   vi.doMock("./offline-queue", () => ({
-    bindOfflineQueueToMembership: vi.fn(async () => [])
+    bindOfflineQueueToMembership
   }));
 
   return {
     module: await import("./session"),
-    AsyncStorage
+    AsyncStorage,
+    bindOfflineQueueToMembership
   };
 }

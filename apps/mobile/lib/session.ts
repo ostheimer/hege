@@ -73,7 +73,7 @@ export async function restoreSession() {
       session,
       hydrated: true
     });
-    await syncOfflineQueueBinding(session.membership.id);
+    await syncOfflineQueueBinding(session.membership.id, { migrateLegacy: true });
   } catch {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setSnapshot({
@@ -137,7 +137,10 @@ function setSnapshot(nextSnapshot: SessionSnapshot) {
   }
 }
 
-async function syncOfflineQueueBinding(membershipId: string | null) {
+async function syncOfflineQueueBinding(
+  membershipId: string | null,
+  options: { migrateLegacy?: boolean } = {}
+) {
   const { bindOfflineQueueToMembership } = await import("./offline-queue");
-  await bindOfflineQueueToMembership(membershipId);
+  await bindOfflineQueueToMembership(membershipId, options);
 }
