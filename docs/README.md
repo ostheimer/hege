@@ -50,7 +50,7 @@ Das Repository enthält bereits ein produktiv orientiertes Monorepo mit:
 - Kontaktlisten in Web und Mobile: automatische Mitgliederliste aus registrierten Reviermitgliedern, frei pflegbare Listen für Reviernachbarn, Weidkameraden, Notrufnummern und weitere Kontakte
 - Fallwild-Detail, Foto-Upload und S3-kompatible Storage-Schicht für MinIO lokal und R2 inklusive best-effort Rollback bei Medien-Insert-Fehlern
 - Fallwild-Standort v1 über `POST /api/v1/geo/fallwild-location`, Mobile-GPS, serverseitige Google-Adressauflösung, GIP-Index-/Endpoint-Resolver, Mock-Provider für Gänserndorf-Testdaten und gespeicherte Standort-/Straßenkilometer-Metadaten
-- Mobile Offline-Queue v2 für Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Einträge
+- Mobile Offline-Queue v2 für Ansitz und Fallwild inklusive separater Foto-Upload-Operationen, Retry-Backoff, Konfliktstatus, manuellem Retry und Verwerfen problematischer Einträge; Speicherung pro `membership.id`, damit geteilte Geräte nach Abmeldung keine fremden Einträge synchronisieren
 - Mobile Vitest-Abdeckung für Foto-Normalisierung, Foto-Limit, Submission-Fallback, Standortauflösung und Queue-Retry-Policy
 - automatisierten Web-Tests mit Vitest für Route Handler, Services und Queries
 - Playwright-E2E- und Visual-Regression-Tests für Public Web, Auth, Ansitze, Fallwild, Dashboard, Reviereinrichtungen, Protokolle und Sitzungen auf Desktop und Mobile

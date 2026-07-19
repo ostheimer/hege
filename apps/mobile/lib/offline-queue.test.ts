@@ -47,6 +47,7 @@ describe("offline queue", () => {
     }));
     const { queue } = await loadQueueModule({ createFallwild, uploadFallwildPhoto });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     await queue.queueFallwildCreate(payload, [photo]);
 
     await expect(queue.syncOfflineQueue()).resolves.toEqual([]);
@@ -72,6 +73,7 @@ describe("offline queue", () => {
     }));
     const { queue } = await loadQueueModule({ createReviereinrichtung, uploadReviereinrichtungPhoto });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     await queue.queueReviereinrichtungCreate(einrichtungPayload, [photo]);
 
     await expect(queue.syncOfflineQueue()).resolves.toEqual([]);
@@ -88,6 +90,7 @@ describe("offline queue", () => {
     });
     const { queue } = await loadQueueModule({ createFallwild });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     await queue.queueFallwildCreate(payload);
     await queue.syncOfflineQueue();
 
@@ -122,6 +125,7 @@ describe("offline queue", () => {
     });
     const { queue } = await loadQueueModule({ createFallwild });
 
+    await queue.bindOfflineQueueToMembership("member-a");
     const entry = await queue.queueFallwildCreate(payload);
     await queue.syncOfflineQueue();
 
@@ -146,6 +150,120 @@ describe("offline queue", () => {
 
     await queue.syncOfflineQueue();
     expect(createFallwild).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not sync another membership's queued entries after logout", async () => {
+    const createFallwild = vi.fn(async () => ({ id: "fallwild-created" }));
+    const { queue, AsyncStorage } = await loadQueueModule({ createFallwild });
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    await queue.queueFallwildCreate(payload);
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-b");
+    await queue.syncOfflineQueue();
+
+    expect(createFallwild).not.toHaveBeenCalled();
+    expect(await queue.readOfflineQueue()).toEqual([]);
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    expect(await queue.readOfflineQueue()).toHaveLength(1);
+
+    await queue.syncOfflineQueue();
+    expect(createFallwild).toHaveBeenCalledTimes(1);
+    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+      "hege.offline-queue.member-a",
+      expect.any(String)
+    );
+  });
+
+  it("does not assign an unscoped legacy queue to the next membership", async () => {
+    const createFallwild = vi.fn(async () => ({ id: "fallwild-created" }));
+    const { queue, AsyncStorage } = await loadQueueModule({ createFallwild });
+    const legacyEntry = {
+      id: "fallwild-legacy",
+      kind: "fallwild-create",
+      title: "Fallwild Test",
+      createdAt: "2026-04-24T09:00:00.000Z",
+      status: "pending",
+      attemptCount: 0,
+      payload
+    };
+
+    await AsyncStorage.setItem("hege.offline-queue", JSON.stringify([legacyEntry]));
+    await queue.bindOfflineQueueToMembership("member-b");
+    await queue.syncOfflineQueue();
+
+    expect(createFallwild).not.toHaveBeenCalled();
+    expect(await AsyncStorage.getItem("hege.offline-queue.member-b")).toBeNull();
+    expect(await AsyncStorage.getItem("hege.offline-queue")).toBe(
+      JSON.stringify([legacyEntry])
+    );
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-a", { migrateLegacy: true });
+
+    expect(await queue.readOfflineQueue()).toEqual([legacyEntry]);
+    expect(await AsyncStorage.getItem("hege.offline-queue.member-a")).toBe(
+      JSON.stringify([legacyEntry])
+    );
+    expect(await AsyncStorage.getItem("hege.offline-queue")).toBeNull();
+  });
+
+  it("does not move photo uploads to a new membership while a sync is in flight", async () => {
+    let resolveCreate: ((value: { id: string }) => void) | undefined;
+    const createFallwild = vi.fn(
+      () =>
+        new Promise<{ id: string }>((resolve) => {
+          resolveCreate = resolve;
+        })
+    );
+    const uploadFallwildPhoto = vi.fn(async () => ({
+      photo: {
+        id: "photo-stored",
+        title: "stored",
+        url: "https://example.test/photo.jpg",
+        createdAt: "2026-04-24T10:00:00.000Z"
+      }
+    }));
+    const { queue } = await loadQueueModule({ createFallwild, uploadFallwildPhoto });
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    await queue.queueFallwildCreate(payload, [photo]);
+    const syncMemberA = queue.syncOfflineQueue();
+    await vi.waitFor(() => expect(createFallwild).toHaveBeenCalledTimes(1));
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-b");
+    resolveCreate?.({ id: "fallwild-member-a" });
+    await syncMemberA;
+
+    expect(uploadFallwildPhoto).not.toHaveBeenCalled();
+    expect(await queue.readOfflineQueue()).toEqual([]);
+  });
+
+  it("does not queue a failed submission after the membership changed", async () => {
+    let rejectCreate: ((reason: unknown) => void) | undefined;
+    const createFallwild = vi.fn(
+      () =>
+        new Promise<{ id: string }>((_resolve, reject) => {
+          rejectCreate = reject;
+        })
+    );
+    const { queue } = await loadQueueModule({ createFallwild });
+
+    await queue.bindOfflineQueueToMembership("member-a");
+    const submission = queue.submitFallwildWithOfflineFallback(payload, [photo]);
+    await vi.waitFor(() => expect(createFallwild).toHaveBeenCalledTimes(1));
+
+    await queue.bindOfflineQueueToMembership(null);
+    await queue.bindOfflineQueueToMembership("member-b");
+    rejectCreate?.(new TypeError("network down"));
+
+    await expect(submission).rejects.toThrow(
+      "Offline queue membership changed during the operation."
+    );
+    expect(await queue.readOfflineQueue()).toEqual([]);
   });
 });
 
@@ -181,6 +299,9 @@ async function loadQueueModule({
     getItem: vi.fn(async (key: string) => storage.get(key) ?? null),
     setItem: vi.fn(async (key: string, value: string) => {
       storage.set(key, value);
+    }),
+    removeItem: vi.fn(async (key: string) => {
+      storage.delete(key);
     })
   };
 

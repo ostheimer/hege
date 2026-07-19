@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { AppState, Pressable } from "react-native";
 
 import { AppLoader } from "../components/app-loader";
-import { hydrateOfflineQueue, syncOfflineQueue } from "../lib/offline-queue";
+import { syncOfflineQueue } from "../lib/offline-queue";
 import { createOfflineQueueAppStateHandler } from "../lib/offline-queue-lifecycle";
 import { restoreSession, useSessionSnapshot } from "../lib/session";
 import { useThemeColors } from "../lib/theme";
@@ -17,7 +17,6 @@ export default function RootLayout() {
 
   useEffect(() => {
     void restoreSession();
-    void hydrateOfflineQueue();
   }, []);
 
   useEffect(() => {

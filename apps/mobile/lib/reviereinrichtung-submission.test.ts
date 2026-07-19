@@ -27,6 +27,7 @@ describe("submitReviereinrichtung", () => {
       uploadedCount: 1,
       queuedCount: 0
     });
+    expect(api.assertOfflineQueueMembershipActive).toHaveBeenCalledWith("member-a");
     expect(api.uploadReviereinrichtungPhoto).toHaveBeenCalledWith("einrichtung-1", photo);
   });
 
@@ -40,7 +41,11 @@ describe("submitReviereinrichtung", () => {
       uploadedCount: 0,
       queuedCount: 1
     });
-    expect(api.queueReviereinrichtungCreate).toHaveBeenCalledWith(payload, [photo]);
+    expect(api.queueReviereinrichtungCreate).toHaveBeenCalledWith(
+      payload,
+      [photo],
+      "member-a"
+    );
   });
 
   it("stellt nur noch nicht hochgeladene Fotos in die Queue", async () => {
@@ -56,7 +61,11 @@ describe("submitReviereinrichtung", () => {
       uploadedCount: 1,
       queuedCount: 1
     });
-    expect(api.queueReviereinrichtungPhotoUploads).toHaveBeenCalledWith("einrichtung-1", [second]);
+    expect(api.queueReviereinrichtungPhotoUploads).toHaveBeenCalledWith(
+      "einrichtung-1",
+      [second],
+      "member-a"
+    );
   });
 });
 
@@ -69,6 +78,7 @@ async function loadModule({
 } = {}) {
   const queueReviereinrichtungCreate = vi.fn(async () => ({ id: "queue-1" }));
   const queueReviereinrichtungPhotoUploads = vi.fn(async () => []);
+  const assertOfflineQueueMembershipActive = vi.fn();
 
   vi.doMock("./api", () => ({
     createReviereinrichtung,
@@ -77,12 +87,15 @@ async function loadModule({
     MobileApiError: class MobileApiError extends Error {}
   }));
   vi.doMock("./offline-queue", () => ({
+    assertOfflineQueueMembershipActive,
+    getBoundOfflineQueueMembershipId: () => "member-a",
     queueReviereinrichtungCreate,
     queueReviereinrichtungPhotoUploads
   }));
 
   return {
     module: await import("./reviereinrichtung-submission"),
+    assertOfflineQueueMembershipActive,
     createReviereinrichtung,
     uploadReviereinrichtungPhoto,
     queueReviereinrichtungCreate,

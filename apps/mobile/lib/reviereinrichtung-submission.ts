@@ -6,6 +6,8 @@ import {
   uploadReviereinrichtungPhoto
 } from "./api";
 import {
+  assertOfflineQueueMembershipActive,
+  getBoundOfflineQueueMembershipId,
   queueReviereinrichtungCreate,
   queueReviereinrichtungPhotoUploads
 } from "./offline-queue";
@@ -37,6 +39,7 @@ export async function submitReviereinrichtung(
   payload: CreateReviereinrichtungRequest,
   attachments: LocalPendingPhoto[]
 ): Promise<ReviereinrichtungSubmissionResult> {
+  const membershipId = getBoundOfflineQueueMembershipId();
   const normalizedAttachments = limitReviereinrichtungPhotoAttachments(attachments);
 
   try {
@@ -47,6 +50,7 @@ export async function submitReviereinrichtung(
       const attachment = normalizedAttachments[index];
 
       try {
+        assertOfflineQueueMembershipActive(membershipId);
         await uploadReviereinrichtungPhoto(created.id, attachment);
         uploadedCount += 1;
       } catch (error) {
@@ -55,7 +59,7 @@ export async function submitReviereinrichtung(
         }
 
         const remaining = normalizedAttachments.slice(index);
-        await queueReviereinrichtungPhotoUploads(created.id, remaining);
+        await queueReviereinrichtungPhotoUploads(created.id, remaining, membershipId);
 
         return {
           mode: "partial",
@@ -77,7 +81,7 @@ export async function submitReviereinrichtung(
       throw error;
     }
 
-    await queueReviereinrichtungCreate(payload, normalizedAttachments);
+    await queueReviereinrichtungCreate(payload, normalizedAttachments, membershipId);
 
     return {
       mode: "queued",

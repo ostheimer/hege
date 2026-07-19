@@ -6,7 +6,12 @@ import {
   uploadFallwildPhoto
 } from "./api";
 import { limitFallwildPhotoAttachments, type LocalPendingPhoto } from "./fallwild-photos";
-import { queueFallwildCreate, queueFallwildPhotoUploads } from "./offline-queue";
+import {
+  assertOfflineQueueMembershipActive,
+  getBoundOfflineQueueMembershipId,
+  queueFallwildCreate,
+  queueFallwildPhotoUploads
+} from "./offline-queue";
 
 export type FallwildSubmissionResult =
   | {
@@ -32,6 +37,7 @@ export async function submitFallwildSubmission(
   payload: CreateFallwildRequest,
   attachments: LocalPendingPhoto[]
 ): Promise<FallwildSubmissionResult> {
+  const membershipId = getBoundOfflineQueueMembershipId();
   const normalizedAttachments = limitFallwildPhotoAttachments(attachments);
 
   try {
@@ -46,7 +52,11 @@ export async function submitFallwildSubmission(
       };
     }
 
-    const uploadResult = await uploadFallwildPhotos(created.id, normalizedAttachments);
+    const uploadResult = await uploadFallwildPhotos(
+      created.id,
+      normalizedAttachments,
+      membershipId
+    );
 
     if (uploadResult.queuedCount > 0) {
       return {
@@ -68,7 +78,7 @@ export async function submitFallwildSubmission(
       throw error;
     }
 
-    await queueFallwildCreate(payload, normalizedAttachments);
+    await queueFallwildCreate(payload, normalizedAttachments, membershipId);
 
     return {
       mode: "queued",
@@ -80,7 +90,8 @@ export async function submitFallwildSubmission(
 
 async function uploadFallwildPhotos(
   fallwildId: string,
-  attachments: LocalPendingPhoto[]
+  attachments: LocalPendingPhoto[],
+  membershipId: string | null
 ): Promise<{ uploadedCount: number; queuedCount: number }> {
   let uploadedCount = 0;
 
@@ -88,6 +99,7 @@ async function uploadFallwildPhotos(
     const attachment = attachments[index];
 
     try {
+      assertOfflineQueueMembershipActive(membershipId);
       await uploadFallwildPhoto(fallwildId, attachment);
       uploadedCount += 1;
     } catch (error) {
@@ -98,7 +110,7 @@ async function uploadFallwildPhotos(
       const remaining = attachments.slice(index);
 
       if (remaining.length > 0) {
-        await queueFallwildPhotoUploads(fallwildId, remaining);
+        await queueFallwildPhotoUploads(fallwildId, remaining, membershipId);
       }
 
       return {

@@ -73,6 +73,7 @@ export async function restoreSession() {
       session,
       hydrated: true
     });
+    await syncOfflineQueueBinding(session.membership.id, { migrateLegacy: true });
   } catch {
     await AsyncStorage.removeItem(STORAGE_KEY);
     setSnapshot({
@@ -93,6 +94,7 @@ export async function saveSession(session: AuthSessionResponse) {
   });
 
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+  await syncOfflineQueueBinding(session.membership.id);
   return session;
 }
 
@@ -124,6 +126,7 @@ export async function clearSession() {
   });
 
   await AsyncStorage.removeItem(STORAGE_KEY);
+  await syncOfflineQueueBinding(null);
 }
 
 function setSnapshot(nextSnapshot: SessionSnapshot) {
@@ -132,4 +135,12 @@ function setSnapshot(nextSnapshot: SessionSnapshot) {
   for (const listener of listeners) {
     listener();
   }
+}
+
+async function syncOfflineQueueBinding(
+  membershipId: string | null,
+  options: { migrateLegacy?: boolean } = {}
+) {
+  const { bindOfflineQueueToMembership } = await import("./offline-queue");
+  await bindOfflineQueueToMembership(membershipId, options);
 }
