@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { firstName, formatApiErrorDescription } from "./format";
+import { firstName, formatApiErrorDescription, formatDateTime } from "./format";
+
+describe("formatDateTime", () => {
+  it("stürzt bei ungültigen API-Zeitstempeln nicht ab", () => {
+    expect(formatDateTime("kein-zeitstempel")).toBe("Nicht verfügbar");
+  });
+});
 
 describe("formatApiErrorDescription", () => {
   it("haengt einen Punkt an, wenn die Fehlermeldung keinen Satz-End hat", () => {

@@ -31,6 +31,7 @@ import {
 } from "../../db/schema";
 import { getServerEnv } from "../../env";
 import { RouteError } from "../../http/errors";
+import { toIsoTimestamp } from "../../http/timestamps";
 
 const PLATFORM_ADMIN_ROLES = rolesForFeature("platform-users-manage");
 const AUDIT_LIMIT = 30;
@@ -305,7 +306,7 @@ function toPlatformUserSummary(
       phone: user.phone,
       username: user.username
     },
-    disabledAt: user.disabledAt ?? undefined,
+    disabledAt: user.disabledAt ? toIsoTimestamp(user.disabledAt) : undefined,
     memberships: membershipRows
       .map((membership) =>
         toMembershipSummary(
@@ -359,7 +360,7 @@ function toPlatformAuditEntry(
     targetName: entry.targetUserId ? usersById.get(entry.targetUserId)?.name ?? "Unbekannt" : undefined,
     targetMembershipId: entry.targetMembershipId ?? undefined,
     impersonationSessionId: entry.impersonationSessionId ?? undefined,
-    createdAt: entry.createdAt
+    createdAt: toIsoTimestamp(entry.createdAt)
   };
 }
 

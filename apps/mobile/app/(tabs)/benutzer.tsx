@@ -31,7 +31,7 @@ import {
   updatePlatformMembership,
   updatePlatformUser
 } from "../../lib/api";
-import { formatRoleLabel } from "../../lib/format";
+import { formatDateTime, formatRoleLabel } from "../../lib/format";
 import { useSessionSnapshot } from "../../lib/session";
 import { cardSurface } from "../../lib/surfaces";
 import { type ThemeColors, useThemeColors } from "../../lib/theme";
@@ -160,6 +160,7 @@ export default function BenutzerScreen() {
         accessibilityLabel="Benutzer suchen"
         onChangeText={setSearch}
         placeholder="Name, E-Mail, Rolle oder Revier"
+        testID="platform-users-search"
         value={search}
       />
       <Text style={styles.resultCount}>{visibleUsers.length} von {data?.users.length ?? 0} Konten</Text>
@@ -215,6 +216,7 @@ function PlatformUserCard({
   return (
     <View style={styles.userCard}>
       <Pressable
+        accessibilityLabel={`Benutzer ${entry.user.name} bearbeiten`}
         accessibilityRole="button"
         accessibilityState={{ expanded }}
         onPress={() => setExpanded((current) => !current)}
@@ -299,7 +301,12 @@ function MembershipEditor({ membership, busy, disabled, onSave, onImpersonate }:
         <Pressable disabled={busy} onPress={() => onSave(role, jagdzeichen)} style={({ pressed }) => [styles.secondaryButton, pressed ? styles.pressed : null]}>
           <Ionicons color={theme.ink} name="save-outline" size={17} /><Text style={styles.secondaryButtonText}>Speichern</Text>
         </Pressable>
-        <Pressable disabled={busy || disabled} onPress={onImpersonate} style={({ pressed }) => [styles.primaryButton, (busy || disabled) ? styles.disabled : null, pressed ? styles.pressed : null]}>
+        <Pressable
+          disabled={busy || disabled}
+          onPress={onImpersonate}
+          testID="platform-user-impersonate-button"
+          style={({ pressed }) => [styles.primaryButton, (busy || disabled) ? styles.disabled : null, pressed ? styles.pressed : null]}
+        >
           <Ionicons color={theme.onAccent} name="log-in-outline" size={17} /><Text style={styles.primaryButtonText}>Impersonieren</Text>
         </Pressable>
       </View>
@@ -315,7 +322,7 @@ function InputField({ label, ...props }: { label: string } & ComponentProps<type
 
 function AuditList({ audit }: { audit: PlatformUserListResponse["audit"] }) {
   const styles = useThemedStyles(createStyles);
-  return <View style={styles.auditCard}><Text style={styles.sectionLabel}>Letzte Admin-Aktionen</Text>{audit.map((entry) => <View key={entry.id} style={styles.auditRow}><Text style={styles.auditAction}>{formatAuditAction(entry.action)}</Text><Text style={styles.meta}>{entry.actorName}{entry.targetName ? ` · ${entry.targetName}` : ""}</Text><Text style={styles.meta}>{new Intl.DateTimeFormat("de-AT", { dateStyle: "short", timeStyle: "short" }).format(new Date(entry.createdAt))}</Text></View>)}{audit.length === 0 ? <Text style={styles.meta}>Noch keine Admin-Aktionen protokolliert.</Text> : null}</View>;
+  return <View style={styles.auditCard}><Text style={styles.sectionLabel}>Letzte Admin-Aktionen</Text>{audit.map((entry) => <View key={entry.id} style={styles.auditRow}><Text style={styles.auditAction}>{formatAuditAction(entry.action)}</Text><Text style={styles.meta}>{entry.actorName}{entry.targetName ? ` · ${entry.targetName}` : ""}</Text><Text style={styles.meta}>{formatDateTime(entry.createdAt)}</Text></View>)}{audit.length === 0 ? <Text style={styles.meta}>Noch keine Admin-Aktionen protokolliert.</Text> : null}</View>;
 }
 
 function formatAuditAction(action: PlatformAuditAction) {

@@ -31,18 +31,19 @@ tags:
       id: platform-users-screen
     timeout: 15000
 - assertVisible: Benutzer verwalten
+- tapOn:
+    id: platform-users-search
+- inputText: Lukas Huber
+- assertVisible: Lukas Huber
+- hideKeyboard
+- tapOn: Benutzer Lukas Huber bearbeiten
 - scrollUntilVisible:
     element:
-      text: Lukas Huber
+      id: platform-user-impersonate-button
     direction: DOWN
     timeout: 10000
-- tapOn: Lukas Huber
-- scrollUntilVisible:
-    element:
-      text: Impersonieren
-    direction: DOWN
-    timeout: 10000
-- tapOn: Impersonieren
+- tapOn:
+    id: platform-user-impersonate-button
 - extendedWaitUntil:
     visible:
       id: dashboard-screen
@@ -56,3 +57,9 @@ tags:
     timeout: 15000
 - assertVisible:
     id: more-platform-users-link
+- tapOn:
+    id: more-platform-users-link
+- extendedWaitUntil:
+    visible:
+      id: platform-users-screen
+    timeout: 15000
