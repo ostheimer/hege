@@ -10,7 +10,7 @@ import type {
   Role,
   User
 } from "@hege/domain";
-import { demoData } from "@hege/domain";
+import { demoData, rolesForFeature } from "@hege/domain";
 import { eq, or, sql } from "drizzle-orm";
 
 import { getDb, type HegeDb } from "../db/client";
@@ -20,7 +20,12 @@ import { getServerEnv } from "../env";
 import { RouteError } from "../http/errors";
 import { normalizeDeAtVisibleText } from "../text/de-at";
 import { hashPassword, verifyPassword } from "./passwords";
-import { issueSessionTokens, type SessionTokenContext, verifyRefreshToken } from "./tokens";
+import {
+  issueSessionTokens,
+  type ImpersonatorTokenContext,
+  type SessionTokenContext,
+  verifyRefreshToken
+} from "./tokens";
 
 interface AuthenticatedMembership extends Membership {
   revier: Revier;
@@ -29,6 +34,8 @@ interface AuthenticatedMembership extends Membership {
 interface DemoUserRecord extends User {
   passwordHash: string;
 }
+
+const PLATFORM_IMPERSONATOR_ROLES = rolesForFeature("platform-users-impersonate");
 
 export async function login(payload: LoginPayload): Promise<AuthSessionResponse> {
   if (getServerEnv().useDemoStore) {
@@ -52,7 +59,7 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
     isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
   }
 
-  if (!user || !isValidPin) {
+  if (!user || !isValidPin || user.disabledAt) {
     throw new RouteError("E-Mail, Benutzername oder PIN ist ungültig.", 401, "unauthenticated");
   }
 
@@ -102,28 +109,44 @@ export async function refreshSession(payload: RefreshSessionPayload): Promise<Au
   if (getServerEnv().useDemoStore) {
     const user = loadDemoUser(tokenContext.userId);
     const membershipsForUser = loadDemoMembershipsForUser(user.id);
-    const activeMembership = resolveActiveMembership(membershipsForUser, payload.membershipId ?? tokenContext.membershipId);
+    const activeMembership = resolveActiveMembership(
+      membershipsForUser,
+      tokenContext.impersonator ? tokenContext.membershipId : payload.membershipId ?? tokenContext.membershipId
+    );
+    const impersonatorUser = tokenContext.impersonator
+      ? validateDemoImpersonator(tokenContext.impersonator)
+      : undefined;
 
     return buildAuthenticatedSession({
       user,
       activeMembership,
-      allMemberships: membershipsForUser
+      allMemberships: membershipsForUser,
+      impersonator: tokenContext.impersonator,
+      impersonatorUser
     });
   }
 
   const user = await loadDbUserById(tokenContext.userId);
 
-  if (!user) {
+  if (!user || user.disabledAt) {
     throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
   }
 
   const membershipsForUser = await loadMembershipsForUser(user.id);
-  const activeMembership = resolveActiveMembership(membershipsForUser, payload.membershipId ?? tokenContext.membershipId);
+  const activeMembership = resolveActiveMembership(
+    membershipsForUser,
+    tokenContext.impersonator ? tokenContext.membershipId : payload.membershipId ?? tokenContext.membershipId
+  );
+  const impersonatorUser = tokenContext.impersonator
+    ? await validateDbImpersonator(tokenContext.impersonator)
+    : undefined;
 
   return buildAuthenticatedSession({
     user,
     activeMembership,
-    allMemberships: membershipsForUser
+    allMemberships: membershipsForUser,
+    impersonator: tokenContext.impersonator,
+    impersonatorUser
   });
 }
 
@@ -132,20 +155,146 @@ export async function resolveAuthContext(context: SessionTokenContext): Promise<
     const user = loadDemoUser(context.userId);
     const membershipsForUser = loadDemoMembershipsForUser(user.id);
     const activeMembership = resolveActiveMembership(membershipsForUser, context.membershipId);
+    const impersonatorUser = context.impersonator
+      ? validateDemoImpersonator(context.impersonator)
+      : undefined;
 
-    return toAuthContextResponse(user, activeMembership, membershipsForUser);
+    return toAuthContextResponse(
+      user,
+      activeMembership,
+      membershipsForUser,
+      context.impersonator,
+      impersonatorUser
+    );
   }
 
   const user = await loadDbUserById(context.userId);
 
-  if (!user) {
+  if (!user || user.disabledAt) {
     throw new RouteError("Benutzer wurde nicht gefunden.", 401, "unauthenticated");
   }
 
   const membershipsForUser = await loadMembershipsForUser(user.id);
   const activeMembership = resolveActiveMembership(membershipsForUser, context.membershipId);
+  const impersonatorUser = context.impersonator
+    ? await validateDbImpersonator(context.impersonator)
+    : undefined;
 
-  return toAuthContextResponse(user, activeMembership, membershipsForUser);
+  return toAuthContextResponse(
+    user,
+    activeMembership,
+    membershipsForUser,
+    context.impersonator,
+    impersonatorUser
+  );
+}
+
+export async function validateSessionContext(
+  context: SessionTokenContext
+): Promise<SessionTokenContext> {
+  if (getServerEnv().useDemoStore) {
+    const user = loadDemoUser(context.userId);
+    const membership = resolveActiveMembership(loadDemoMembershipsForUser(user.id), context.membershipId);
+    assertTokenMatchesMembership(context, membership);
+    if (context.impersonator) validateDemoImpersonator(context.impersonator);
+    return context;
+  }
+
+  const user = await loadDbUserById(context.userId);
+  if (!user || user.disabledAt) {
+    throw new RouteError("Anmeldung erforderlich.", 401, "unauthenticated");
+  }
+
+  const membership = await loadDbMembershipById(context.membershipId);
+  if (!membership || membership.userId !== user.id) {
+    throw new RouteError("Anmeldung erforderlich.", 401, "unauthenticated");
+  }
+  assertTokenMatchesMembership(context, membership);
+  if (context.impersonator) await validateDbImpersonator(context.impersonator);
+  return context;
+}
+
+export async function createImpersonatedSession(
+  actorContext: SessionTokenContext,
+  targetMembershipId: string,
+  impersonation: { sessionId: string; startedAt: string }
+): Promise<AuthSessionResponse> {
+  if (actorContext.impersonator) {
+    throw new RouteError("Eine laufende Impersonation kann nicht verschachtelt werden.", 409, "conflict");
+  }
+
+  assertRole(actorContext.role, PLATFORM_IMPERSONATOR_ROLES);
+
+  if (getServerEnv().useDemoStore) {
+    const actor = loadDemoUser(actorContext.userId);
+    const actorMembership = resolveActiveMembership(
+      loadDemoMembershipsForUser(actor.id),
+      actorContext.membershipId
+    );
+    assertRole(actorMembership.role, PLATFORM_IMPERSONATOR_ROLES);
+
+    const targetMembership = loadDemoMembershipById(targetMembershipId);
+    const targetUser = loadDemoUser(targetMembership.userId);
+    assertValidImpersonationTarget(actor.id, targetUser.id, targetMembership.role);
+
+    const impersonator = toImpersonatorTokenContext(actorMembership, impersonation);
+    return buildAuthenticatedSession({
+      user: targetUser,
+      activeMembership: targetMembership,
+      allMemberships: loadDemoMembershipsForUser(targetUser.id),
+      impersonator,
+      impersonatorUser: actor
+    });
+  }
+
+  const actor = await loadDbUserById(actorContext.userId);
+  if (!actor || actor.disabledAt) {
+    throw new RouteError("Plattform-Admin wurde nicht gefunden.", 401, "unauthenticated");
+  }
+
+  const actorMembership = resolveActiveMembership(
+    await loadMembershipsForUser(actor.id),
+    actorContext.membershipId
+  );
+  assertRole(actorMembership.role, PLATFORM_IMPERSONATOR_ROLES);
+
+  const targetMembership = await loadDbMembershipById(targetMembershipId);
+  if (!targetMembership) {
+    throw new RouteError("Mitgliedschaft wurde nicht gefunden.", 404, "not-found");
+  }
+
+  const targetUser = await loadDbUserById(targetMembership.userId);
+  if (!targetUser || targetUser.disabledAt) {
+    throw new RouteError("Der Zielbenutzer ist deaktiviert oder wurde nicht gefunden.", 409, "conflict");
+  }
+  assertValidImpersonationTarget(actor.id, targetUser.id, targetMembership.role);
+
+  const impersonator = toImpersonatorTokenContext(actorMembership, impersonation);
+  return buildAuthenticatedSession({
+    user: targetUser,
+    activeMembership: targetMembership,
+    allMemberships: await loadMembershipsForUser(targetUser.id),
+    impersonator,
+    impersonatorUser: actor
+  });
+}
+
+export async function endImpersonatedSession(context: SessionTokenContext): Promise<AuthSessionResponse> {
+  if (!context.impersonator) {
+    throw new RouteError("Es ist keine Impersonation aktiv.", 409, "conflict");
+  }
+
+  if (getServerEnv().useDemoStore) {
+    const actor = validateDemoImpersonator(context.impersonator);
+    const membershipsForUser = loadDemoMembershipsForUser(actor.id);
+    const activeMembership = resolveActiveMembership(membershipsForUser, context.impersonator.membershipId);
+    return buildAuthenticatedSession({ user: actor, activeMembership, allMemberships: membershipsForUser });
+  }
+
+  const actor = await validateDbImpersonator(context.impersonator);
+  const membershipsForUser = await loadMembershipsForUser(actor.id);
+  const activeMembership = resolveActiveMembership(membershipsForUser, context.impersonator.membershipId);
+  return buildAuthenticatedSession({ user: actor, activeMembership, allMemberships: membershipsForUser });
 }
 
 export function assertRole(role: Role, allowedRoles: readonly Role[]) {
@@ -247,29 +396,42 @@ function resolveActiveMembership(
 function buildAuthenticatedSession({
   user,
   activeMembership,
-  allMemberships
+  allMemberships,
+  impersonator,
+  impersonatorUser
 }: {
-  user: User;
+  user: User | DbUserRecord;
   activeMembership: AuthenticatedMembership;
   allMemberships: AuthenticatedMembership[];
+  impersonator?: ImpersonatorTokenContext;
+  impersonatorUser?: User | DbUserRecord;
 }): AuthSessionResponse {
   const tokens = issueSessionTokens({
     userId: user.id,
     membershipId: activeMembership.id,
     revierId: activeMembership.revierId,
-    role: activeMembership.role
+    role: activeMembership.role,
+    impersonator
   });
 
   return {
-    ...toAuthContextResponse(user, activeMembership, allMemberships),
+    ...toAuthContextResponse(
+      user,
+      activeMembership,
+      allMemberships,
+      impersonator,
+      impersonatorUser
+    ),
     tokens
   };
 }
 
 function toAuthContextResponse(
-  user: User,
+  user: User | DbUserRecord,
   activeMembership: AuthenticatedMembership,
-  allMemberships: AuthenticatedMembership[]
+  allMemberships: AuthenticatedMembership[],
+  impersonator?: ImpersonatorTokenContext,
+  impersonatorUser?: User | DbUserRecord
 ): AuthContextResponse {
   return {
     user: toSafeUser(user),
@@ -277,7 +439,15 @@ function toAuthContextResponse(
     revier: activeMembership.revier,
     activeRevierId: activeMembership.revierId,
     setupRequired: !activeMembership.revier.setupCompletedAt,
-    availableMemberships: allMemberships.map(toMembershipSummary)
+    availableMemberships: allMemberships.map(toMembershipSummary),
+    impersonation:
+      impersonator && impersonatorUser
+        ? {
+            sessionId: impersonator.sessionId,
+            actor: toSafeUser(impersonatorUser),
+            startedAt: impersonator.startedAt
+          }
+        : undefined
   };
 }
 
@@ -328,6 +498,73 @@ function loadDemoUser(userId: string): DemoUserRecord {
   return user;
 }
 
+function loadDemoMembershipById(membershipId: string): AuthenticatedMembership {
+  const membership = demoData.memberships.find((entry) => entry.id === membershipId);
+
+  if (!membership) {
+    throw new RouteError("Mitgliedschaft wurde nicht gefunden.", 404, "not-found");
+  }
+
+  const revier = demoData.reviere.find((entry) => entry.id === membership.revierId);
+  if (!revier) {
+    throw new RouteError("Revier wurde nicht gefunden.", 404, "not-found");
+  }
+
+  return { ...membership, revier };
+}
+
+function validateDemoImpersonator(context: ImpersonatorTokenContext): DemoUserRecord {
+  const actor = loadDemoUser(context.userId);
+  const membership = resolveActiveMembership(loadDemoMembershipsForUser(actor.id), context.membershipId);
+  assertRole(membership.role, PLATFORM_IMPERSONATOR_ROLES);
+  return actor;
+}
+
+async function validateDbImpersonator(context: ImpersonatorTokenContext): Promise<DbUserRecord> {
+  const actor = await loadDbUserById(context.userId);
+
+  if (!actor || actor.disabledAt) {
+    throw new RouteError("Plattform-Admin wurde nicht gefunden.", 401, "unauthenticated");
+  }
+
+  const membership = resolveActiveMembership(await loadMembershipsForUser(actor.id), context.membershipId);
+  assertRole(membership.role, PLATFORM_IMPERSONATOR_ROLES);
+  return actor;
+}
+
+function assertValidImpersonationTarget(actorUserId: string, targetUserId: string, targetRole: Role) {
+  if (actorUserId === targetUserId) {
+    throw new RouteError("Das eigene Konto kann nicht impersoniert werden.", 409, "conflict");
+  }
+
+  if (targetRole === "platform-admin") {
+    throw new RouteError("Plattform-Admins können nicht impersoniert werden.", 409, "conflict");
+  }
+}
+
+function assertTokenMatchesMembership(
+  context: SessionTokenContext,
+  membership: AuthenticatedMembership
+) {
+  if (membership.revierId !== context.revierId || membership.role !== context.role) {
+    throw new RouteError("Die Berechtigungen der Sitzung haben sich geändert.", 401, "unauthenticated");
+  }
+}
+
+function toImpersonatorTokenContext(
+  membership: AuthenticatedMembership,
+  impersonation: { sessionId: string; startedAt: string }
+): ImpersonatorTokenContext {
+  return {
+    userId: membership.userId,
+    membershipId: membership.id,
+    revierId: membership.revierId,
+    role: membership.role,
+    sessionId: impersonation.sessionId,
+    startedAt: impersonation.startedAt
+  };
+}
+
 function normalizeIdentifier(value: string) {
   return value.trim().toLowerCase();
 }
@@ -350,7 +587,10 @@ async function loadDbUserByIdentifier(identifier: string): Promise<DbUserRecord 
 
     return user;
   } catch (error) {
-    if (!isMissingColumnError(error, "users", "username")) {
+    if (
+      !isMissingColumnError(error, "users", "username") &&
+      !isMissingColumnError(error, "users", "disabled_at")
+    ) {
       throw error;
     }
 
@@ -366,7 +606,10 @@ async function loadDbUserById(userId: string): Promise<DbUserRecord | undefined>
 
     return user;
   } catch (error) {
-    if (!isMissingColumnError(error, "users", "username")) {
+    if (
+      !isMissingColumnError(error, "users", "username") &&
+      !isMissingColumnError(error, "users", "disabled_at")
+    ) {
       throw error;
     }
 
@@ -420,8 +663,28 @@ function mapLegacyDbUserRow(row: LegacyDbUserRow): DbUserRecord {
     phone: row.phone,
     email: row.email,
     username: normalizeIdentifier(row.username),
-    passwordHash: row.passwordHash
+    passwordHash: row.passwordHash,
+    disabledAt: null
   };
+}
+
+async function loadDbMembershipById(membershipId: string): Promise<AuthenticatedMembership | undefined> {
+  const [membership] = await getDb()
+    .select()
+    .from(memberships)
+    .where(eq(memberships.id, membershipId))
+    .limit(1);
+
+  if (!membership) {
+    return undefined;
+  }
+
+  const revier = await loadDbRevierById(membership.revierId);
+  if (!revier) {
+    throw new RouteError("Revier wurde nicht gefunden.", 404, "not-found");
+  }
+
+  return { ...membership, revier: mapRevierRecordToDomain(revier) };
 }
 
 async function syncKnownSeedAuthData() {

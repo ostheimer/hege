@@ -27,9 +27,17 @@ describe("role feature matrix", () => {
       "revierarbeit-manage",
       "sitzungen-manage",
       "sitzungen-approve",
-      "members-manage"
+      "members-manage",
+      "platform-users-manage",
+      "platform-users-impersonate"
     ] as const) {
       expect(canRoleAccess("platform-admin", feature)).toBe(true);
     }
+  });
+
+  it("reserves platform user management and impersonation for platform admins", () => {
+    expect(rolesForFeature("platform-users-manage")).toEqual(["platform-admin"]);
+    expect(rolesForFeature("platform-users-impersonate")).toEqual(["platform-admin"]);
+    expect(canRoleAccess("revier-admin", "platform-users-manage")).toBe(false);
   });
 });

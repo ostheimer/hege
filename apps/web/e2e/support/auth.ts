@@ -2,11 +2,15 @@ import { expect, type Page } from "@playwright/test";
 
 import { e2eBaseUrl } from "./e2e-env";
 
-type DemoUserRole = "revier-admin" | "schriftfuehrer" | "jaeger" | "ausgeher";
+type DemoUserRole = "platform-admin" | "revier-admin" | "schriftfuehrer" | "jaeger" | "ausgeher";
 
 const DEMO_PIN = "9526";
 
 const credentialsByRole: Record<DemoUserRole, { identifier: string; name: string }> = {
+  "platform-admin": {
+    identifier: "ostheimer",
+    name: "Andreas Ostheimer"
+  },
   "revier-admin": {
     identifier: "revieradmin",
     name: "Anna Müller"
@@ -20,8 +24,8 @@ const credentialsByRole: Record<DemoUserRole, { identifier: string; name: string
     name: "Lukas Huber"
   },
   ausgeher: {
-    identifier: "ostheimer",
-    name: "Andreas Ostheimer"
+    identifier: "steiner",
+    name: "Birgit Steiner"
   }
 };
 

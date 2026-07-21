@@ -22,6 +22,8 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - `POST /api/v1/auth/refresh`
 - `POST /api/v1/auth/logout`
 - `POST /api/v1/auth/change-pin` — PIN eines eingeloggten Benutzers ändern; erfordert aktuelle PIN zur Verifikation
+- `POST /api/v1/auth/impersonation` — Impersonation einer Mitgliedschaft als Plattform-Admin starten
+- `DELETE /api/v1/auth/impersonation` — zur ursprünglichen Plattform-Admin-Sitzung zurückkehren
 - `GET /api/v1/me`
 
 `POST /api/v1/auth/login` akzeptiert:
@@ -35,6 +37,16 @@ Zielpfad fuer Production ist `https://hege.app/api/v1`.
 - der Benutzer sieht nur Ressourcen seines Reviers
 - bei Mehrfachmitgliedschaft muss der aktive Revier-Kontext gesetzt sein
 - `membership_id` wird serverseitig gegen den eingeloggten Benutzer geprueft
+- Impersonation-Tokens enthalten den signierten ursprünglichen Admin-Kontext; Verschachtelung, Selbst-Impersonation und Impersonation anderer Plattform-Admins werden abgelehnt
+- Start und Ende einer Impersonation werden in `platform_audit_log` protokolliert
+
+### Plattform-Benutzerverwaltung
+
+- `GET /api/v1/platform/users`
+- `PATCH /api/v1/platform/users/:userId`
+- `PATCH /api/v1/platform/users/:userId/memberships/:membershipId`
+
+Alle drei Routen sind ausschließlich für `platform-admin` verfügbar und während einer laufenden Impersonation gesperrt. Sie liefern beziehungsweise pflegen Kontostammdaten, Kontostatus, Jagdzeichen und Mitgliedsrollen über alle Reviere hinweg. Deaktivierungen und Rollenänderungen entwerten bestehende Sitzungsrechte bei der nächsten Serveranfrage; das eigene aktive Plattform-Admin-Konto kann weder deaktiviert noch herabgestuft werden.
 
 ## Ressourcen
 
@@ -339,13 +351,14 @@ Kernressourcen:
 - `beschluesse`
 - `dokumente`
 - `notifications`
-- `audit_logs`
+- `platform_audit_log`
 
 ## Aktueller Stand im Repository
 
 Bereits produktiv ueber `apps/web` vorhanden:
 
-- `auth` (inkl. `change-pin`), `me`, `dashboard`, `ansitze`, `fallwild` (inkl. CSV-Export), `reviereinrichtungen` (Liste + CSV-Export; Einzel-Detail und Kontroll-Erfassung noch nicht implementiert), `protokolle`, `sitzungen` (inkl. CSV-Export), `documents`
+- `auth` (inkl. `change-pin` und Impersonation), `me`, `dashboard`, `ansitze`, `fallwild` (inkl. CSV-Export), `reviereinrichtungen` (Liste + CSV-Export; Einzel-Detail und Kontroll-Erfassung noch nicht implementiert), `protokolle`, `sitzungen` (inkl. CSV-Export), `documents`
+- `platform/users` für plattformweite Benutzer-, Status- und Rollenpflege samt Audit-Protokoll
 - `contact-lists` (inkl. Eintraege), `reviermeldungen` (inkl. CSV-Export), `aufgaben`
 - `memberships/invitations` (abrufen, anlegen, annehmen, widerrufen, CSV-Export)
 - `reviere/active/setup`, `public/register`, `geo/fallwild-location`

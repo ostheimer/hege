@@ -34,8 +34,18 @@ export const ROLE_FEATURES = {
   "revierarbeit-manage": MANAGEMENT_ROLES,
   "sitzungen-manage": MANAGEMENT_ROLES,
   "sitzungen-approve": ["revier-admin", "platform-admin"],
-  "members-manage": ["revier-admin", "platform-admin"]
+  "members-manage": ["revier-admin", "platform-admin"],
+  "platform-users-manage": ["platform-admin"],
+  "platform-users-impersonate": ["platform-admin"]
 } as const satisfies Record<string, readonly Role[]>;
+
+export const ASSIGNABLE_MEMBER_ROLES = [
+  "ausgeher",
+  "jaeger",
+  "schriftfuehrer",
+  "revier-admin",
+  "platform-admin"
+] as const satisfies readonly Role[];
 
 export type RoleFeature = keyof typeof ROLE_FEATURES;
 

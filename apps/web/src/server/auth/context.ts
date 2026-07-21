@@ -1,23 +1,25 @@
-import type { AuthContextResponse, Role } from "@hege/domain";
+import type { AuthContextResponse } from "@hege/domain";
 import { cookies, headers } from "next/headers";
 
 import { RouteError } from "../http/errors";
-import { resolveAuthContext } from "./service";
+import { resolveAuthContext, validateSessionContext } from "./service";
 import {
   ACCESS_TOKEN_COOKIE,
   REFRESH_TOKEN_COOKIE,
   verifyAccessToken,
-  verifyRefreshToken
+  verifyRefreshToken,
+  type SessionTokenContext
 } from "./tokens";
 
-export interface RequestContext {
-  userId: string;
-  membershipId: string;
-  revierId: string;
-  role: Role;
-}
+export interface RequestContext extends SessionTokenContext {}
 
 export async function getRequestContext(): Promise<RequestContext> {
+  const context = await getSignedRequestContext();
+
+  return validateSessionContext(context);
+}
+
+export async function getSignedRequestContext(): Promise<RequestContext> {
   const token = await readAccessToken();
 
   if (!token) {

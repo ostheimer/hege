@@ -19,6 +19,8 @@ import type {
   LoginPayload,
   LocationWeather,
   PhotoAsset,
+  PlatformUserListResponse,
+  PlatformUserSummary,
   ProtokollDetail,
   ProtokollListItem,
   Reviereinrichtung,
@@ -31,8 +33,11 @@ import type {
   Role,
   FallwildVorgang,
   Membership,
+  MembershipSummary,
   Revier,
   User,
+  UpdatePlatformMembershipPayload,
+  UpdatePlatformUserPayload,
   Wildart
 } from "@hege/domain";
 import { buildDashboardOverview, canRoleAccess, demoData } from "@hege/domain";
@@ -240,6 +245,48 @@ export async function refreshStoredSession() {
 
 export async function logout() {
   await clearSession();
+}
+
+export async function fetchPlatformUsers(): Promise<PlatformUserListResponse> {
+  return requestJson<PlatformUserListResponse>("/v1/platform/users");
+}
+
+export async function updatePlatformUser(
+  userId: string,
+  payload: UpdatePlatformUserPayload
+): Promise<PlatformUserSummary> {
+  return requestJson<PlatformUserSummary>(`/v1/platform/users/${encodeURIComponent(userId)}`, {
+    method: "PATCH",
+    body: payload
+  });
+}
+
+export async function updatePlatformMembership(
+  userId: string,
+  membershipId: string,
+  payload: UpdatePlatformMembershipPayload
+): Promise<MembershipSummary> {
+  return requestJson<MembershipSummary>(
+    `/v1/platform/users/${encodeURIComponent(userId)}/memberships/${encodeURIComponent(membershipId)}`,
+    { method: "PATCH", body: payload }
+  );
+}
+
+export async function startImpersonation(membershipId: string): Promise<AuthSessionResponse> {
+  const session = await requestJson<AuthSessionResponse>("/v1/auth/impersonation", {
+    method: "POST",
+    body: { membershipId }
+  });
+  await saveSession(session);
+  return session;
+}
+
+export async function stopImpersonation(): Promise<AuthSessionResponse> {
+  const session = await requestJson<AuthSessionResponse>("/v1/auth/impersonation", {
+    method: "DELETE"
+  });
+  await saveSession(session);
+  return session;
 }
 
 export function isRecoverableMutationError(error: unknown) {

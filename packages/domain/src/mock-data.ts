@@ -116,7 +116,7 @@ export const demoData: DemoData = {
       id: "member-ausgeher",
       userId: "user-steyrer",
       revierId: "revier-attersee",
-      role: "ausgeher",
+      role: "platform-admin",
       jagdzeichen: "AO-01",
       pushEnabled: true
     },

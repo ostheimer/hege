@@ -9,7 +9,7 @@ import {
   Reviereinrichtung,
   Sitzung
 } from "@hege/icons";
-import { Bell, ContactRound, LayoutDashboard, ListTodo, MessageSquareWarning } from "lucide-react";
+import { Bell, ContactRound, LayoutDashboard, ListTodo, MessageSquareWarning, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -65,6 +65,12 @@ const navigation: ReadonlyArray<NavigationItem> = [
     icon: Mitglied,
     allowedRoles: rolesForFeature("members-manage")
   },
+  {
+    href: "/app/benutzer",
+    label: "Benutzer",
+    icon: UsersRound,
+    allowedRoles: rolesForFeature("platform-users-manage")
+  },
   { href: "/app/benachrichtigungen", label: "Benachrichtigungen", icon: Bell }
 ];
 
@@ -99,6 +105,8 @@ export function Shell({ children, viewer, notificationIds }: ShellProps) {
   const currentPath = pathname ?? "";
   const isAuthPage = currentPath === "/login";
   const [readIds, setReadIds] = useState<ReadonlyArray<string>>([]);
+  const [isStoppingImpersonation, setIsStoppingImpersonation] = useState(false);
+  const [impersonationError, setImpersonationError] = useState<string | null>(null);
 
   useEffect(() => {
     // Erst nach Mount, weil getReadNotificationIds auf localStorage
@@ -114,6 +122,23 @@ export function Shell({ children, viewer, notificationIds }: ShellProps) {
   }
 
   const visibleNavigation = navigation.filter((item) => isNavigationItemVisible(item, viewer?.membership.role));
+
+  async function stopImpersonation() {
+    if (isStoppingImpersonation) return;
+    setIsStoppingImpersonation(true);
+    setImpersonationError(null);
+    try {
+      const response = await fetch("/api/v1/auth/impersonation", { method: "DELETE" });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: { message?: string } } | null;
+        throw new Error(body?.error?.message ?? "Impersonation konnte nicht beendet werden.");
+      }
+      window.location.assign("/app/benutzer");
+    } catch (error) {
+      setImpersonationError(error instanceof Error ? error.message : "Impersonation konnte nicht beendet werden.");
+      setIsStoppingImpersonation(false);
+    }
+  }
 
   return (
     <div className="app-shell">
@@ -181,7 +206,29 @@ export function Shell({ children, viewer, notificationIds }: ShellProps) {
         ) : null}
       </aside>
 
-      <main className="main-content">{children}</main>
+      <main className="main-content">
+        {viewer?.impersonation ? (
+          <div className="impersonation-banner" role="status">
+            <div>
+              <strong>Impersonation aktiv</strong>
+              <span>
+                Du arbeitest als {viewer.user.name} ({formatRoleLabel(viewer.membership.role)}).
+                Angemeldet als {viewer.impersonation.actor.name}.
+              </span>
+              {impersonationError ? <span className="impersonation-error">{impersonationError}</span> : null}
+            </div>
+            <button
+              className="button-control impersonation-stop"
+              disabled={isStoppingImpersonation}
+              onClick={() => void stopImpersonation()}
+              type="button"
+            >
+              {isStoppingImpersonation ? "Wird beendet..." : `Zurück zu ${viewer.impersonation.actor.name}`}
+            </button>
+          </div>
+        ) : null}
+        {children}
+      </main>
     </div>
   );
 }

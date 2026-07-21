@@ -109,6 +109,12 @@ export interface User {
   username?: string;
 }
 
+export interface ImpersonationInfo {
+  sessionId: string;
+  actor: User;
+  startedAt: string;
+}
+
 export interface ApiError {
   code: ApiErrorCode;
   message: string;
@@ -435,6 +441,38 @@ export interface AuthContextResponse {
   activeRevierId: string;
   setupRequired: boolean;
   availableMemberships: MembershipSummary[];
+  impersonation?: ImpersonationInfo;
+}
+
+export interface PlatformUserSummary {
+  user: User;
+  disabledAt?: string;
+  memberships: MembershipSummary[];
+}
+
+export interface PlatformUserListResponse {
+  users: PlatformUserSummary[];
+  audit: PlatformAuditEntry[];
+}
+
+export type PlatformAuditAction =
+  | "impersonation-started"
+  | "impersonation-ended"
+  | "user-updated"
+  | "user-disabled"
+  | "user-enabled"
+  | "membership-updated";
+
+export interface PlatformAuditEntry {
+  id: string;
+  action: PlatformAuditAction;
+  actorUserId: string;
+  actorName: string;
+  targetUserId?: string;
+  targetName?: string;
+  targetMembershipId?: string;
+  impersonationSessionId?: string;
+  createdAt: string;
 }
 
 export interface AuthTokens {
@@ -558,6 +596,23 @@ export interface ChangePinPayload {
 export interface RefreshSessionPayload {
   refreshToken?: string;
   membershipId?: string;
+}
+
+export interface UpdatePlatformUserPayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  username?: string;
+  disabled?: boolean;
+}
+
+export interface UpdatePlatformMembershipPayload {
+  role?: Role;
+  jagdzeichen?: string;
+}
+
+export interface StartImpersonationPayload {
+  membershipId: string;
 }
 
 export interface PublicRegistrationPayload {
