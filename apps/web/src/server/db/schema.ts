@@ -6,6 +6,7 @@ import type {
   EinrichtungZustand,
   Geschlecht,
   NotificationChannel,
+  PlatformAuditAction,
   ProtokollStatus,
   AufgabePrioritaet,
   AufgabeStatus,
@@ -35,11 +36,33 @@ export const users = pgTable(
     phone: text("phone").notNull(),
     email: text("email").notNull(),
     username: text("username").notNull(),
-    passwordHash: text("password_hash").notNull()
+    passwordHash: text("password_hash").notNull(),
+    disabledAt: timestamp("disabled_at", { withTimezone: true, mode: "string" })
   },
   (table) => [
     uniqueIndex("users_email_unique").on(table.email),
     uniqueIndex("users_username_unique").on(table.username)
+  ]
+);
+
+export const platformAuditLog = pgTable(
+  "platform_audit_log",
+  {
+    id: text("id").primaryKey(),
+    action: text("action").$type<PlatformAuditAction>().notNull(),
+    actorUserId: text("actor_user_id")
+      .notNull()
+      .references(() => users.id),
+    targetUserId: text("target_user_id").references(() => users.id),
+    targetMembershipId: text("target_membership_id"),
+    impersonationSessionId: text("impersonation_session_id"),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull()
+  },
+  (table) => [
+    index("platform_audit_actor_idx").on(table.actorUserId),
+    index("platform_audit_target_idx").on(table.targetUserId),
+    index("platform_audit_created_at_idx").on(table.createdAt),
+    index("platform_audit_impersonation_idx").on(table.impersonationSessionId)
   ]
 );
 
@@ -511,6 +534,7 @@ export const dokumente = pgTable(
 );
 
 export type UserRecord = typeof users.$inferSelect;
+export type PlatformAuditLogRecord = typeof platformAuditLog.$inferSelect;
 export type RevierRecord = typeof reviere.$inferSelect;
 export type MembershipRecord = typeof memberships.$inferSelect;
 export type ContactListRecord = typeof contactLists.$inferSelect;

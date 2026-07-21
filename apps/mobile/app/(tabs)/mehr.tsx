@@ -3,7 +3,7 @@ import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
-import type { DashboardResponse } from "@hege/domain";
+import { canRoleAccess, type DashboardResponse, type RoleFeature } from "@hege/domain";
 
 import { InitialsAvatar } from "../../components/initials-avatar";
 import { ScreenShell } from "../../components/screen-shell";
@@ -22,9 +22,18 @@ interface MehrLink {
   description: string;
   icon: keyof typeof Ionicons.glyphMap;
   testID?: string;
+  feature?: RoleFeature;
 }
 
 const MEHR_LINKS: ReadonlyArray<MehrLink> = [
+  {
+    href: "/(tabs)/benutzer",
+    label: "Benutzerverwaltung",
+    description: "Konten, Rollen und Impersonation verwalten.",
+    icon: "people-outline",
+    feature: "platform-users-manage",
+    testID: "more-platform-users-link"
+  },
   {
     href: "/(tabs)/benachrichtigungen",
     label: "Benachrichtigungen",
@@ -122,6 +131,10 @@ export default function MehrScreen() {
   }
 
   const profileName = snapshot?.user.name ?? session.session?.user.name ?? "";
+  const role = snapshot?.membership.role ?? session.session?.membership.role;
+  const visibleLinks = MEHR_LINKS.filter(
+    (entry) => !entry.feature || (role ? canRoleAccess(role, entry.feature) : false)
+  );
 
   return (
     <ScreenShell
@@ -156,7 +169,7 @@ export default function MehrScreen() {
       </Pressable>
 
       <View style={styles.linkList}>
-        {MEHR_LINKS.map((entry) => {
+        {visibleLinks.map((entry) => {
           // Nur der Benachrichtigungen-Link bekommt einen Unread-Badge.
           // Wir koennten das ueber ein generisches `badge`-Feld in
           // MehrLink loesen, aber bislang ist es nur eine Stelle —

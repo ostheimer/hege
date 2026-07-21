@@ -78,6 +78,13 @@
       "when": 1783970369899,
       "tag": "0010_heavy_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1784642346530,
+      "tag": "0011_adorable_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }

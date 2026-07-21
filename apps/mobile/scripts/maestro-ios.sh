@@ -21,6 +21,9 @@ case "$flow" in
   roles)
     flow_path="$repo_root/.maestro/ios-contacts-management.yaml"
     ;;
+  platform-users)
+    flow_path="$repo_root/.maestro/ios-platform-users.yaml"
+    ;;
   reviereinrichtungen)
     flow_path="$repo_root/.maestro/ios-reviereinrichtungen-smoke.yaml"
     simulator="${HEGE_SIMULATOR_UDID:-booted}"
@@ -35,7 +38,7 @@ case "$flow" in
     HEGE_APP_ID="$app_id" exec "$repo_root/apps/mobile/scripts/maestro-ios-reviereinrichtungen-queue-fixture.sh"
     ;;
   *)
-    echo "Unbekannter Flow '$flow'. Erlaubt: core, queue, reviereinrichtungen, reviereinrichtungen-queue, roles." >&2
+    echo "Unbekannter Flow '$flow'. Erlaubt: core, queue, reviereinrichtungen, reviereinrichtungen-queue, roles, platform-users." >&2
     exit 2
     ;;
 esac

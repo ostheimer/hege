@@ -15,6 +15,16 @@ export interface SessionTokenContext {
   membershipId: string;
   revierId: string;
   role: Role;
+  impersonator?: ImpersonatorTokenContext;
+}
+
+export interface ImpersonatorTokenContext {
+  userId: string;
+  membershipId: string;
+  revierId: string;
+  role: Role;
+  sessionId: string;
+  startedAt: string;
 }
 
 interface TokenPayload extends SessionTokenContext {
@@ -105,7 +115,8 @@ function verifyToken(token: string, expectedKind: TokenPayload["kind"]): Session
     userId: payload.userId,
     membershipId: payload.membershipId,
     revierId: payload.revierId,
-    role: payload.role
+    role: payload.role,
+    impersonator: payload.impersonator
   };
 }
 
@@ -131,7 +142,8 @@ function parsePayload(encodedPayload: string): TokenPayload {
       typeof payload.role !== "string" ||
       typeof payload.exp !== "number" ||
       typeof payload.iat !== "number" ||
-      typeof payload.sessionId !== "string"
+      typeof payload.sessionId !== "string" ||
+      !isValidImpersonator(payload.impersonator)
     ) {
       throw new Error("invalid");
     }
@@ -140,6 +152,26 @@ function parsePayload(encodedPayload: string): TokenPayload {
   } catch {
     throw new RouteError("Anmeldung erforderlich.", 401, "unauthenticated");
   }
+}
+
+function isValidImpersonator(value: unknown): value is ImpersonatorTokenContext | undefined {
+  if (value == null) {
+    return true;
+  }
+
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  const context = value as Partial<ImpersonatorTokenContext>;
+  return (
+    typeof context.userId === "string" &&
+    typeof context.membershipId === "string" &&
+    typeof context.revierId === "string" &&
+    typeof context.role === "string" &&
+    typeof context.sessionId === "string" &&
+    typeof context.startedAt === "string"
+  );
 }
 
 function sign(value: string) {

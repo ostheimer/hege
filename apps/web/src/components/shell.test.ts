@@ -105,6 +105,44 @@ describe("Shell", () => {
 
     expect(html).toContain('href="/app/sitzungen"');
   });
+
+  it("shows platform user management only to platform admins", () => {
+    const platformViewer: AuthContextResponse = {
+      ...viewer,
+      membership: { ...viewer.membership, role: "platform-admin" }
+    };
+    const platformHtml = renderToStaticMarkup(
+      React.createElement(Shell, { viewer: platformViewer, children: "Dashboard" })
+    );
+    const revierAdminHtml = renderToStaticMarkup(
+      React.createElement(Shell, {
+        viewer: { ...viewer, membership: { ...viewer.membership, role: "revier-admin" } },
+        children: "Dashboard"
+      })
+    );
+
+    expect(platformHtml).toContain('href="/app/benutzer"');
+    expect(revierAdminHtml).not.toContain('href="/app/benutzer"');
+  });
+
+  it("keeps a visible stop action while impersonating", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(Shell, {
+        viewer: {
+          ...viewer,
+          impersonation: {
+            sessionId: "imp-1",
+            startedAt: "2026-07-21T14:00:00.000Z",
+            actor: { ...viewer.user, id: "actor-1", name: "Andreas Ostheimer" }
+          }
+        },
+        children: "Dashboard"
+      })
+    );
+
+    expect(html).toContain("Impersonation aktiv");
+    expect(html).toContain("Zurück zu Andreas Ostheimer");
+  });
 });
 
 describe("isNavigationItemVisible", () => {

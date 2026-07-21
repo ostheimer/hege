@@ -6,6 +6,7 @@ import type { PropsWithChildren, ReactNode } from "react";
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
 import { spacing } from "@hege/tokens";
+import { ImpersonationBanner } from "./impersonation-banner";
 
 /**
  * Tab-Bar-Hoehe wie in `apps/mobile/app/(tabs)/_layout.tsx` konfiguriert.
@@ -52,6 +53,7 @@ export function ScreenShell({
 
   return (
     <SafeAreaView edges={safeAreaEdges} style={styles.safeArea} testID={testID}>
+      <ImpersonationBanner />
       <ScrollView
         contentInsetAdjustmentBehavior="never"
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}

@@ -1,0 +1,58 @@
+appId: ${APP_ID}
+name: iOS platform users and impersonation
+tags:
+  - ios
+  - platform-admin
+  - impersonation
+---
+- launchApp:
+    clearState: true
+    clearKeychain: true
+- tapOn:
+    id: login-identifier-input
+- inputText: ${HEGE_SMOKE_IDENTIFIER}
+- tapOn:
+    id: login-pin-input
+- inputText: ${HEGE_SMOKE_PIN}
+- tapOn:
+    id: login-submit-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 20000
+- tapOn:
+    id: tab-more
+- assertVisible:
+    id: more-platform-users-link
+- tapOn:
+    id: more-platform-users-link
+- extendedWaitUntil:
+    visible:
+      id: platform-users-screen
+    timeout: 15000
+- assertVisible: Benutzer verwalten
+- scrollUntilVisible:
+    element:
+      text: Lukas Huber
+    direction: DOWN
+    timeout: 10000
+- tapOn: Lukas Huber
+- scrollUntilVisible:
+    element:
+      text: Impersonieren
+    direction: DOWN
+    timeout: 10000
+- tapOn: Impersonieren
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 15000
+- assertVisible:
+    id: impersonation-banner
+- tapOn: Zurück zu Andreas Ostheimer
+- extendedWaitUntil:
+    visible:
+      id: more-screen
+    timeout: 15000
+- assertVisible:
+    id: more-platform-users-link

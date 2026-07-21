@@ -13,6 +13,7 @@
     "mobile:e2e:ios:reviereinrichtungen": "bash apps/mobile/scripts/maestro-ios.sh reviereinrichtungen",
     "mobile:e2e:ios:reviereinrichtungen:queue": "bash apps/mobile/scripts/maestro-ios.sh reviereinrichtungen-queue",
     "mobile:e2e:ios:roles": "bash apps/mobile/scripts/maestro-ios.sh roles",
+    "mobile:e2e:ios:platform-users": "bash apps/mobile/scripts/maestro-ios.sh platform-users",
     "mobile:smoke:ios:session": "bash apps/mobile/scripts/ios-device-session-smoke.sh",
     "test": "turbo test",
     "test:e2e": "playwright test",
