@@ -71,9 +71,31 @@ describe("auth service legacy schema compatibility", () => {
     expect(session.user.email).toBe("andreas@ostheimer.at");
     expect(mockDb.execute).toHaveBeenCalled();
   });
+
+  it("does not overwrite administered seed users or memberships during login", async () => {
+    mockDb.execute.mockImplementation(createSeedSyncThenLegacyUserExecuteMock(true));
+    mockDb.select.mockImplementation(() => createSelectBuilder({ hasUsernameColumn: true }));
+
+    await login({
+      identifier: "ostheimer",
+      pin: "9526"
+    });
+
+    const protectedSeedWrites = mockDb.execute.mock.calls
+      .map(([query]) => stringifyQuery(query))
+      .filter(
+        (query) => query.includes("insert into users") || query.includes("insert into memberships")
+      );
+
+    expect(protectedSeedWrites.length).toBeGreaterThan(0);
+    for (const query of protectedSeedWrites) {
+      expect(query).toContain("on conflict (id) do nothing");
+      expect(query).not.toContain("on conflict (id) do update");
+    }
+  });
 });
 
-function createSelectBuilder() {
+function createSelectBuilder({ hasUsernameColumn = false }: { hasUsernameColumn?: boolean } = {}) {
   return {
     from(table: unknown) {
       if (table === users) {
@@ -81,6 +103,9 @@ function createSelectBuilder() {
           where() {
             return {
               async limit() {
+                if (hasUsernameColumn) {
+                  return [{ ...createLegacyUserRow(), disabledAt: null }];
+                }
                 throw Object.assign(new Error('column "username" does not exist'), {
                   code: "42703"
                 });
@@ -136,7 +161,7 @@ function createSelectBuilder() {
   };
 }
 
-function createSeedSyncThenLegacyUserExecuteMock() {
+function createSeedSyncThenLegacyUserExecuteMock(hasUsernameColumn = false) {
   let callCount = 0;
   let hasUsernameAnswered = false;
 
@@ -151,7 +176,7 @@ function createSeedSyncThenLegacyUserExecuteMock() {
     // Die genaue Position ist abhaengig von der Anzahl Reviere in den Demo-Daten.
     if (!hasUsernameAnswered && isHasUsernameQuery(query)) {
       hasUsernameAnswered = true;
-      return { rows: [{ hasUsername: false }] };
+      return { rows: [{ hasUsername: hasUsernameColumn }] };
     }
 
     // Der User-Lookup nach dem Seed-Sync erkennen wir an der SQL-Form.

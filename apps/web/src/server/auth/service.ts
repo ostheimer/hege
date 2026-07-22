@@ -45,8 +45,9 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
   const normalizedIdentifier = normalizeIdentifier(payload.identifier);
 
   if (isKnownSeedIdentifier(normalizedIdentifier)) {
-    // During the live-test phase, seeded accounts should follow code changes
-    // without a one-off database migration for every role or revier update.
+    // Fehlende Seed-Daten werden fuer Live-Tests angelegt. Bestehende Benutzer-
+    // und Mitgliedschaftsdaten duerfen hier nicht ueberschrieben werden, weil
+    // sie ueber die Plattform-Verwaltung oder die PIN-Aenderung gepflegt werden.
     await syncKnownSeedAuthData();
   }
 
@@ -881,13 +882,7 @@ async function syncSeedUsers(db: HegeDb, hasUsernameColumn: boolean) {
           ${user.username ?? normalizeIdentifier(user.email.split("@")[0] ?? user.id)},
           ${user.passwordHash}
         )
-        on conflict (id) do update
-        set
-          name = excluded.name,
-          phone = excluded.phone,
-          email = excluded.email,
-          username = excluded.username,
-          password_hash = excluded.password_hash
+        on conflict (id) do nothing
       `);
 
       continue;
@@ -908,12 +903,7 @@ async function syncSeedUsers(db: HegeDb, hasUsernameColumn: boolean) {
         ${user.email},
         ${user.passwordHash}
       )
-      on conflict (id) do update
-      set
-        name = excluded.name,
-        phone = excluded.phone,
-        email = excluded.email,
-        password_hash = excluded.password_hash
+      on conflict (id) do nothing
     `);
   }
 }
@@ -937,13 +927,7 @@ async function syncSeedMemberships(db: HegeDb) {
         ${membership.jagdzeichen},
         ${membership.pushEnabled}
       )
-      on conflict (id) do update
-      set
-        user_id = excluded.user_id,
-        revier_id = excluded.revier_id,
-        role = excluded.role,
-        jagdzeichen = excluded.jagdzeichen,
-        push_enabled = excluded.push_enabled
+      on conflict (id) do nothing
     `);
   }
 }
