@@ -62,6 +62,8 @@ pnpm mobile:e2e:ios:reviereinrichtungen
 pnpm mobile:e2e:ios:reviereinrichtungen:queue
 ```
 
+Beim ersten Lauf mit leerem Metro-Cache wählt der Flow den sichtbaren Development Server selbst aus und wartet bis zu 60 Sekunden auf den einmaligen Startdialog des Expo Development Clients. Ein manueller Tap im Simulator ist dafür nicht erforderlich.
+
 Der Runner beendet die App, injiziert ausschließlich im Simulator einen konfliktbehafteten Fallwild-Eintrag, prüft `Offline-Vormerkungen` und `Jetzt senden` im Modus `Erfassen` und entfernt die Fixture anschließend wieder. Eine vorhandene Warteschlange wird niemals überschrieben.
 
 Der Reviereinrichtungs-Queue-Runner verwendet denselben Schutzvertrag: Er bricht bei vorhandenen Vormerkungen ab, injiziert nur `Offline Testkanzel`, prüft die sichtbare Konfliktmeldung und räumt den Eintrag auch nach einem fehlgeschlagenen Testlauf wieder auf.
@@ -75,4 +77,6 @@ Die Flows liegen unter `.maestro/`. Test-IDs sind nur stabile Automatisierungsan
 
 ## Verifizierter Lauf
 
-Am 2026-07-13 liefen der kombinierte Reviereinrichtungs-Flow und der separate Wetter-Flow mit Maestro `2.6.1` auf einem iPhone-17-Pro-Simulator mit iOS 26.4 grün. GPS-Erfassung, Speichern, Karten-Pin, Suche, Wind und Sonnenzeiten waren sichtbar. Der Reviereinrichtungs-Queue-Flow lief ebenfalls grün und entfernte die Fixture anschließend; Build-Tag `0.1.0 · 2026-07-13.20`.
+Am 2026-07-25 lief der kombinierte Reviereinrichtungs-Flow mit leerem Metro-Cache auf einem iPhone-17-Pro-Simulator mit iOS 26.4 gegen die Production-API grün. Login, simuliertes GPS, Speichern, Erfolgsmeldung ohne verbliebenes Formular, Karten-Pin, Suche, Wind und Sonnenzeiten waren sichtbar; der eindeutig zugeordnete Smoke-Datensatz wurde anschließend transaktional entfernt und die Abwesenheit erneut geprüft. Build-Tag `0.1.0 · 2026-07-21.23`.
+
+Der frühere Lauf vom 2026-07-13 bestätigte zusätzlich den separaten Wetter- und Reviereinrichtungs-Queue-Flow mit Maestro `2.6.1`; die Queue-Fixture wurde dabei automatisch entfernt.
