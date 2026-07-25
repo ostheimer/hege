@@ -13,8 +13,13 @@ tags:
     text: Öffnen
     optional: true
 - tapOn:
-    text: Continue
+    text: "http://.*:8081"
     optional: true
+- extendedWaitUntil:
+    visible: Continue
+    timeout: 60000
+- tapOn:
+    text: Continue
 - tapOn:
     text: Reload
     optional: true

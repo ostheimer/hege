@@ -13,8 +13,8 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 
 ## Aktueller Fokus
 
-1. Reviereinrichtungen v2 nach Migration und Mobile-Update auf Production mit einem kontrollierten Revierdatensatz abnehmen
-2. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten und bei neuen mobilen Fehlerpfaden zuerst erweitern
+1. Reviereinrichtungen v2 ist gegen die Production-API im iOS-Simulator abgenommen; auf dem physischen iPhone bleiben Foto, Kompass und echter GPS-Sensor als abschließender Hardware-Smoke offen
+2. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten; der Reviereinrichtungs-Flow deckt seit 2026-07-25 auch den kalten Expo-Development-Client-Start ohne manuellen Eingriff ab
 3. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
 4. Mobile Design-System §10: **abgeschlossen** (PRs #134–#172) — Token-Konsolidierung, `<Badge>`, semantische Farbtoken, `<FeedbackBanner>`, `cardSurface()`, Eyebrow/Spacing/Radius, `rnShadow.card`, Dark Mode end-to-end (Aktivierung #159, Adaption + In-App-Umschalter #165/#166, Logo-Chip #169) sowie Labels/Mikrocopy/Haptik/Pull-to-Refresh (#172). Verbleibende §10-Folge-Items (Button-Primitiv `<PrimaryButton>/<SecondaryButton>`, `<FilterSection>` mit Reset, Badge-Restkonsolidierung) sind kleine Refactors — siehe [Mobile-UI-Audit](./docs/mobile-ui-audit.md).
 
