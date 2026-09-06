@@ -8,7 +8,7 @@ import { isMissingTableError } from "../../db/compat";
 import { type FallwildVorgangRecord, fallwildVorgaenge, mediaAssets } from "../../db/schema";
 import { createDemoStore } from "../../demo-store";
 import { getServerEnv } from "../../env";
-import { buildStoragePublicUrl, isStorageConfigured } from "../../storage/s3";
+import { getStorageReadUrl, isStorageConfigured } from "../../storage/s3";
 import { normalizeDeAtVisibleText } from "../../text/de-at";
 
 export async function listFallwild(): Promise<FallwildVorgang[]> {
@@ -75,11 +75,11 @@ export function mapFallwildRowToDomain(record: FallwildVorgangRecord): FallwildV
   };
 }
 
-export function mapMediaAssetRowToPhotoAsset(record: MediaAssetRecord): PhotoAsset {
+export async function mapMediaAssetRowToPhotoAsset(record: MediaAssetRecord): Promise<PhotoAsset> {
   return {
     id: record.id,
     title: normalizeDeAtVisibleText(record.title),
-    url: buildStoragePublicUrl(record.objectKey),
+    url: await getStorageReadUrl(record.objectKey),
     createdAt: record.createdAt
   };
 }
@@ -193,7 +193,7 @@ async function attachPhotosToFallwildEntries(rows: FallwildVorgangRecord[]): Pro
 
   for (const photoRow of photoRows) {
     const photos = photosByEntryId.get(photoRow.entityId) ?? [];
-    photos.push(mapMediaAssetRowToPhotoAsset(photoRow));
+    photos.push(await mapMediaAssetRowToPhotoAsset(photoRow));
     photosByEntryId.set(photoRow.entityId, photos);
   }
 

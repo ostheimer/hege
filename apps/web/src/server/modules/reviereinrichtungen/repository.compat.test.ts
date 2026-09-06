@@ -12,7 +12,7 @@ vi.mock("../../db/client", () => ({
 }));
 
 vi.mock("../../storage/s3", () => ({
-  buildStoragePublicUrl: vi.fn(),
+  getStorageReadUrl: vi.fn(),
   isStorageConfigured: mockIsStorageConfigured
 }));
 

@@ -10,7 +10,7 @@ import {
   mediaAssets,
   reviere
 } from "../../db/schema";
-import { buildStoragePublicUrl, isStorageConfigured } from "../../storage/s3";
+import { getStorageReadUrl, isStorageConfigured } from "../../storage/s3";
 import { normalizeDeAtVisibleText } from "../../text/de-at";
 import {
   mapDbReviereinrichtungToListItem,
@@ -82,14 +82,18 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
           : Promise.resolve([])
       ]);
 
-      return entries.map((entry) =>
-        mapDbReviereinrichtungToListItem(
-          entry,
-          kontrollen.filter((record) => record.einrichtungId === entry.id),
-          wartungen.filter((record) => record.einrichtungId === entry.id),
-          photoRows
-            .filter((record) => record.entityId === entry.id)
-            .map(mapPhotoRecordToDomain)
+      return Promise.all(
+        entries.map(async (entry) =>
+          mapDbReviereinrichtungToListItem(
+            entry,
+            kontrollen.filter((record) => record.einrichtungId === entry.id),
+            wartungen.filter((record) => record.einrichtungId === entry.id),
+            await Promise.all(
+              photoRows
+                .filter((record) => record.entityId === entry.id)
+                .map(mapPhotoRecordToDomain)
+            )
+          )
         )
       );
     },
@@ -212,11 +216,11 @@ async function listReviereinrichtungRows(
     .orderBy(reviereinrichtungen.name);
 }
 
-function mapPhotoRecordToDomain(record: ReviereinrichtungPhotoRecord): PhotoAsset {
+async function mapPhotoRecordToDomain(record: ReviereinrichtungPhotoRecord): Promise<PhotoAsset> {
   return {
     id: record.id,
     title: normalizeDeAtVisibleText(record.title),
-    url: buildStoragePublicUrl(record.objectKey),
+    url: await getStorageReadUrl(record.objectKey),
     createdAt: record.createdAt
   };
 }

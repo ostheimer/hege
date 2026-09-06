@@ -24,7 +24,7 @@ vi.mock("../../env", () => ({
 }));
 
 vi.mock("../../storage/s3", () => ({
-  buildStoragePublicUrl: vi.fn((objectKey: string) => `https://storage.example/${objectKey}`),
+  getStorageReadUrl: vi.fn(async (objectKey: string) => `https://storage.example/${objectKey}`),
   isStorageConfigured: mockIsStorageConfigured
 }));
 

@@ -13,7 +13,7 @@ import type {
 import { demoData, rolesForFeature } from "@hege/domain";
 import { eq, or, sql } from "drizzle-orm";
 
-import { getDb, type HegeDb } from "../db/client";
+import { getDb } from "../db/client";
 import { isMissingColumnError } from "../db/compat";
 import { memberships, reviere, type RevierRecord, users } from "../db/schema";
 import { getServerEnv } from "../env";
@@ -44,21 +44,10 @@ export async function login(payload: LoginPayload): Promise<AuthSessionResponse>
 
   const normalizedIdentifier = normalizeIdentifier(payload.identifier);
 
-  if (isKnownSeedIdentifier(normalizedIdentifier)) {
-    // Fehlende Seed-Daten werden fuer Live-Tests angelegt. Bestehende Benutzer-
-    // und Mitgliedschaftsdaten duerfen hier nicht ueberschrieben werden, weil
-    // sie ueber die Plattform-Verwaltung oder die PIN-Aenderung gepflegt werden.
-    await syncKnownSeedAuthData();
-  }
-
-  let user = await loadDbUserByIdentifier(normalizedIdentifier);
-  let isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
-
-  if ((!user || !isValidPin) && isKnownSeedIdentifier(normalizedIdentifier)) {
-    await syncKnownSeedAuthData();
-    user = await loadDbUserByIdentifier(normalizedIdentifier);
-    isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
-  }
+  // Anmeldung liest ausschließlich vorhandene Konten. Beispieldaten dürfen
+  // weder bei erfolgreichem noch bei fehlgeschlagenem Login geschrieben werden.
+  const user = await loadDbUserByIdentifier(normalizedIdentifier);
+  const isValidPin = user ? verifyPassword(payload.pin, user.passwordHash) : false;
 
   if (!user || !isValidPin || user.disabledAt) {
     throw new RouteError("E-Mail, Benutzername oder PIN ist ungültig.", 401, "unauthenticated");
@@ -468,6 +457,7 @@ function stripAuthenticatedMembership(value: AuthenticatedMembership): Membershi
     userId: value.userId,
     revierId: value.revierId,
     role: value.role,
+    functionLabel: value.functionLabel,
     jagdzeichen: value.jagdzeichen,
     pushEnabled: value.pushEnabled
   };
@@ -568,12 +558,6 @@ function toImpersonatorTokenContext(
 
 function normalizeIdentifier(value: string) {
   return value.trim().toLowerCase();
-}
-
-function isKnownSeedIdentifier(identifier: string) {
-  return demoUsers.some(
-    (entry) => normalizeIdentifier(entry.email) === identifier || normalizeIdentifier(entry.username ?? "") === identifier
-  );
 }
 
 async function loadDbUserByIdentifier(identifier: string): Promise<DbUserRecord | undefined> {
@@ -688,126 +672,6 @@ async function loadDbMembershipById(membershipId: string): Promise<Authenticated
   return { ...membership, revier: mapRevierRecordToDomain(revier) };
 }
 
-async function syncKnownSeedAuthData() {
-  const db = getDb();
-  const hasSetupCompletedAtColumn = await hasReviereSetupCompletedAtColumn(db);
-  await syncSeedReviere(db, hasSetupCompletedAtColumn);
-  const hasUsernameColumn = await hasUsersUsernameColumn(db);
-  await syncSeedUsers(db, hasUsernameColumn);
-  await syncSeedMemberships(db);
-}
-
-async function hasUsersUsernameColumn(db: HegeDb) {
-  const result = await db.execute(sql<{ hasUsername: boolean }>`
-    select exists (
-      select 1
-      from information_schema.columns
-      where table_schema = 'public'
-        and table_name = 'users'
-        and column_name = 'username'
-    ) as "hasUsername"
-  `);
-  const row = result.rows[0] as { hasUsername?: boolean } | undefined;
-
-  return row?.hasUsername === true;
-}
-
-async function hasReviereSetupCompletedAtColumn(db: HegeDb) {
-  const result = await db.execute(sql<{ hasSetupCompletedAt: boolean }>`
-    select exists (
-      select 1
-      from information_schema.columns
-      where table_schema = 'public'
-        and table_name = 'reviere'
-        and column_name = 'setup_completed_at'
-    ) as "hasSetupCompletedAt"
-  `);
-  const row = result.rows[0] as { hasSetupCompletedAt?: boolean } | undefined;
-
-  return row?.hasSetupCompletedAt === true;
-}
-
-async function syncSeedReviere(db: HegeDb, hasSetupCompletedAtColumn: boolean) {
-  for (const revier of demoData.reviere) {
-    if (hasSetupCompletedAtColumn) {
-      await db.execute(sql`
-        insert into reviere (
-          id,
-          tenant_key,
-          name,
-          bundesland,
-          bezirk,
-          flaeche_hektar,
-          zentrum_lat,
-          zentrum_lng,
-          zentrum_label,
-          setup_completed_at
-        )
-        values (
-          ${revier.id},
-          ${revier.tenantKey},
-          ${revier.name},
-          ${revier.bundesland},
-          ${revier.bezirk},
-          ${revier.flaecheHektar},
-          ${revier.zentrum.lat},
-          ${revier.zentrum.lng},
-          ${revier.zentrum.label ?? null},
-          ${revier.setupCompletedAt ?? null}
-        )
-        on conflict (id) do update
-        set
-          tenant_key = excluded.tenant_key,
-          name = excluded.name,
-          bundesland = excluded.bundesland,
-          bezirk = excluded.bezirk,
-          flaeche_hektar = excluded.flaeche_hektar,
-          zentrum_lat = excluded.zentrum_lat,
-          zentrum_lng = excluded.zentrum_lng,
-          zentrum_label = excluded.zentrum_label,
-          setup_completed_at = excluded.setup_completed_at
-      `);
-
-      continue;
-    }
-
-    await db.execute(sql`
-      insert into reviere (
-        id,
-        tenant_key,
-        name,
-        bundesland,
-        bezirk,
-        flaeche_hektar,
-        zentrum_lat,
-        zentrum_lng,
-        zentrum_label
-      )
-      values (
-        ${revier.id},
-        ${revier.tenantKey},
-        ${revier.name},
-        ${revier.bundesland},
-        ${revier.bezirk},
-        ${revier.flaecheHektar},
-        ${revier.zentrum.lat},
-        ${revier.zentrum.lng},
-        ${revier.zentrum.label ?? null}
-      )
-      on conflict (id) do update
-      set
-        tenant_key = excluded.tenant_key,
-        name = excluded.name,
-        bundesland = excluded.bundesland,
-        bezirk = excluded.bezirk,
-        flaeche_hektar = excluded.flaeche_hektar,
-        zentrum_lat = excluded.zentrum_lat,
-        zentrum_lng = excluded.zentrum_lng,
-        zentrum_label = excluded.zentrum_label
-    `);
-  }
-}
-
 async function loadDbRevierById(revierId: string): Promise<RevierRecord | undefined> {
   const db = getDb();
 
@@ -860,76 +724,6 @@ function mapLegacyRevierRow(row: LegacyRevierRow): RevierRecord {
     zentrumLabel: row.zentrumLabel,
     setupCompletedAt: row.setupCompletedAt
   };
-}
-
-async function syncSeedUsers(db: HegeDb, hasUsernameColumn: boolean) {
-  for (const user of demoUsers) {
-    if (hasUsernameColumn) {
-      await db.execute(sql`
-        insert into users (
-          id,
-          name,
-          phone,
-          email,
-          username,
-          password_hash
-        )
-        values (
-          ${user.id},
-          ${user.name},
-          ${user.phone},
-          ${user.email},
-          ${user.username ?? normalizeIdentifier(user.email.split("@")[0] ?? user.id)},
-          ${user.passwordHash}
-        )
-        on conflict (id) do nothing
-      `);
-
-      continue;
-    }
-
-    await db.execute(sql`
-      insert into users (
-        id,
-        name,
-        phone,
-        email,
-        password_hash
-      )
-      values (
-        ${user.id},
-        ${user.name},
-        ${user.phone},
-        ${user.email},
-        ${user.passwordHash}
-      )
-      on conflict (id) do nothing
-    `);
-  }
-}
-
-async function syncSeedMemberships(db: HegeDb) {
-  for (const membership of demoData.memberships) {
-    await db.execute(sql`
-      insert into memberships (
-        id,
-        user_id,
-        revier_id,
-        role,
-        jagdzeichen,
-        push_enabled
-      )
-      values (
-        ${membership.id},
-        ${membership.userId},
-        ${membership.revierId},
-        ${membership.role},
-        ${membership.jagdzeichen},
-        ${membership.pushEnabled}
-      )
-      on conflict (id) do nothing
-    `);
-  }
 }
 
 function mapRevierRecordToDomain(record: RevierRecord): Revier {
