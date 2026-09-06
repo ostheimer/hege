@@ -42,6 +42,13 @@ function snapshot(overrides: {
 }
 
 describe("buildActivityFeed", () => {
+  it("sortiert gemischte PostgreSQL- und ISO-Zeitstempel nach Zeitpunkt", () => {
+    const items = buildActivityFeed(snapshot({ recentFallwild: [
+      { id: "older", recordedAt: "2026-09-05T08:00:00Z" },
+      { id: "newer", recordedAt: "2026-09-05 10:30:00+02" }
+    ] }));
+    expect(items.map((item) => item.id)).toEqual(["fallwild-newer", "fallwild-older"]);
+  });
   it("liefert leeren Feed, wenn keine Quelle Eintraege hat", () => {
     expect(buildActivityFeed(snapshot({}))).toEqual([]);
   });
@@ -65,7 +72,7 @@ describe("buildActivityFeed", () => {
             body: "Termin bestätigt."
           }
         ]
-      })
+      }), Infinity
     );
 
     expect(items.map((entry) => entry.id)).toEqual([
@@ -77,7 +84,7 @@ describe("buildActivityFeed", () => {
     ]);
   });
 
-  it("kappt auf maximal 6 Eintraege", () => {
+  it("zeigt auf der Startseite genau die drei neuesten Einträge", () => {
     const items = buildActivityFeed(
       snapshot({
         recentFallwild: Array.from({ length: 10 }, (_, index) => ({
@@ -87,7 +94,15 @@ describe("buildActivityFeed", () => {
       })
     );
 
-    expect(items).toHaveLength(6);
+    expect(items).toHaveLength(3);
+    expect(items.map((item) => item.id)).toEqual(["fallwild-f9", "fallwild-f8", "fallwild-f7"]);
+  });
+
+  it("behält in der Gesamtansicht auch ältere Aktivitäten", () => {
+    const data = snapshot({ recentFallwild: Array.from({ length: 12 }, (_, index) => ({
+      id: `history-${index}`, recordedAt: new Date(2026, 4, index + 1).toISOString()
+    })) });
+    expect(buildActivityFeed(data, Infinity)).toHaveLength(12);
   });
 
   it("baut Fallwild-Titel mit Wildart und Gemeinde im Subtitle", () => {

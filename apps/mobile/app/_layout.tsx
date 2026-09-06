@@ -44,6 +44,10 @@ export default function RootLayout() {
       <Stack initialRouteName="(tabs)" screenOptions={{ headerShown: false, headerBackButtonDisplayMode: "minimal" }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" options={{ title: "hege" }} />
+        <Stack.Screen name="aktivitaeten" options={{ headerShown: true, title: "Aktivitäten", headerBackVisible: false, headerLeft: HeaderBackButton }} />
+        <Stack.Screen name="revierkarte-erfassen" options={{ headerShown: true, title: "Reviergrenze", headerBackVisible: false, headerLeft: HeaderBackButton }} />
+        <Stack.Screen name="revierkarte" options={{ headerShown: true, title: "Revierkarte", headerBackVisible: false, headerLeft: HeaderBackButton }} />
+        <Stack.Screen name="reviereinrichtung/[id]" options={{ headerShown: true, title: "Einrichtung", headerBackVisible: false, headerLeft: HeaderBackButton }} />
         <Stack.Screen
           name="ueber-hege"
           options={{ headerShown: true, title: "", headerBackVisible: false, headerLeft: HeaderBackButton }}

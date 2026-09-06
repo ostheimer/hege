@@ -137,6 +137,8 @@ export interface Membership {
   userId: string;
   revierId: string;
   role: Role;
+  /** Fachliche Funktion im Revier; unabhängig von technischen Zugriffsrechten. */
+  functionLabel?: string;
   jagdzeichen: string;
   pushEnabled: boolean;
 }

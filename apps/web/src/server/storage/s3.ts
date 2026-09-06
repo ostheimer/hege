@@ -1,4 +1,5 @@
-import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { getServerEnv } from "../env";
 
@@ -52,7 +53,7 @@ export async function putStorageObject(input: PutStorageObjectInput) {
 
   return {
     objectKey: input.key,
-    publicUrl: buildStoragePublicUrl(input.key, config)
+    publicUrl: await buildStorageReadUrl(input.key, config)
   };
 }
 
@@ -74,6 +75,10 @@ export function buildStoragePublicUrl(objectKey: string, config = assertStorageC
     : config.publicBaseUrl;
 
   return `${normalizedBaseUrl}/${objectKey}`;
+}
+
+export async function getStorageReadUrl(objectKey: string) {
+  return buildStorageReadUrl(objectKey, assertStorageConfigured());
 }
 
 export function sanitizeStorageFileName(fileName: string) {
@@ -106,6 +111,17 @@ function getStorageClient(config: StorageConfig) {
   cachedConfigKey = nextConfigKey;
 
   return client;
+}
+
+async function buildStorageReadUrl(objectKey: string, config: StorageConfig) {
+  return getSignedUrl(
+    getStorageClient(config),
+    new GetObjectCommand({
+      Bucket: config.bucket,
+      Key: objectKey
+    }),
+    { expiresIn: 15 * 60 }
+  );
 }
 
 function readStorageConfig(): StorageConfig | null {

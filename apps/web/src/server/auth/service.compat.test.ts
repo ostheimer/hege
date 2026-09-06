@@ -30,7 +30,7 @@ describe("auth service legacy schema compatibility", () => {
   });
 
   it("logs in with a derived username when users.username is missing", async () => {
-    mockDb.execute.mockImplementation(createSeedSyncThenLegacyUserExecuteMock());
+    mockDb.execute.mockImplementation(createLegacyUserExecuteMock());
 
     const session = await login({
       identifier: "ostheimer",
@@ -60,8 +60,8 @@ describe("auth service legacy schema compatibility", () => {
     expect(context.revier.name).toBe("Jagdgesellschaft Gänserndorf");
   });
 
-  it("syncs known seed users on legacy schemas before login", async () => {
-    mockDb.execute.mockImplementation(createSeedSyncThenLegacyUserExecuteMock());
+  it("reads known users on legacy schemas without seeding during login", async () => {
+    mockDb.execute.mockImplementation(createLegacyUserExecuteMock());
 
     const session = await login({
       identifier: "ostheimer",
@@ -70,10 +70,11 @@ describe("auth service legacy schema compatibility", () => {
 
     expect(session.user.email).toBe("andreas@ostheimer.at");
     expect(mockDb.execute).toHaveBeenCalled();
+    expect(mockDb.execute.mock.calls.map(([query]) => stringifyQuery(query)).every(query => !query.includes("insert into"))).toBe(true);
   });
 
   it("does not overwrite administered seed users or memberships during login", async () => {
-    mockDb.execute.mockImplementation(createSeedSyncThenLegacyUserExecuteMock(true));
+    mockDb.execute.mockImplementation(createLegacyUserExecuteMock());
     mockDb.select.mockImplementation(() => createSelectBuilder({ hasUsernameColumn: true }));
 
     await login({
@@ -84,14 +85,10 @@ describe("auth service legacy schema compatibility", () => {
     const protectedSeedWrites = mockDb.execute.mock.calls
       .map(([query]) => stringifyQuery(query))
       .filter(
-        (query) => query.includes("insert into users") || query.includes("insert into memberships")
+        (query) => query.includes("insert into") || query.includes("update ")
       );
 
-    expect(protectedSeedWrites.length).toBeGreaterThan(0);
-    for (const query of protectedSeedWrites) {
-      expect(query).toContain("on conflict (id) do nothing");
-      expect(query).not.toContain("on conflict (id) do update");
-    }
+    expect(protectedSeedWrites).toEqual([]);
   });
 });
 
@@ -161,36 +158,14 @@ function createSelectBuilder({ hasUsernameColumn = false }: { hasUsernameColumn?
   };
 }
 
-function createSeedSyncThenLegacyUserExecuteMock(hasUsernameColumn = false) {
-  let callCount = 0;
-  let hasUsernameAnswered = false;
-
+function createLegacyUserExecuteMock() {
   return async (query: unknown) => {
-    callCount += 1;
-
-    if (callCount === 1) {
-      return { rows: [{ hasSetupCompletedAt: false }] };
-    }
-
-    // hasUsersUsernameColumn-Aufruf nach den Revier-Inserts erkennen.
-    // Die genaue Position ist abhaengig von der Anzahl Reviere in den Demo-Daten.
-    if (!hasUsernameAnswered && isHasUsernameQuery(query)) {
-      hasUsernameAnswered = true;
-      return { rows: [{ hasUsername: hasUsernameColumn }] };
-    }
-
-    // Der User-Lookup nach dem Seed-Sync erkennen wir an der SQL-Form.
-    if (hasUsernameAnswered && isLegacyUserLookupQuery(query)) {
+    if (isLegacyUserLookupQuery(query)) {
       return { rows: [createLegacyUserRow()] };
     }
 
     return { rows: [] };
   };
-}
-
-function isHasUsernameQuery(query: unknown): boolean {
-  const text = stringifyQuery(query);
-  return text.includes("information_schema.columns") && text.includes("'username'");
 }
 
 function isLegacyUserLookupQuery(query: unknown): boolean {

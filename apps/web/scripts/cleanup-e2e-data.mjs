@@ -50,7 +50,7 @@ const dryRun = Boolean(args["dry-run"]);
 await main({ dryRun });
 
 async function main({ dryRun }) {
-  const databaseUrl = process.env.DATABASE_URL ?? "postgresql://hege:hege@127.0.0.1:5432/hege";
+  const databaseUrl = process.env.DATABASE_URL ?? "postgresql://hege:hege@127.0.0.1:15432/hege";
 
   if (looksLikeProductionDatabaseUrl(databaseUrl)) {
     if (process.env.CLEANUP_E2E_CONFIRM_PROD !== "yes") {
