@@ -4,6 +4,7 @@ import type {
   FallwildVorgang,
   NotificationItem
 } from "@hege/domain";
+import { parseApiTimestamp } from "./api-timestamp";
 
 /**
  * Vereinheitlichtes Item fuer den "Was gibt's Neues"-Feed auf dem Heute-Tab.
@@ -25,14 +26,14 @@ export interface ActivityItem {
   subtitle: string;
 }
 
-const MAX_FEED_ITEMS = 6;
+export const HOME_ACTIVITY_LIMIT = 3;
 
 /**
  * Fuehrt Ansitze, Fallwild und Notifications in einen chronologischen
- * Feed zusammen, neueste oben. Liefert maximal `MAX_FEED_ITEMS` Eintraege —
- * wir wollen die Heute-Seite scannbar halten, nicht eine Endlosliste.
+ * Feed zusammen, neueste oben. Die Startseite zeigt drei Einträge;
+ * die Gesamtansicht übergibt Infinity und behält die vollständige Historie.
  */
-export function buildActivityFeed(snapshot: DashboardResponse): ActivityItem[] {
+export function buildActivityFeed(snapshot: Pick<DashboardResponse, "activeAnsitze" | "recentFallwild"> & { overview: Pick<DashboardResponse["overview"], "letzteBenachrichtigungen"> }, limit = HOME_ACTIVITY_LIMIT): ActivityItem[] {
   const items: ActivityItem[] = [];
 
   for (const entry of snapshot.activeAnsitze) {
@@ -48,8 +49,8 @@ export function buildActivityFeed(snapshot: DashboardResponse): ActivityItem[] {
   }
 
   return items
-    .sort((left, right) => right.timestamp.localeCompare(left.timestamp))
-    .slice(0, MAX_FEED_ITEMS);
+    .sort((left, right) => (parseApiTimestamp(right.timestamp)?.getTime() ?? 0) - (parseApiTimestamp(left.timestamp)?.getTime() ?? 0))
+    .slice(0, limit);
 }
 
 function mapAnsitz(entry: AnsitzSession): ActivityItem {
@@ -100,7 +101,8 @@ export function formatRelativeTime(
   isoTimestamp: string,
   now: Date = new Date()
 ): string {
-  const then = new Date(isoTimestamp);
+  const then = parseApiTimestamp(isoTimestamp);
+  if (!then) return "";
   const deltaMs = now.getTime() - then.getTime();
 
   if (Number.isNaN(deltaMs)) {

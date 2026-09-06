@@ -4,12 +4,14 @@ import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { canRoleAccess, type ReviereinrichtungListItem } from "@hege/domain";
 import { spacing } from "@hege/tokens";
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import { ActivityIndicator, Image, Pressable, Text, TextInput, View } from "react-native";
+import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { useRouter } from "expo-router";
 
 import { Badge } from "../../components/badge";
 import { EntityMap, type EntityPin } from "../../components/entity-map";
 import { FeedbackBanner } from "../../components/feedback-banner";
+import { FacilityPhotoHero } from "../../components/facility-photo-hero";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { PinDetailSheet, type SelectedPin } from "../../components/pin-detail-sheet";
 import { QueueStatusPill } from "../../components/queue-status-pill";
@@ -77,6 +79,8 @@ const MAX_PHOTOS = 3;
 export default function ReviereinrichtungenScreen() {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const router = useRouter();
+  const scrollRef = useRef<ScrollView>(null);
   const session = useSessionSnapshot();
   const queue = useOfflineQueueSnapshot();
   const canCreate = session.session
@@ -87,6 +91,7 @@ export default function ReviereinrichtungenScreen() {
   const [attachments, setAttachments] = useState<LocalPendingPhoto[]>([]);
   const [section, setSection] = useState<CaptureSection>(canCreate ? "erfassen" : "bestand");
   const [mode, setMode] = useState<ViewMode>("karte");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<ReviereinrichtungFilterState>(DEFAULT_REVIEREINRICHTUNG_FILTER);
   const [isLoading, setIsLoading] = useState(true);
@@ -99,6 +104,9 @@ export default function ReviereinrichtungenScreen() {
   const [discardingEntryId, setDiscardingEntryId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [queueError, setQueueError] = useState<string | null>(null);
 
   const queueEntries = queue.entries.filter(
     (entry) => entry.kind === "reviereinrichtung-create" || entry.kind === "reviereinrichtung-photo-upload"
@@ -132,7 +140,7 @@ export default function ReviereinrichtungenScreen() {
     const lat = Number(form.lat.replace(",", "."));
     const lng = Number(form.lng.replace(",", "."));
 
-    return Number.isFinite(lat) && Number.isFinite(lng)
+    return form.lat.trim() && form.lng.trim() && Number.isFinite(lat) && Number.isFinite(lng)
       ? {
           id: "draft-reviereinrichtung",
           kind: "einrichtung",
@@ -180,12 +188,12 @@ export default function ReviereinrichtungenScreen() {
   async function loadEntries(options?: { refreshing?: boolean }) {
     const refreshing = options?.refreshing ?? false;
     refreshing ? setIsRefreshing(true) : setIsLoading(true);
-    setError(null);
+    setLoadError(null);
 
     try {
       setEntries(await fetchReviereinrichtungenList());
-    } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Unbekannter Fehler");
+    } catch {
+      setLoadError("Die Einrichtungen konnten nicht geladen werden. Zum erneuten Laden nach unten ziehen.");
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -209,6 +217,7 @@ export default function ReviereinrichtungenScreen() {
       const photoSnapshot = limitReviereinrichtungPhotoAttachments(attachments);
       const result = await submitReviereinrichtung(buildReviereinrichtungPayload(form), photoSnapshot);
       setForm(DEFAULT_REVIEREINRICHTUNG_FORM);
+      setLocationError(null);
       setAttachments([]);
       setSection("bestand");
       setMode("karte");
@@ -235,8 +244,10 @@ export default function ReviereinrichtungenScreen() {
       }
 
       await loadEntries({ refreshing: true });
+      requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: false }));
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Reviereinrichtung konnte nicht gespeichert werden.");
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
     } finally {
       setIsSubmitting(false);
     }
@@ -245,11 +256,14 @@ export default function ReviereinrichtungenScreen() {
   async function handleUseCurrentLocation() {
     if (isLocating || isSubmitting) return;
     setIsLocating(true);
-    setError(null);
+    setLocationError(null);
 
     try {
       const permission = await Location.requestForegroundPermissionsAsync();
-      if (!permission.granted) throw new Error("Der Standortzugriff ist nicht erlaubt.");
+      if (!permission.granted) {
+        setLocationError("Erlaube den Standortzugriff in den Einstellungen oder tippe die Position direkt auf der Karte an.");
+        return;
+      }
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       setForm((current) => ({
         ...current,
@@ -259,8 +273,8 @@ export default function ReviereinrichtungenScreen() {
           typeof position.coords.accuracy === "number" ? String(Math.round(position.coords.accuracy)) : "",
         locationSource: "device-gps"
       }));
-    } catch (locationError) {
-      setError(locationError instanceof Error ? locationError.message : "Standort konnte nicht ermittelt werden.");
+    } catch {
+      setLocationError("GPS liefert gerade keine Position. Versuche es erneut oder tippe die Position direkt auf der Karte an.");
     } finally {
       setIsLocating(false);
     }
@@ -277,8 +291,9 @@ export default function ReviereinrichtungenScreen() {
       const heading = await Location.getHeadingAsync();
       const value = heading.trueHeading >= 0 ? heading.trueHeading : heading.magHeading;
       setForm((current) => ({ ...current, orientationDegrees: String(Math.round(value)) }));
-    } catch (headingError) {
-      setError(headingError instanceof Error ? headingError.message : "Ausrichtung konnte nicht ermittelt werden.");
+    } catch {
+      setError("Der Kompass ist gerade nicht verfügbar. Trage die Ausrichtung im Feld Grad ein.");
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
     } finally {
       setIsReadingHeading(false);
     }
@@ -317,13 +332,13 @@ export default function ReviereinrichtungenScreen() {
 
   async function handleRetry(entryId: string) {
     setRetryingEntryId(entryId);
-    setError(null);
+    setQueueError(null);
     try {
       await retryOfflineQueueEntry(entryId);
       await syncOfflineQueue();
       await loadEntries({ refreshing: true });
     } catch (retryError) {
-      setError(retryError instanceof Error ? retryError.message : "Eintrag konnte nicht erneut gesendet werden.");
+      setQueueError("Eintrag konnte nicht erneut gesendet werden. Er bleibt in der Warteschlange erhalten.");
     } finally {
       setRetryingEntryId(null);
     }
@@ -340,11 +355,13 @@ export default function ReviereinrichtungenScreen() {
 
   return (
     <ScreenShell
+      scrollRef={scrollRef}
       testID="reviereinrichtungen-screen"
       eyebrow="Reviereinrichtungen"
-      title="Einrichtungen erfassen und auf der Karte führen."
-      subtitle="Standort, Ausrichtung, Fotos, Zustand und jagdliche Details an einem Ort."
+      title={section === "erfassen" ? "Neue Einrichtung" : "Karte & Bestand"}
+      subtitle={section === "erfassen" ? "Fotos, Standort und Zustand vor dem Speichern prüfen." : "Gespeicherte Einrichtungen im aktiven Revier."}
       aside={<QueueStatusPill count={queueSummary.totalCount} failedCount={queueSummary.failedCount} />}
+      compactHero
       refresh={{ refreshing: isRefreshing, onRefresh: () => void handleRefresh() }}
     >
       {canCreate ? (
@@ -361,7 +378,9 @@ export default function ReviereinrichtungenScreen() {
       ) : null}
 
       {feedback ? <FeedbackBanner tone={feedback.tone} title={feedback.title} description={feedback.copy} /> : null}
-      {error ? <FeedbackBanner tone="danger" title="Reviereinrichtungen nicht verfügbar" description={error} /> : null}
+      {loadError && section === "bestand" ? <FeedbackBanner tone="danger" title="Bestand konnte nicht geladen werden" description={loadError} /> : null}
+      {error && section === "erfassen" ? <FeedbackBanner tone="danger" title="Bitte Angaben prüfen" description={error} /> : null}
+      {queueError ? <FeedbackBanner tone="warning" title="Übertragung fehlgeschlagen" description={queueError} /> : null}
 
       {queueEntries.length > 0 ? (
         <View style={styles.queueCard} testID="reviereinrichtung-offline-queue">
@@ -402,20 +421,30 @@ export default function ReviereinrichtungenScreen() {
 
       {section === "erfassen" && canCreate ? (
         <View style={styles.formCard} testID="reviereinrichtung-form">
-          <Text style={styles.sectionLabel}>Neue Reviereinrichtung</Text>
+          <FacilityPhotoHero
+            busy={isPickingPhotos || isSubmitting || attachments.length >= MAX_PHOTOS}
+            mode="capture"
+            onCamera={() => void pickPhotos("camera")}
+            onLibrary={() => void pickPhotos("library")}
+            onRemove={(id) => setAttachments((current) => current.filter((entry) => entry.id !== id))}
+            photos={attachments.map((photo, index) => ({ id: photo.id, title: photo.title ?? `Einrichtungsfoto ${index + 1}`, uri: photo.uri }))}
+            title={form.name || formatEinrichtungTyp(form.type)}
+          />
+          <Text style={styles.sectionLabel}>Angaben</Text>
+          <FormField testID="reviereinrichtung-name" label="Name" placeholder="z. B. Hochstand Nord" value={form.name} onChangeText={updateText(setForm, "name")} theme={theme} styles={styles} />
           <SelectField label="Typ" options={EINRICHTUNG_TYP_OPTIONS} value={form.type} onChange={updateChoice(setForm, "type")} />
           <SelectField
             label="Zustand"
             options={[
+              { value: "", label: "Bitte wählen" },
               { value: "gut", label: "Gut" },
               { value: "wartung-faellig", label: "Wartung fällig" },
               { value: "gesperrt", label: "Gesperrt" }
             ]}
             value={form.status}
             onChange={updateChoice(setForm, "status")}
+            testID="reviereinrichtung-status"
           />
-          <FormField testID="reviereinrichtung-name" label="Name" placeholder="z. B. Nordkanzel" value={form.name} onChangeText={updateText(setForm, "name")} theme={theme} styles={styles} />
-
           <View style={styles.locationBox}>
             <View style={styles.rowBetween}>
               <View style={styles.grow}>
@@ -426,32 +455,37 @@ export default function ReviereinrichtungenScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Aktuellen Standort übernehmen"
                 testID="reviereinrichtung-current-location"
-                style={[styles.iconButton, isLocating ? styles.disabled : null]}
+                style={[styles.locationAction, isLocating ? styles.disabled : null]}
                 disabled={isLocating}
                 onPress={() => void handleUseCurrentLocation()}
               >
                 {isLocating ? <ActivityIndicator color={theme.ink} /> : <Ionicons name="locate" size={22} color={theme.ink} />}
+                <Text style={styles.locationActionText}>{isLocating ? "Standort wird ermittelt" : "GPS übernehmen"}</Text>
               </Pressable>
             </View>
-            <View style={styles.fieldRow}>
-              <FormField testID="reviereinrichtung-lat" label="Breitengrad" keyboardType="decimal-pad" value={form.lat} onChangeText={updateText(setForm, "lat")} theme={theme} styles={styles} grow />
-              <FormField testID="reviereinrichtung-lng" label="Längengrad" keyboardType="decimal-pad" value={form.lng} onChangeText={updateText(setForm, "lng")} theme={theme} styles={styles} grow />
-            </View>
-            <FormField label="Standortbezeichnung" placeholder="Nordhang" value={form.locationLabel} onChangeText={updateText(setForm, "locationLabel")} theme={theme} styles={styles} />
+            {locationError ? <FeedbackBanner tone="warning" title="Standort gerade nicht verfügbar" description={locationError} /> : null}
             <EntityMap
               testID="reviereinrichtung-location-map"
               pins={draftPin ? [draftPin] : []}
-              height={280}
-              onMapPress={(location) =>
+              revierCenter={draftPin ? undefined : session.session?.revier.zentrum}
+              height={360}
+              onMapPress={(location) => {
+                setLocationError(null);
                 setForm((current) => ({
                   ...current,
                   lat: location.lat.toFixed(6),
                   lng: location.lng.toFixed(6),
                   accuracyMeters: "",
                   locationSource: "manual"
-                }))
-              }
+                }));
+              }}
             />
+            <Text style={styles.mapHint}>Für eine manuelle Position direkt auf die Karte tippen.</Text>
+            <View style={styles.fieldRow}>
+              <FormField testID="reviereinrichtung-lat" label="Breitengrad" keyboardType="decimal-pad" value={form.lat} onChangeText={updateText(setForm, "lat")} theme={theme} styles={styles} grow />
+              <FormField testID="reviereinrichtung-lng" label="Längengrad" keyboardType="decimal-pad" value={form.lng} onChangeText={updateText(setForm, "lng")} theme={theme} styles={styles} grow />
+            </View>
+            <FormField label="Standortbezeichnung" placeholder="Nordhang" value={form.locationLabel} onChangeText={updateText(setForm, "locationLabel")} theme={theme} styles={styles} />
           </View>
 
           {supportsOrientation(form.type) ? (
@@ -505,32 +539,6 @@ export default function ReviereinrichtungenScreen() {
           <FormField label="Zustimmung Grundeigentümer" placeholder="JJJJ-MM-TT" value={form.ownerConsentAt} onChangeText={updateText(setForm, "ownerConsentAt")} theme={theme} styles={styles} />
           <FormField label="Beschreibung" placeholder="Bauweise, Besonderheiten, Hinweise" value={form.beschreibung} onChangeText={updateText(setForm, "beschreibung")} theme={theme} styles={styles} multiline />
 
-          <View style={styles.photoSection}>
-            <Text style={styles.label}>Fotos</Text>
-            <View style={styles.photoActionRow}>
-              <Pressable style={[styles.photoButton, photosDisabled ? styles.disabled : null]} disabled={photosDisabled} onPress={() => void pickPhotos("camera")}>
-                <Ionicons name="camera" size={24} color={theme.accent} />
-                <Text style={styles.photoButtonText}>Aufnehmen</Text>
-              </Pressable>
-              <Pressable style={[styles.photoButton, photosDisabled ? styles.disabled : null]} disabled={photosDisabled} onPress={() => void pickPhotos("library")}>
-                <Ionicons name="images-outline" size={24} color={theme.ink} />
-                <Text style={styles.photoButtonText}>Mediathek</Text>
-              </Pressable>
-            </View>
-            {attachments.length > 0 ? (
-              <View style={styles.photoList}>
-                {attachments.map((photo, index) => (
-                  <View key={photo.id} style={styles.photoCard}>
-                    <Image source={{ uri: photo.uri }} style={styles.photoPreview} accessibilityLabel={`Einrichtungsfoto ${index + 1}`} />
-                    <Pressable accessibilityLabel={`Foto ${index + 1} entfernen`} style={styles.photoRemove} onPress={() => setAttachments((current) => current.filter((entry) => entry.id !== photo.id))}>
-                      <Ionicons name="close" size={18} color={theme.onAccent} />
-                    </Pressable>
-                  </View>
-                ))}
-              </View>
-            ) : <Text style={styles.copy}>Noch keine Fotos ausgewählt.</Text>}
-          </View>
-
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Reviereinrichtung speichern"
@@ -555,7 +563,8 @@ export default function ReviereinrichtungenScreen() {
               { key: "liste", label: "Liste", icon: "list" }
             ]}
           />
-          <View style={styles.filterSection}>
+          <Pressable accessibilityRole="button" onPress={() => setFiltersOpen(!filtersOpen)} style={styles.resetButton}><Text style={styles.resetText}>{filtersOpen ? "Filter schließen" : filterActive ? "Filter bearbeiten · aktiv" : "Suchen & Filtern"} · {visibleEntries.length} Einrichtungen</Text></Pressable>
+          {filtersOpen ? <View style={styles.filterSection}>
             <SearchInput testID="reviereinrichtungen-search" value={filter.search} onChangeText={(search) => setFilter((current) => ({ ...current, search }))} placeholder="Name, Typ oder Standort" accessibilityLabel="Einrichtungen durchsuchen" />
             <SelectField<EinrichtungTypFilter>
               label="Typ"
@@ -596,7 +605,7 @@ export default function ReviereinrichtungenScreen() {
                 <Text style={styles.resetText}>Filter zurücksetzen</Text>
               </Pressable>
             ) : null}
-          </View>
+          </View> : null}
 
           {isLoading ? <StateView mode="loading" title="Einrichtungen werden geladen" description="" /> : null}
           {!isLoading && visibleEntries.length === 0 ? <StateView mode="empty" title="Keine Einrichtungen" description="Für diese Auswahl sind keine Kartenpunkte vorhanden." /> : null}
@@ -609,7 +618,9 @@ export default function ReviereinrichtungenScreen() {
               height={MAP_HEIGHT}
               onPinPress={(pin) => {
                 const target = visibleEntries.find((entry) => entry.id === pin.id);
-                if (target) setSelectedPin({ type: "einrichtung", data: target });
+                if (!target) return;
+                if (target.id.startsWith("offline-")) setSelectedPin({ type: "einrichtung", data: target });
+                else router.push({ pathname: "/reviereinrichtung/[id]", params: { id: target.id } } as never);
               }}
             />
           ) : null}
@@ -622,7 +633,9 @@ export default function ReviereinrichtungenScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={`Reviereinrichtung ${entry.name}`}
                   style={styles.card}
-                  onPress={() => setSelectedPin({ type: "einrichtung", data: entry })}
+                  onPress={() => entry.id.startsWith("offline-")
+                    ? setSelectedPin({ type: "einrichtung", data: entry })
+                    : router.push({ pathname: "/reviereinrichtung/[id]", params: { id: entry.id } } as never)}
                 >
                   {entry.photos[0] ? <Image source={{ uri: entry.photos[0].url }} style={styles.cardImage} accessibilityLabel={entry.photos[0].title} /> : null}
                   <View style={styles.rowBetween}>
@@ -739,7 +752,10 @@ const createStyles = (theme: ThemeColors) =>
     fieldRow: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start" },
     grow: { flex: 1, minWidth: 0 },
     rowBetween: { flexDirection: "row", gap: spacing.sm, alignItems: "flex-start", justifyContent: "space-between" },
-    locationBox: { gap: spacing.sm, padding: 14, borderRadius: 16, backgroundColor: theme.surfaceMuted },
+    locationBox: { gap: spacing.sm, paddingVertical: 8 },
+    locationAction: { minHeight: 48, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, paddingHorizontal: 14, borderRadius: 16, backgroundColor: theme.card },
+    locationActionText: { color: theme.ink, fontSize: 14, fontWeight: "700" },
+    mapHint: { fontSize: 13, lineHeight: 18, color: theme.muted },
     iconButton: { width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: 16, backgroundColor: theme.card },
     disabled: { opacity: 0.5 },
     copy: { fontSize: 14, lineHeight: 20, color: theme.muted },

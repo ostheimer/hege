@@ -1,6 +1,7 @@
 import * as Haptics from "expo-haptics";
-import { useMemo } from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MapView, { Marker, PROVIDER_GOOGLE, type MapPressEvent } from "react-native-maps";
 import type { GeoPoint } from "@hege/domain";
 
@@ -9,7 +10,6 @@ import { useThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
 import { buildEntityMapRegionKey } from "./entity-map.helpers";
 import {
-  AUSTRIA_DEFAULT_CENTER,
   buildInitialRegion,
   type RevierCenter
 } from "./map-preview.helpers";
@@ -79,6 +79,10 @@ export function EntityMap({
 }: EntityMapProps) {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const insets = useSafeAreaInsets();
+  const [expanded, setExpanded] = useState(false);
+  const mapRef = useRef<MapView>(null);
+  const regionRef = useRef<ReturnType<typeof buildInitialRegion> | null>(null);
 
   const regionKey = useMemo(
     () => buildEntityMapRegionKey(revierCenter, pins),
@@ -86,12 +90,11 @@ export function EntityMap({
   );
 
   const initialRegion = useMemo(() => {
-    const center = revierCenter ?? AUSTRIA_DEFAULT_CENTER;
-    return buildInitialRegion(center, pins);
+    return buildInitialRegion(revierCenter, pins);
   }, [pins, revierCenter]);
 
   const containerStyle =
-    height === null ? styles.containerFlex : [styles.containerFixed, { height }];
+    expanded || height === null ? styles.containerFlex : [styles.containerFixed, { height }];
 
   if (!SHOULD_RENDER_NATIVE_MAP) {
     return (
@@ -104,13 +107,17 @@ export function EntityMap({
     );
   }
 
-  return (
+  const mapContent = (
     <View style={containerStyle} testID={testID}>
       <MapView
+        ref={mapRef}
         key={regionKey}
         provider={MAP_PROVIDER}
         style={StyleSheet.absoluteFillObject}
         initialRegion={initialRegion}
+        zoomEnabled
+        scrollEnabled
+        onRegionChangeComplete={(region) => { regionRef.current = region; }}
         showsUserLocation
         showsMyLocationButton={false}
         showsCompass
@@ -138,6 +145,7 @@ export function EntityMap({
                 return;
               }
               void Haptics.selectionAsync();
+              setExpanded(false);
               onPinPress(pin);
             }}
             // Wir behalten die native Callout absichtlich bei: wer keinen
@@ -148,8 +156,18 @@ export function EntityMap({
           />
         ))}
       </MapView>
+      <View style={{ position: "absolute", top: 12, right: 12, gap: 8 }}>
+        <Pressable accessibilityRole="button" accessibilityLabel={expanded ? "Karte schließen" : "Karte bildschirmfüllend öffnen"} onPress={() => setExpanded(!expanded)} style={{ backgroundColor: theme.card, padding: 14, borderRadius: 12 }}><Text style={{ color: theme.ink, fontWeight: "700" }}>{expanded ? "Schließen" : "Vollbild"}</Text></Pressable>
+        {[{ label: "Vergrößern", text: "+", factor: 0.5 }, { label: "Verkleinern", text: "−", factor: 2 }].map(action => <Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label} onPress={() => {
+          const current = regionRef.current ?? initialRegion;
+          const next = { ...current, latitudeDelta: Math.min(150, Math.max(0.0003, current.latitudeDelta * action.factor)), longitudeDelta: Math.min(150, Math.max(0.0003, current.longitudeDelta * action.factor)) };
+          regionRef.current = next;
+          mapRef.current?.animateToRegion(next, 200);
+        }} style={{ backgroundColor: theme.card, width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: 12 }}><Text style={{ color: theme.ink, fontSize: 28 }}>{action.text}</Text></Pressable>)}
+      </View>
     </View>
   );
+  return expanded ? <><View style={{ height: height ?? 300 }} /><Modal visible animationType="slide" onRequestClose={() => setExpanded(false)}><View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: theme.background }}>{mapContent}</View></Modal></> : mapContent;
 }
 
 const createStyles = (theme: ThemeColors) =>

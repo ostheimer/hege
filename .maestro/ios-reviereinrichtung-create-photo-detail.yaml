@@ -1,0 +1,86 @@
+appId: ${APP_ID}
+name: iOS Reviereinrichtung - mit Foto erfassen und öffnen
+tags:
+  - ios
+  - reviereinrichtungen
+  - erfassung
+  - foto
+---
+- launchApp
+- openLink: hege://reviereinrichtungen
+- extendedWaitUntil:
+    visible: Neue Einrichtung
+    timeout: 15000
+- tapOn: Mediathek
+- tapOn:
+    point: 20%, 34%
+- tapOn:
+    point: 90%, 16%
+- extendedWaitUntil:
+    visible: 1 / 1
+    timeout: 10000
+- tapOn:
+    id: reviereinrichtung-name
+- inputText: ${HEGE_UI_FACILITY_NAME}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-status
+    direction: DOWN
+    timeout: 5000
+- tapOn:
+    id: reviereinrichtung-status
+- tapOn: Gut
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-current-location
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: reviereinrichtung-current-location
+- tapOn:
+    text: Beim Verwenden der App erlauben
+    optional: true
+- extendedWaitUntil:
+    visible: GPS-Genauigkeit.*
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-submit
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: reviereinrichtung-submit
+- extendedWaitUntil:
+    visible: Reviereinrichtung gespeichert
+    timeout: 20000
+- tapOn: Liste
+- tapOn: Suchen & Filtern.*
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtungen-search
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: reviereinrichtungen-search
+- inputText: ${HEGE_UI_FACILITY_NAME}
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      text: Reviereinrichtung ${HEGE_UI_FACILITY_NAME}
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    text: Reviereinrichtung ${HEGE_UI_FACILITY_NAME}
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtung-detail-screen
+    timeout: 15000
+- assertVisible: 1 / 1
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-google-maps-link
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: reviereinrichtung-google-maps-link

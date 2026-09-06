@@ -1,0 +1,19 @@
+appId: app.hege.revier
+---
+- launchApp:
+    stopApp: true
+- openLink: hege://reviereinrichtungen
+- extendedWaitUntil:
+    visible: Neue Einrichtung
+    timeout: 15000
+- tapOn: Karte & Bestand
+- assertVisible: Suchen & Filtern.*
+- tapOn: Karte bildschirmfüllend öffnen
+- assertVisible: Karte schließen
+- tapOn: Vergrößern
+- tapOn: Vergrößern
+- tapOn: Verkleinern
+- takeScreenshot: hege-facilities-fullscreen
+- tapOn: Karte schließen
+- tapOn: Liste
+- assertVisible: Reviereinrichtung Test.*

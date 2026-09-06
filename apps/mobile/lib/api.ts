@@ -247,6 +247,17 @@ export async function logout() {
   await clearSession();
 }
 
+export async function switchMembership(membershipId: string) {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) throw new Error("Bitte erneut anmelden.");
+  const session = await requestJson<AuthSessionResponse>("/v1/auth/refresh", {
+    method: "POST", auth: false, retryOnUnauthorized: false,
+    body: { refreshToken, membershipId }
+  });
+  await saveSession(session);
+  return session;
+}
+
 export async function fetchPlatformUsers(): Promise<PlatformUserListResponse> {
   return requestJson<PlatformUserListResponse>("/v1/platform/users");
 }
@@ -313,6 +324,12 @@ export async function fetchDashboardSnapshot(): Promise<DashboardResponse> {
   return requestJson<DashboardResponse>("/v1/dashboard", {
     fallback: fallbackDashboardSnapshot
   });
+}
+
+export async function fetchActivityHistory() {
+  return requestJson<Pick<DashboardResponse, "activeAnsitze" | "recentFallwild"> & {
+    overview: Pick<DashboardResponse["overview"], "letzteBenachrichtigungen">;
+  }>("/v1/activities");
 }
 
 export async function fetchLiveAnsitze(): Promise<AnsitzSession[]> {
@@ -861,4 +878,10 @@ function mapPublishedDocument(document: NonNullable<(typeof demoData.sitzungen)[
     ...document,
     downloadUrl: document.url
   };
+}
+export async function fetchRevierMap(): Promise<{ map: import("@hege/domain").RevierMapData | null }> {
+  return requestJson("/v1/revier-map");
+}
+export async function saveGpsBoundary(samples: import("@hege/domain").BoundarySample[]) {
+  return requestJson("/v1/revier-map", { method: "POST", body: { samples } });
 }
