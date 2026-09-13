@@ -1,4 +1,10 @@
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { getServerEnv } from "../env";
@@ -16,6 +22,12 @@ interface PutStorageObjectInput {
   key: string;
   body: Buffer | Uint8Array | string;
   contentType: string;
+}
+
+interface CreateStorageUploadUrlInput {
+  key: string;
+  contentType: string;
+  expiresInSeconds?: number;
 }
 
 let client: S3Client | null = null;
@@ -67,6 +79,35 @@ export async function deleteStorageObject(objectKey: string) {
       Key: objectKey
     })
   );
+}
+
+export async function createStorageUploadUrl(input: CreateStorageUploadUrlInput) {
+  const config = assertStorageConfigured();
+
+  return getSignedUrl(
+    getStorageClient(config),
+    new PutObjectCommand({
+      Bucket: config.bucket,
+      Key: input.key,
+      ContentType: input.contentType
+    }),
+    { expiresIn: input.expiresInSeconds ?? 5 * 60 }
+  );
+}
+
+export async function headStorageObject(objectKey: string) {
+  const config = assertStorageConfigured();
+  const result = await getStorageClient(config).send(
+    new HeadObjectCommand({
+      Bucket: config.bucket,
+      Key: objectKey
+    })
+  );
+
+  return {
+    contentLength: result.ContentLength,
+    contentType: result.ContentType
+  };
 }
 
 export function buildStoragePublicUrl(objectKey: string, config = assertStorageConfigured()) {

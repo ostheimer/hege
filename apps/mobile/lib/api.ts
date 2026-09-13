@@ -41,6 +41,7 @@ import type {
   Wildart
 } from "@hege/domain";
 import { buildDashboardOverview, canRoleAccess, demoData } from "@hege/domain";
+import * as FileSystem from "expo-file-system";
 
 import type { LocalPendingPhoto } from "./fallwild-photos";
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from "./session";
@@ -180,6 +181,13 @@ export interface FallwildPhotoUploadResponse {
 
 export interface ReviereinrichtungPhotoUploadResponse {
   photo: PhotoAsset;
+}
+
+interface DirectPhotoUploadPreparation {
+  uploadUrl: string;
+  uploadToken: string;
+  expiresAt: string;
+  headers: Record<string, string>;
 }
 
 export interface MutationResponse {
@@ -519,51 +527,85 @@ export async function uploadFallwildPhoto(
   fallwildId: string,
   attachment: LocalPendingPhoto
 ): Promise<FallwildPhotoUploadResponse> {
-  const formData = new FormData();
-  formData.append(
-    "file",
-    {
-      uri: attachment.uri,
-      name: attachment.fileName,
-      type: attachment.mimeType
-    } as never
+  return uploadPhotoDirectly(
+    `/v1/fallwild/${encodeURIComponent(fallwildId)}/fotos/upload`,
+    attachment
   );
-
-  if (attachment.title) {
-    formData.append("title", attachment.title);
-  }
-
-  return requestJson<FallwildPhotoUploadResponse>(`/v1/fallwild/${encodeURIComponent(fallwildId)}/fotos`, {
-    method: "POST",
-    body: formData
-  });
 }
 
 export async function uploadReviereinrichtungPhoto(
   einrichtungId: string,
   attachment: LocalPendingPhoto
 ): Promise<ReviereinrichtungPhotoUploadResponse> {
-  const formData = new FormData();
-  formData.append(
-    "file",
-    {
-      uri: attachment.uri,
-      name: attachment.fileName,
-      type: attachment.mimeType
-    } as never
+  return uploadPhotoDirectly(
+    `/v1/reviereinrichtungen/${encodeURIComponent(einrichtungId)}/fotos/upload`,
+    attachment
   );
+}
 
-  if (attachment.title) {
-    formData.append("title", attachment.title);
+async function uploadPhotoDirectly<T extends FallwildPhotoUploadResponse>(
+  path: string,
+  attachment: LocalPendingPhoto
+): Promise<T> {
+  const fileInfo = await FileSystem.getInfoAsync(attachment.uri, { size: true });
+
+  if (!fileInfo.exists || fileInfo.isDirectory || !Number.isSafeInteger(fileInfo.size) || fileInfo.size <= 0) {
+    throw new MobileApiError("Die ausgewählte Fotodatei ist nicht mehr verfügbar.", 422, "validation-error");
   }
 
-  return requestJson<ReviereinrichtungPhotoUploadResponse>(
-    `/v1/reviereinrichtungen/${encodeURIComponent(einrichtungId)}/fotos`,
-    {
-      method: "POST",
-      body: formData
+  return performDirectPhotoUpload<T>(path, attachment, fileInfo.size, true);
+}
+
+async function performDirectPhotoUpload<T extends FallwildPhotoUploadResponse>(
+  path: string,
+  attachment: LocalPendingPhoto,
+  sizeBytes: number,
+  retryExpiredUrl: boolean
+): Promise<T> {
+  const preparation = await requestJson<DirectPhotoUploadPreparation>(path, {
+    method: "POST",
+    body: {
+      fileName: attachment.fileName,
+      contentType: attachment.mimeType,
+      sizeBytes,
+      ...(attachment.title ? { title: attachment.title } : {})
     }
-  );
+  });
+
+  let uploadResult: FileSystem.FileSystemUploadResult;
+
+  try {
+    uploadResult = await FileSystem.uploadAsync(preparation.uploadUrl, attachment.uri, {
+      httpMethod: "PUT",
+      uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+      headers: preparation.headers
+    });
+  } catch {
+    throw new MobileApiError(
+      "Das Foto konnte nicht in den Bildspeicher übertragen werden.",
+      503,
+      "service-unavailable"
+    );
+  }
+
+  if (uploadResult.status === 403 && retryExpiredUrl) {
+    return performDirectPhotoUpload<T>(path, attachment, sizeBytes, false);
+  }
+
+  if (uploadResult.status < 200 || uploadResult.status >= 300) {
+    throw new MobileApiError(
+      `Der Bildspeicher hat den Upload abgelehnt (HTTP ${uploadResult.status}).`,
+      503,
+      "service-unavailable"
+    );
+  }
+
+  return requestJson<T>(path, {
+    method: "PUT",
+    body: {
+      uploadToken: preparation.uploadToken
+    }
+  });
 }
 
 export async function fetchReviereinrichtungenList(): Promise<ReviereinrichtungListItem[]> {

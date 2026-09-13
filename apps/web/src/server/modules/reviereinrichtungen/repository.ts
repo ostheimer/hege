@@ -22,6 +22,11 @@ export interface ReviereinrichtungenRepository {
   insert(entry: Reviereinrichtung): Promise<ReviereinrichtungListItem>;
   countPhotos(einrichtungId: string): Promise<number>;
   findUploadScope(einrichtungId: string, revierId: string): Promise<ReviereinrichtungUploadScope | undefined>;
+  findPhotoById(
+    photoId: string,
+    einrichtungId: string,
+    revierId: string
+  ): Promise<ReviereinrichtungPhotoRecord | undefined>;
   insertPhoto(entry: ReviereinrichtungPhotoInsert): Promise<ReviereinrichtungPhotoRecord>;
 }
 
@@ -155,6 +160,23 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
         .limit(1);
 
       return row ?? undefined;
+    },
+
+    async findPhotoById(photoId, einrichtungId, revierId) {
+      const [row] = await db
+        .select()
+        .from(mediaAssets)
+        .where(
+          and(
+            eq(mediaAssets.id, photoId),
+            eq(mediaAssets.revierId, revierId),
+            eq(mediaAssets.entityType, "reviereinrichtung"),
+            eq(mediaAssets.entityId, einrichtungId)
+          )
+        )
+        .limit(1);
+
+      return row;
     },
 
     async insertPhoto(entry) {
