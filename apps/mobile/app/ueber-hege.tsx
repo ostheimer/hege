@@ -1,22 +1,18 @@
 import { Linking, Platform, Pressable, Text, View } from "react-native";
 
 import { ScreenShell } from "../components/screen-shell";
-import { BUILD_TAG } from "../lib/build-tag";
+import {
+  APP_VERSION,
+  BUILD_NUMBER,
+  BUILD_TAG,
+  EXPO_SDK,
+  RELEASE_CHANNEL,
+  RUNTIME_VERSION
+} from "../lib/build-tag";
 import type { ThemeColors } from "../lib/theme";
 import { eyebrowText } from "../lib/typography";
 import { useThemedStyles } from "../lib/use-themed-styles";
 import { spacing } from "@hege/tokens";
-
-/**
- * Build-Konstanten — werden bewusst hier hartcodiert statt aus
- * `expo-constants` zu lesen. Grund: das Package ist aktuell nicht
- * installiert, und fuer die User-sichtbaren Info-Werte reicht ein
- * statisches Set. Beim Version-Bump in `app.json` bitte hier
- * mitziehen.
- */
-const APP_VERSION = "0.1.0";
-const EXPO_SDK = "53.0.0";
-const RELEASE_CHANNEL = "preview";
 
 interface LicenseEntry {
   name: string;
@@ -66,7 +62,9 @@ export default function UeberHegeScreen() {
         <View style={styles.card}>
           <Text style={styles.sectionEyebrow}>Build-Information</Text>
           <DetailRow label="App-Version" value={APP_VERSION} styles={styles} />
+          <DetailRow label="Build" value={BUILD_NUMBER} styles={styles} />
           <DetailRow label="App-Stand" value={BUILD_TAG} styles={styles} testID="about-build-tag" />
+          <DetailRow label="Runtime" value={RUNTIME_VERSION} styles={styles} />
           <DetailRow label="Expo-SDK" value={EXPO_SDK} styles={styles} />
           <DetailRow label="Channel" value={RELEASE_CHANNEL} styles={styles} />
           <DetailRow label="Plattform" value={platform} styles={styles} />
