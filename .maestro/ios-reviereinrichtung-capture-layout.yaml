@@ -1,0 +1,27 @@
+appId: ${APP_ID}
+name: iOS Reviereinrichtung - Erfassung mit Karte
+tags:
+  - ios
+  - reviereinrichtungen
+  - erfassung
+---
+- launchApp
+- openLink: hege://reviereinrichtungen
+- extendedWaitUntil:
+    visible: Neue Einrichtung
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-status
+    direction: DOWN
+    timeout: 5000
+- assertVisible:
+    id: reviereinrichtung-status
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-location-map
+    direction: DOWN
+    timeout: 15000
+- assertVisible:
+    id: reviereinrichtung-current-location
+- assertVisible: Für eine manuelle Position direkt auf die Karte tippen.

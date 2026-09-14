@@ -27,6 +27,17 @@ describe("buildInitialRegion", () => {
     expect(region.longitudeDelta).toBe(DEFAULT_REGION_DELTA);
   });
 
+  it("zentriert einen einzelnen Eintrag ohne Revier-Center eng am Standort", () => {
+    const region = buildInitialRegion(undefined, [
+      { location: { lat: 48.3243612, lng: 16.7227598 } }
+    ]);
+
+    expect(region.latitude).toBeCloseTo(48.3243612, 6);
+    expect(region.longitude).toBeCloseTo(16.7227598, 6);
+    expect(region.latitudeDelta).toBe(MIN_REGION_DELTA);
+    expect(region.longitudeDelta).toBe(MIN_REGION_DELTA);
+  });
+
   it("umschliesst Center und Ansitze mit Padding und mittigem Centroid", () => {
     const center = { lat: 48.0, lng: 16.0 };
     const region = buildInitialRegion(center, [

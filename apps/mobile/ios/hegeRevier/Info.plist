@@ -66,7 +66,7 @@
     <key>NSFaceIDUsageDescription</key>
     <string>hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>hege nutzt den Standort nur, um Fallwild-Vorgänge im Revier zu dokumentieren.</string>
+    <string>hege nutzt den Standort, um Reviergrenzen aufzuzeichnen sowie Vorgänge und Einrichtungen im Revier zu dokumentieren.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>hege benötigt Zugriff auf deine Fotos, um Fallwild-Fotos auszuwählen.</string>
     <key>NSUserActivityTypes</key>

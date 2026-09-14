@@ -1,24 +1,28 @@
 import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useRef, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import type { DashboardResponse } from "@hege/domain";
 
 import { ActivityFeed } from "../../components/activity-feed";
+import { RevierMapCard } from "../../components/revier-map-card";
 import { InitialsAvatar } from "../../components/initials-avatar";
 import { MetricTile } from "../../components/metric-tile";
 import { QueueStatusPill } from "../../components/queue-status-pill";
 import { RoleHeadline } from "../../components/role-headline";
 import { ScreenShell } from "../../components/screen-shell";
 import { StateView } from "../../components/state-view";
+import { FeedbackBanner } from "../../components/feedback-banner";
+import { loadDashboardContent } from "../../lib/dashboard-load";
 import {
   buildActivityFeed,
   formatTodayLabel
 } from "../../lib/activity-feed.helpers";
-import { fetchDashboardSnapshot } from "../../lib/api";
-import { useSessionSnapshot } from "../../lib/session";
+import type { ActivityItem } from "../../lib/activity-feed.helpers";
+import { fetchActivityHistory, fetchDashboardSnapshot } from "../../lib/api";
+import { getSession, useSessionSnapshot } from "../../lib/session";
 import { computeRoleDashboard } from "../../lib/dashboard-role.helpers";
-import { firstName, formatApiErrorDescription } from "../../lib/format";
+import { firstName } from "../../lib/format";
 import {
   discardOfflineQueueEntry,
   retryOfflineQueueEntry,
@@ -40,10 +44,7 @@ import { spacing, radius } from "@hege/tokens";
 /**
  * Heute-Tab — Dashboard "Was gibt's Neues" (Pfad-2-Rework).
  *
- * Wir haben den Map-First-Tab aus P2.1 wieder zurueckgenommen: das
- * User-Feedback war, dass der Heute-Tab fuer schnelles Scannen
- * "was ist neu?" da sein soll. Karte gehoert in Locations-Tabs
- * (Ansitze/Fallwild/Reviereinrichtungen) — dort ist sie kontextstark.
+ * Produktentscheidung 05.09.2026: Revierkarte zuerst, danach Aktivitäten.
  *
  * Aufbau:
  *  1. Hero (ScreenShell) mit Datum + Revier + User.
@@ -60,7 +61,12 @@ export default function HeuteScreen() {
   const session = useSessionSnapshot();
   const queue = useOfflineQueueSnapshot();
   const styles = useThemedStyles(createStyles);
-  const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
+  const [loadedSnapshot, setSnapshot] = useState<DashboardResponse | null>(null);
+  const snapshot = loadedSnapshot?.membership.id === session.session?.membership.id ? loadedSnapshot : null;
+  const requestSequence = useRef(0);
+  const [activityItems, setActivityItems] = useState<ActivityItem[]>([]);
+  const [historyUnavailable, setHistoryUnavailable] = useState(false);
+  const [apiOffline, setApiOffline] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +74,13 @@ export default function HeuteScreen() {
   const [discardingEntryId, setDiscardingEntryId] = useState<string | null>(null);
   const [retryingEntryId, setRetryingEntryId] = useState<string | null>(null);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     void loadDashboard();
-  }, []);
+  }, [session.session?.membership.id]));
 
   async function loadDashboard(options?: { refreshing?: boolean }) {
+    const requestId = ++requestSequence.current;
+    const membershipId = getSession()?.membership.id;
     const refreshing = options?.refreshing ?? false;
 
     if (refreshing) {
@@ -82,16 +90,25 @@ export default function HeuteScreen() {
     }
 
     setError(null);
+    setApiOffline(false);
 
     try {
-      const data = await fetchDashboardSnapshot();
+      const { snapshot: data, history, historyUnavailable: unavailable } = await loadDashboardContent(fetchDashboardSnapshot, fetchActivityHistory);
+      if (requestId !== requestSequence.current || membershipId !== getSession()?.membership.id) return;
       setSnapshot(data);
+      setActivityItems(buildActivityFeed(history));
+      setHistoryUnavailable(unavailable);
     } catch (fetchError) {
+      if (requestId !== requestSequence.current || membershipId !== getSession()?.membership.id) return;
       setSnapshot(null);
+      setApiOffline(fetchError instanceof TypeError);
+      setActivityItems([]);
       setError(fetchError instanceof Error ? fetchError.message : "Unbekannter Fehler");
     } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
+      if (requestId === requestSequence.current && membershipId === getSession()?.membership.id) {
+        setIsLoading(false);
+        setIsRefreshing(false);
+      }
     }
   }
 
@@ -161,7 +178,6 @@ export default function HeuteScreen() {
   const queueIsEmpty = queueCount === 0;
   const activeAnsitze = snapshot?.activeAnsitze ?? [];
   const todayLabel = formatTodayLabel();
-  const activityItems = snapshot ? buildActivityFeed(snapshot) : [];
   // Rollenspezifischer Headline + Tile-Satz fuer den Heute-Tab (P2.2).
   // computeRoleDashboard liest aus snapshot.membership.role und liefert
   // pro Rolle eine eigene Headline-Konfiguration und drei priorisierte
@@ -184,7 +200,7 @@ export default function HeuteScreen() {
       title={greeting}
       subtitle={
         snapshot
-          ? `${snapshot.revier.name} · ${formatRoleLabel(snapshot.membership.role)} · ${snapshot.membership.jagdzeichen}`
+          ? `${snapshot.revier.name}\n${[snapshot.membership.functionLabel, formatRoleLabel(snapshot.membership.role), snapshot.membership.jagdzeichen].filter(Boolean).join(" · ")}`
           : "Aktivität, Aufgaben und Warteschlange auf einen Blick."
       }
       refresh={{
@@ -199,7 +215,7 @@ export default function HeuteScreen() {
           <QueueStatusPill
             count={queueCount}
             failedCount={failedQueueCount}
-            apiOffline={Boolean(error)}
+            apiOffline={apiOffline}
           />
           {session.session ? (
             <InitialsAvatar
@@ -212,6 +228,7 @@ export default function HeuteScreen() {
         </View>
       }
     >
+      {snapshot ? <RevierMapCard key={snapshot.membership.id} revierId={snapshot.revier.id} name={snapshot.revier.name} /> : null}
       {!queueIsEmpty ? (
         <View style={styles.toolbar}>
           <Pressable
@@ -242,11 +259,13 @@ export default function HeuteScreen() {
       {error ? (
         <StateView
           mode="error"
-          title="API nicht erreichbar"
-          description={formatApiErrorDescription(error)}
+          title="Startseite konnte nicht geladen werden"
+          description="Die Anfrage ist fehlgeschlagen. Bitte versuche es erneut."
           action={{ label: "Aktualisieren", onPress: () => void loadDashboard({ refreshing: true }) }}
         />
       ) : null}
+
+      {snapshot && historyUnavailable ? <FeedbackBanner tone="warning" title="Aktivitäten eingeschränkt" description="Die vollständige Historie ist gerade nicht verfügbar. Die übrigen Revierdaten bleiben nutzbar." /> : null}
 
       {queueMessage ? (
         <View style={styles.queueStateCard}>
@@ -261,6 +280,7 @@ export default function HeuteScreen() {
 
           <ActivityFeed
             items={activityItems}
+            onShowAll={() => router.push("/aktivitaeten" as Parameters<typeof router.push>[0])}
             onItemPress={(item) => {
               // Tap auf einen Feed-Eintrag fuehrt auf den passenden
               // Listen-Tab. Tiefen-Deeplinks (z.B. auf den konkreten
@@ -269,7 +289,7 @@ export default function HeuteScreen() {
               if (item.kind === "ansitz") {
                 router.push("/(tabs)/ansitze");
               } else if (item.kind === "fallwild") {
-                router.push("/(tabs)/fallwild");
+                router.push({ pathname: "/(tabs)/fallwild", params: { view: "liste" } });
               } else {
                 router.push("/(tabs)/benachrichtigungen" as Parameters<typeof router.push>[0]);
               }

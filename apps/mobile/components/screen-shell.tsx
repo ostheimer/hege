@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { RefreshControl, ScrollView, Text, View } from "react-native";
-import type { PropsWithChildren, ReactNode } from "react";
+import type { PropsWithChildren, ReactNode, Ref } from "react";
 
 import { useThemeColors, type ThemeColors } from "../lib/theme";
 import { useThemedStyles } from "../lib/use-themed-styles";
@@ -24,6 +24,7 @@ interface ScreenShellProps extends PropsWithChildren {
   compactHero?: boolean;
   topSafeArea?: boolean;
   testID?: string;
+  scrollRef?: Ref<ScrollView>;
   /**
    * Pull-to-Refresh aktivieren. Wenn gesetzt, rendert ScreenShell automatisch
    * einen nativen RefreshControl mit Brand-Farbe.
@@ -43,7 +44,8 @@ export function ScreenShell({
   refresh,
   compactHero = false,
   topSafeArea = true,
-  testID
+  testID,
+  scrollRef
 }: ScreenShellProps) {
   const insets = useSafeAreaInsets();
   const bottomPadding = TAB_BAR_VISUAL_HEIGHT + insets.bottom;
@@ -55,6 +57,9 @@ export function ScreenShell({
     <SafeAreaView edges={safeAreaEdges} style={styles.safeArea} testID={testID}>
       <ImpersonationBanner />
       <ScrollView
+        ref={scrollRef}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
         contentInsetAdjustmentBehavior="never"
         contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}
         showsVerticalScrollIndicator={false}

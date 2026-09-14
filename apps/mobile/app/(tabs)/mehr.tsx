@@ -130,8 +130,8 @@ export default function MehrScreen() {
     }
   }
 
-  const profileName = snapshot?.user.name ?? session.session?.user.name ?? "";
-  const role = snapshot?.membership.role ?? session.session?.membership.role;
+  const profileName = session.session?.user.name ?? "";
+  const role = session.session?.membership.role;
   const visibleLinks = MEHR_LINKS.filter(
     (entry) => !entry.feature || (role ? canRoleAccess(role, entry.feature) : false)
   );
@@ -160,8 +160,8 @@ export default function MehrScreen() {
         <View style={styles.profileCopy}>
           <Text style={styles.profileName}>{profileName || "Wird geladen..."}</Text>
           <Text style={styles.profileMeta}>
-            {snapshot
-              ? `${formatRoleLabel(snapshot.membership.role)} · ${snapshot.revier.name}`
+            {session.session
+              ? `${formatRoleLabel(session.session.membership.role)} · ${session.session.revier.name}`
               : "Profil, Erscheinungsbild und Sicherheit"}
           </Text>
         </View>

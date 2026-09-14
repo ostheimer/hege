@@ -189,24 +189,25 @@ docs/
 
 ### Environment-Matrix
 
-`hege` nutzt drei Vercel-Umgebungen, aber nur zwei dauerhafte Neon-Zielzweige:
+`hege` nutzt einen einzigen dauerhaften Neon-Zielzweig und getrennte lokale Infrastruktur:
 
-- `Local`: lokales Next.js plus lokales Docker-Postgres oder alternativ gepullte Vercel-Development-Variablen
-- `Preview`: Vercel Preview Deployments fuer Branches und Pull Requests
-- `Production`: produktive Vercel-Deployments auf `main`
+- `Local`: lokales Next.js mit Docker-Postgres/PostGIS und MinIO; keine produktiven Neon-Zugangsdaten
+- `Preview`: Vercel-Preview-Deployments ohne Zugriff auf die Produktionsdatenbank
+- `Production`: produktive Vercel-Deployments mit dem geschützten Neon-Branch `main`
 
 Die Datenbankzuordnung ist bewusst so geschnitten:
 
-- `Vercel Development` -> `Neon development`
-- `Vercel Preview` -> `Neon development`
-- `Vercel Production` -> `Neon main`
+- `Lokale Entwicklung` → lokales Docker-Postgres/PostGIS
+- `Vercel Preview` → keine dauerhaft verbundene Neon-Datenbank
+- `Vercel Production` → geschützter Neon-Branch `main`
 
-Damit gibt es genau zwei dauerhafte Neon-Datenbankumgebungen:
+Damit gibt es genau eine dauerhafte Neon-Datenbankumgebung:
 
-- `development`: gemeinsame Vorproduktionsdatenbank fuer lokale Arbeit und Preview-Deployments
-- `main`: isolierte Produktionsdatenbank
+- `main`: isolierte und gegen Löschen, Archivieren sowie Zurücksetzen geschützte Produktionsdatenbank
 
-Wichtig: Fuer dieses Projekt wird bewusst keine automatische `branch-per-preview`-Strategie verwendet. Preview-Deployments teilen sich denselben Neon-Zweig `development`, damit Betriebsmodell, Kosten und Datenhaltung einfach bleiben.
+Die bestehende Neon-Marketplace-Ressource wird ausschließlich mit `Vercel Production` verbunden. Sie verwaltet die Produktions-Verbindungsvariablen automatisch und hält Preview sowie Development von Produktionsdaten getrennt. Eine automatische `branch-per-preview`-Strategie ist deaktiviert; ein separater Preview-Branch wird nur bei konkretem späterem Bedarf eingerichtet.
+
+Vor Änderungen oder Löschungen an Neon-Branches muss der tatsächlich verwendete Produktionsendpunkt in Vercel geprüft werden. Der Branch-Name allein ist kein Nachweis dafür, dass eine Umgebung unkritisch ist.
 
 ### Verbindliche Variablen
 
@@ -218,7 +219,7 @@ Fuer den Laufzeitpfad in `apps/web` und die Datenmigrationen gelten diese Regeln
 - `NEXT_PUBLIC_APP_URL`: oeffentliche App-URL je Umgebung
 - `EXPO_PUBLIC_API_BASE_URL`: API-Basis fuer die Mobile-App
 
-Lokales Docker-Postgres bleibt ein rein lokaler Arbeitsmodus. Es ersetzt die Neon-Struktur nicht, sondern erlaubt schnelles lokales Arbeiten ohne Cloud-Abhaengigkeit.
+Lokales Docker-Postgres ist der reguläre Entwicklungs- und Testmodus und lauscht ausschließlich unter `127.0.0.1:15432`. Der Standardport `5432` bleibt für bereits vorhandene PostgreSQL-Installationen frei. Diese Trennung erlaubt schnelle lokale Arbeit ohne Cloud-Abhängigkeit, zusätzliche Neon-Branches oder kostenpflichtige EAS-Builds.
 
 ## Aktueller Repository-Stand
 

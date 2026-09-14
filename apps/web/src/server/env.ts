@@ -1,4 +1,4 @@
-const LOCAL_DATABASE_URL = "postgresql://hege:hege@127.0.0.1:5432/hege";
+const LOCAL_DATABASE_URL = "postgresql://hege:hege@127.0.0.1:15432/hege";
 const LOCAL_AUTH_SECRET = "hege-local-auth-secret-change-me";
 const LOCAL_DEMO_PASSWORD = "9526";
 const LOCAL_S3_ENDPOINT = "http://127.0.0.1:9000";

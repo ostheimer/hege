@@ -8,7 +8,8 @@ import type { DashboardResponse } from "@hege/domain";
 import { FilterChipRow } from "../../components/filter-chip-row";
 import { InitialsAvatar } from "../../components/initials-avatar";
 import { ScreenShell } from "../../components/screen-shell";
-import { changePin, fetchDashboardSnapshot, logout } from "../../lib/api";
+import { changePin, fetchDashboardSnapshot, logout, switchMembership } from "../../lib/api";
+import { FeedbackBanner } from "../../components/feedback-banner";
 import { BUILD_TAG } from "../../lib/build-tag";
 import {
   disableDeviceUnlock,
@@ -42,9 +43,12 @@ export default function ProfilScreen() {
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
   const themeMode = useThemeMode();
-  const [snapshot, setSnapshot] = useState<DashboardResponse | null>(null);
+  const [loadedSnapshot, setSnapshot] = useState<DashboardResponse | null>(null);
+  const snapshot = loadedSnapshot?.membership.id === session.session?.membership.id ? loadedSnapshot : null;
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isSwitching, setIsSwitching] = useState(false);
+  const [switchError, setSwitchError] = useState<string | null>(null);
   const [deviceUnlock, setDeviceUnlock] = useState<DeviceUnlockState | null>(null);
   const [isTogglingUnlock, setIsTogglingUnlock] = useState(false);
   const [isPinFormOpen, setIsPinFormOpen] = useState(false);
@@ -90,7 +94,7 @@ export default function ProfilScreen() {
     return () => {
       isMounted = false;
     };
-  }, [session.status, session.session?.user.id]);
+  }, [session.status, session.session?.user.id, session.session?.membership.id]);
 
   async function handleRefresh() {
     if (isRefreshing) {
@@ -199,8 +203,36 @@ export default function ProfilScreen() {
               : "Rolle wird geladen..."}
           </Text>
           <Text style={styles.identityMeta}>{snapshot?.revier.name ?? "Revier wird geladen..."}</Text>
+          {snapshot?.membership.functionLabel ? <Text style={styles.identityMeta}>Funktion: {snapshot.membership.functionLabel}</Text> : null}
         </View>
       </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionLabel}>Konto</Text>
+        <Text style={styles.accountValue}>{user?.username ?? "—"}</Text>
+        <Text style={styles.accountValue}>{user?.email ?? "—"}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel="Abmelden" onPress={() => void handleLogout()}
+          disabled={isLoggingOut} style={styles.logoutButton}>
+          <Text style={styles.logoutText}>{isLoggingOut ? "Wird abgemeldet …" : "Abmelden"}</Text>
+        </Pressable>
+      </View>
+
+      {switchError ? <FeedbackBanner tone="danger" title="Revierwechsel nicht möglich" description={switchError} /> : null}
+      {!session.session?.impersonation && (session.session?.availableMemberships.length ?? 0) > 1 ? <View style={styles.sectionCard}>
+        <Text style={styles.sectionLabel}>Meine Reviere</Text>
+        {session.session?.availableMemberships.map(membership => <Pressable key={membership.id}
+          accessibilityRole="button" accessibilityLabel={`Revier wählen: ${membership.revierName}`}
+          disabled={isSwitching || membership.id === session.session?.membership.id}
+          onPress={() => {
+            setIsSwitching(true); setSwitchError(null);
+            void switchMembership(membership.id).then(() => router.replace("/(tabs)"))
+              .catch(reason => setSwitchError(reason instanceof Error ? reason.message : "Revierwechsel fehlgeschlagen."))
+              .finally(() => setIsSwitching(false));
+          }} style={{ paddingVertical: 12 }}>
+          <Text style={styles.identityName}>{membership.revierName}</Text>
+          <Text style={styles.identityMeta}>{formatRoleLabel(membership.role)}{membership.id === session.session?.membership.id ? " · Aktiv" : " · Wechseln"}</Text>
+        </Pressable>)}
+      </View> : null}
 
       <View style={styles.sectionCard}>
         <Text style={styles.sectionLabel}>Erscheinungsbild</Text>
@@ -327,39 +359,6 @@ export default function ProfilScreen() {
             </Pressable>
           </View>
         ) : null}
-      </View>
-
-      <View style={styles.sectionCard}>
-        <Text style={styles.sectionLabel}>Konto</Text>
-        {user?.username ? (
-          <View style={styles.settingRow}>
-            <Text style={styles.accountKey}>Benutzername</Text>
-            <Text style={styles.accountValue}>{user.username}</Text>
-          </View>
-        ) : null}
-        <View style={styles.settingRow}>
-          <Text style={styles.accountKey}>E-Mail</Text>
-          <Text numberOfLines={1} style={styles.accountValue}>
-            {user?.email ?? "—"}
-          </Text>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Abmelden"
-          onPress={() => void handleLogout()}
-          disabled={isLoggingOut}
-          style={({ pressed }) => [
-            styles.logoutButton,
-            pressed ? styles.logoutPressed : null,
-            isLoggingOut ? styles.logoutDisabled : null
-          ]}
-        >
-          {isLoggingOut ? (
-            <ActivityIndicator color={theme.danger} />
-          ) : (
-            <Text style={styles.logoutText}>Abmelden</Text>
-          )}
-        </Pressable>
       </View>
 
       <Text accessibilityLabel={`App-Version ${BUILD_TAG}`} style={styles.versionLabel}>

@@ -4,7 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const e2ePort = 3200;
 const e2eDatabaseName = process.env.HEGE_E2E_DB_NAME ?? `hege_e2e_${Date.now()}`;
-const e2eDatabaseUrl = `postgresql://hege:hege@127.0.0.1:5432/${e2eDatabaseName}`;
+const e2eDatabaseUrl = `postgresql://hege:hege@127.0.0.1:15432/${e2eDatabaseName}`;
 const e2eBaseUrl = `http://127.0.0.1:${e2ePort}`;
 
 process.env.HEGE_E2E_DB_NAME = e2eDatabaseName;
