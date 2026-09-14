@@ -10,6 +10,7 @@ export interface FallwildRepository {
   insert(entry: FallwildVorgang): Promise<FallwildVorgang>;
   countPhotos(fallwildId: string): Promise<number>;
   findUploadScope(fallwildId: string, revierId: string): Promise<FallwildUploadScope | undefined>;
+  findPhotoById(photoId: string, fallwildId: string, revierId: string): Promise<FallwildPhotoRecord | undefined>;
   findDeleteScope(fallwildId: string, revierId: string): Promise<FallwildDeleteScope | undefined>;
   insertPhoto(entry: FallwildPhotoInsert): Promise<FallwildPhotoRecord>;
   deleteById(fallwildId: string, revierId: string, deleteMediaAssets: boolean): Promise<boolean>;
@@ -111,6 +112,23 @@ export function createDbFallwildRepository(): FallwildRepository {
             tenantKey: row.tenantKey
           }
         : undefined;
+    },
+
+    async findPhotoById(photoId, fallwildId, revierId) {
+      const [row] = await db
+        .select()
+        .from(mediaAssets)
+        .where(
+          and(
+            eq(mediaAssets.id, photoId),
+            eq(mediaAssets.revierId, revierId),
+            eq(mediaAssets.entityType, "fallwild"),
+            eq(mediaAssets.entityId, fallwildId)
+          )
+        )
+        .limit(1);
+
+      return row;
     },
 
     async findDeleteScope(fallwildId, revierId) {

@@ -1,0 +1,45 @@
+appId: app.hege.revier
+name: GPS-Ausfall darf Bestand nicht blockieren
+---
+- launchApp:
+    stopApp: true
+- openLink: hege://reviereinrichtungen
+- extendedWaitUntil:
+    visible: Neue Einrichtung
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-current-location
+    direction: DOWN
+- tapOn:
+    id: reviereinrichtung-current-location
+- extendedWaitUntil:
+    visible: Standort gerade nicht verfügbar
+    timeout: 30000
+- takeScreenshot: gps-failure-capture
+- scrollUntilVisible:
+    element: Erfassen
+    direction: UP
+- tapOn: Karte & Bestand
+- assertNotVisible: Reviereinrichtungen nicht verfügbar
+- assertNotVisible: Standort gerade nicht verfügbar
+- assertVisible: Suchen & Filtern.*
+- takeScreenshot: gps-failure-bestand
+- tapOn: Karte bildschirmfüllend öffnen
+- tapOn: Vergrößern
+- takeScreenshot: gps-failure-fullscreen
+- tapOn: Karte schließen
+- tapOn: Liste
+- assertVisible: Reviereinrichtung Test.*
+- takeScreenshot: gps-failure-list
+- tapOn: Erfassen
+- scrollUntilVisible:
+    element:
+      id: reviereinrichtung-location-map
+    direction: DOWN
+- tapOn: Karte bildschirmfüllend öffnen
+- tapOn:
+    point: "45%,50%"
+- tapOn: Karte schließen
+- assertNotVisible: Standort gerade nicht verfügbar
+- takeScreenshot: gps-failure-manual-position

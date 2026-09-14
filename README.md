@@ -96,10 +96,16 @@ pnpm install
 docker compose up -d postgres minio
 pnpm --filter @hege/web storage:init
 pnpm --filter @hege/web db:migrate
-pnpm --filter @hege/web db:seed
+pnpm --filter @hege/web db:seed --confirm-demo-seed
 pnpm --filter @hege/web dev
 pnpm --filter @hege/mobile dev
 ```
+
+Web und Mobile sind dauerlaufende Server: die beiden `dev`-Befehle in getrennten Terminals starten.
+Tests in einem dritten Terminal ausführen. Bei einer versehentlichen Backslash-Fortsetzung im Terminal
+mit `Ctrl+C` abbrechen und den Befehl ohne abschließendes `\` neu eingeben.
+Der Demo-Seed ist nur für die lokale Datenbank freigegeben und verändert Beispielkonten samt PINs;
+er ist nicht zum Import echter Revierdaten bestimmt. Siehe [lokalen Revierbetrieb](docs/lokaler-revierbetrieb.md).
 
 Das lokale Hege-PostgreSQL läuft bewusst unter `127.0.0.1:15432`. Dadurch bleibt ein bereits vorhandener PostgreSQL-Server auf dem Standardport `5432` unberührt.
 

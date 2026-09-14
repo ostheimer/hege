@@ -19,7 +19,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "hege nutzt den Standort, um Vorgänge und Einrichtungen im Revier zu dokumentieren."
+          "locationWhenInUsePermission": "hege nutzt den Standort, um Reviergrenzen aufzuzeichnen sowie Vorgänge und Einrichtungen im Revier zu dokumentieren."
         }
       ]
     ],
@@ -38,7 +38,7 @@
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "hege nutzt die Kamera, um Vorgänge und Einrichtungen direkt vor Ort zu fotografieren.",
         "NSFaceIDUsageDescription": "hege nutzt Face ID nur, um eine bestehende Sitzung auf diesem Gerät zu entsperren.",
-        "NSLocationWhenInUseUsageDescription": "hege nutzt den Standort, um Vorgänge und Einrichtungen im Revier zu dokumentieren.",
+        "NSLocationWhenInUseUsageDescription": "hege nutzt den Standort, um Reviergrenzen aufzuzeichnen sowie Vorgänge und Einrichtungen im Revier zu dokumentieren.",
         "NSPhotoLibraryUsageDescription": "hege benötigt Zugriff auf deine Fotos, um Vorgänge und Einrichtungen zu dokumentieren."
       }
     },

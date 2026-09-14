@@ -3,11 +3,22 @@ import { randomUUID } from "node:crypto";
 
 import { isMissingColumnError, isMissingTableError } from "../../db/compat";
 import { getServerEnv } from "../../env";
-import { deleteStorageObject, putStorageObject } from "../../storage/s3";
+import {
+  createStorageUploadUrl,
+  deleteStorageObject,
+  getStorageReadUrl,
+  headStorageObject,
+  putStorageObject
+} from "../../storage/s3";
+import {
+  issueDirectPhotoUploadGrant,
+  verifyDirectPhotoUploadGrant
+} from "../../storage/direct-photo-upload";
 import {
   deriveReviereinrichtungPhotoTitle,
   isAllowedReviereinrichtungPhotoContentType,
   REVIEREINRICHTUNG_MAX_PHOTO_COUNT,
+  REVIEREINRICHTUNG_MAX_PHOTO_SIZE_BYTES,
   sanitizeReviereinrichtungPhotoFileName
 } from "./media";
 import {
@@ -41,10 +52,34 @@ export interface UploadReviereinrichtungPhotoCommand {
   title?: string;
 }
 
+export interface PrepareReviereinrichtungPhotoUploadCommand {
+  contentType: "image/jpeg" | "image/png";
+  einrichtungId: string;
+  fileName: string;
+  uploadedByMembershipId: string;
+  revierId: string;
+  sizeBytes: number;
+  title?: string;
+}
+
+export interface CompleteReviereinrichtungPhotoUploadCommand {
+  einrichtungId: string;
+  uploadedByMembershipId: string;
+  revierId: string;
+  uploadToken: string;
+}
+
 export interface ReviereinrichtungenService {
   list(revierId: string): Promise<ReviereinrichtungListItem[]>;
   create(command: CreateReviereinrichtungCommand): Promise<ReviereinrichtungListItem>;
   uploadPhoto(command: UploadReviereinrichtungPhotoCommand): Promise<PhotoAsset>;
+  preparePhotoUpload(command: PrepareReviereinrichtungPhotoUploadCommand): Promise<{
+    uploadUrl: string;
+    uploadToken: string;
+    expiresAt: string;
+    headers: Record<string, string>;
+  }>;
+  completePhotoUpload(command: CompleteReviereinrichtungPhotoUploadCommand): Promise<PhotoAsset>;
 }
 
 interface ReviereinrichtungenServiceOptions {
@@ -54,6 +89,11 @@ interface ReviereinrichtungenServiceOptions {
   getNow?: () => string;
   uploadObject?: typeof putStorageObject;
   deleteObject?: typeof deleteStorageObject;
+  createUploadUrl?: typeof createStorageUploadUrl;
+  getReadUrl?: typeof getStorageReadUrl;
+  headObject?: typeof headStorageObject;
+  issueUploadGrant?: typeof issueDirectPhotoUploadGrant;
+  verifyUploadGrant?: typeof verifyDirectPhotoUploadGrant;
   useDemoStore?: boolean;
 }
 
@@ -64,6 +104,11 @@ export function createReviereinrichtungenService({
   getNow = () => new Date().toISOString(),
   uploadObject = putStorageObject,
   deleteObject = deleteStorageObject,
+  createUploadUrl = createStorageUploadUrl,
+  getReadUrl = getStorageReadUrl,
+  headObject = headStorageObject,
+  issueUploadGrant = issueDirectPhotoUploadGrant,
+  verifyUploadGrant = verifyDirectPhotoUploadGrant,
   useDemoStore = getServerEnv().useDemoStore
 }: ReviereinrichtungenServiceOptions = {}): ReviereinrichtungenService {
   return {
@@ -109,6 +154,10 @@ export function createReviereinrichtungenService({
 
       if (command.body.byteLength <= 0) {
         throw new ReviereinrichtungServiceError("Die Fotodatei darf nicht leer sein.", 422);
+      }
+
+      if (command.body.byteLength > REVIEREINRICHTUNG_MAX_PHOTO_SIZE_BYTES) {
+        throw new ReviereinrichtungServiceError("Fotodateien dürfen maximal 10 MB groß sein.", 422);
       }
 
       if (!isAllowedReviereinrichtungPhotoContentType(command.contentType)) {
@@ -169,6 +218,96 @@ export function createReviereinrichtungenService({
         url: storedObject.publicUrl,
         createdAt: row.createdAt
       };
+    },
+
+    async preparePhotoUpload(command) {
+      assertMutationsEnabled(useDemoStore);
+      assertDirectUploadMetadata(command.sizeBytes, command.contentType);
+
+      const scope = await repository.findUploadScope(command.einrichtungId, command.revierId);
+
+      if (!scope) {
+        throw new ReviereinrichtungServiceError("Reviereinrichtung wurde nicht gefunden.", 404);
+      }
+
+      await assertPhotoSlotAvailable(repository, command.einrichtungId);
+
+      const photoId = generatePhotoId();
+      const fileName = sanitizeReviereinrichtungPhotoFileName(command.fileName);
+      const objectKey = `${scope.tenantKey}/reviereinrichtungen/${command.einrichtungId}/${photoId}-${fileName}`;
+      const title = normalizePhotoTitle(command.title, command.fileName);
+      const grant = issueUploadGrant({
+        entityType: "reviereinrichtung",
+        entityId: command.einrichtungId,
+        photoId,
+        objectKey,
+        fileName: command.fileName,
+        contentType: command.contentType,
+        sizeBytes: command.sizeBytes,
+        title,
+        revierId: command.revierId,
+        membershipId: command.uploadedByMembershipId
+      });
+
+      return {
+        uploadUrl: await withStorageAvailability(() =>
+          createUploadUrl({ key: objectKey, contentType: command.contentType })
+        ),
+        uploadToken: grant.token,
+        expiresAt: grant.expiresAt,
+        headers: {
+          "Content-Type": command.contentType
+        }
+      };
+    },
+
+    async completePhotoUpload(command) {
+      assertMutationsEnabled(useDemoStore);
+      const grant = verifyUploadGrant(command.uploadToken, {
+        entityType: "reviereinrichtung",
+        entityId: command.einrichtungId,
+        revierId: command.revierId,
+        membershipId: command.uploadedByMembershipId
+      });
+      const existing = await withMediaSchemaCompatibility(() =>
+        repository.findPhotoById(grant.photoId, command.einrichtungId, command.revierId)
+      );
+
+      if (existing) {
+        return mapPhotoRecordToDomain(existing, await getReadUrl(existing.objectKey));
+      }
+
+      const scope = await repository.findUploadScope(command.einrichtungId, command.revierId);
+
+      if (!scope) {
+        throw new ReviereinrichtungServiceError("Reviereinrichtung wurde nicht gefunden.", 404);
+      }
+
+      try {
+        await assertPhotoSlotAvailable(repository, command.einrichtungId);
+        const stored = await withStorageAvailability(() => headObject(grant.objectKey));
+        assertStoredPhotoMatchesGrant(stored, grant.sizeBytes, grant.contentType);
+        const readUrl = await withStorageAvailability(() => getReadUrl(grant.objectKey));
+
+        const row = await withMediaSchemaCompatibility(() =>
+          repository.insertPhoto({
+            id: grant.photoId,
+            revierId: scope.revierId,
+            entityId: command.einrichtungId,
+            uploadedByMembershipId: command.uploadedByMembershipId,
+            title: grant.title,
+            objectKey: grant.objectKey,
+            fileName: grant.fileName,
+            contentType: grant.contentType,
+            createdAt: getNow()
+          })
+        );
+
+        return mapPhotoRecordToDomain(row, readUrl);
+      } catch (error) {
+        await deleteObject(grant.objectKey).catch(() => undefined);
+        throw error;
+      }
     }
   };
 }
@@ -183,6 +322,18 @@ export function uploadReviereinrichtungPhoto(command: UploadReviereinrichtungPho
   return defaultService.uploadPhoto(command);
 }
 
+export function prepareReviereinrichtungPhotoUpload(
+  command: PrepareReviereinrichtungPhotoUploadCommand
+) {
+  return defaultService.preparePhotoUpload(command);
+}
+
+export function completeReviereinrichtungPhotoUpload(
+  command: CompleteReviereinrichtungPhotoUploadCommand
+) {
+  return defaultService.completePhotoUpload(command);
+}
+
 function assertMutationsEnabled(useDemoStore: boolean) {
   if (useDemoStore) {
     throw new ReviereinrichtungServiceError(
@@ -195,6 +346,53 @@ function assertMutationsEnabled(useDemoStore: boolean) {
 function normalizePhotoTitle(title: string | undefined, fileName: string) {
   const trimmed = title?.trim();
   return trimmed ? trimmed : deriveReviereinrichtungPhotoTitle(fileName);
+}
+
+function assertDirectUploadMetadata(sizeBytes: number, contentType: string) {
+  if (!Number.isSafeInteger(sizeBytes) || sizeBytes <= 0) {
+    throw new ReviereinrichtungServiceError("Die Fotodatei darf nicht leer sein.", 422);
+  }
+
+  if (sizeBytes > REVIEREINRICHTUNG_MAX_PHOTO_SIZE_BYTES) {
+    throw new ReviereinrichtungServiceError("Fotodateien dürfen maximal 10 MB groß sein.", 422);
+  }
+
+  if (!isAllowedReviereinrichtungPhotoContentType(contentType)) {
+    throw new ReviereinrichtungServiceError("Nur JPEG- und PNG-Dateien sind erlaubt.", 422);
+  }
+}
+
+async function assertPhotoSlotAvailable(
+  repository: ReviereinrichtungenRepository,
+  einrichtungId: string
+) {
+  const photoCount = await withMediaSchemaCompatibility(() => repository.countPhotos(einrichtungId));
+
+  if (photoCount >= REVIEREINRICHTUNG_MAX_PHOTO_COUNT) {
+    throw new ReviereinrichtungServiceError("Maximal drei Fotos pro Reviereinrichtung sind erlaubt.", 422);
+  }
+}
+
+function assertStoredPhotoMatchesGrant(
+  stored: { contentLength?: number; contentType?: string },
+  expectedSize: number,
+  expectedContentType: string
+) {
+  if (stored.contentLength !== expectedSize || stored.contentType !== expectedContentType) {
+    throw new ReviereinrichtungServiceError(
+      "Die hochgeladene Fotodatei stimmt nicht mit der Freigabe überein.",
+      422
+    );
+  }
+}
+
+function mapPhotoRecordToDomain(record: ReviereinrichtungPhotoRecord, url: string): PhotoAsset {
+  return {
+    id: record.id,
+    title: record.title,
+    url,
+    createdAt: record.createdAt
+  };
 }
 
 async function withMediaSchemaCompatibility<T>(operation: () => Promise<T>) {

@@ -1,0 +1,110 @@
+appId: ${APP_ID}
+name: Fallwild speichern und Aktivitätenverlauf (lokale API)
+---
+- tapOn:
+    text: Öffnen
+    optional: true
+- tapOn:
+    id: tab-today
+    optional: true
+- runFlow:
+    when:
+      visible:
+        id: login-identifier-input
+    commands:
+      - tapOn:
+          id: login-identifier-input
+      - inputText: ${HEGE_SMOKE_IDENTIFIER}
+      - tapOn:
+          id: login-pin-input
+      - inputText: ${HEGE_SMOKE_PIN}
+      - tapOn:
+          id: login-submit-button
+- extendedWaitUntil:
+    visible:
+      id: dashboard-screen
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: activity-show-all
+    direction: DOWN
+- assertVisible:
+    id: activity-item-2
+- assertNotVisible:
+    id: activity-item-3
+- takeScreenshot: home-three
+- tapOn:
+    id: activity-show-all
+- assertVisible:
+    id: activities-screen
+- scrollUntilVisible:
+    element:
+      id: activity-item-3
+    direction: DOWN
+- takeScreenshot: all-activities
+- tapOn: Zurück
+- tapOn:
+    id: tab-fallwild
+- tapOn: Erfassen
+- scrollUntilVisible:
+    element:
+      id: fallwild-lat-input
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: fallwild-lat-input
+- eraseText
+- inputText: "47.9184"
+- swipe:
+    direction: UP
+    duration: 400
+- scrollUntilVisible:
+    element:
+      id: fallwild-lng-input
+    direction: UP
+    centerElement: true
+- tapOn:
+    id: fallwild-lng-input
+- eraseText
+- inputText: "13.5219"
+- swipe:
+    direction: UP
+    duration: 400
+- scrollUntilVisible:
+    element:
+      id: fallwild-gemeinde-input
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: fallwild-gemeinde-input
+- eraseText
+- inputText: "Simulator UX 2026-09-05"
+- swipe:
+    direction: UP
+    duration: 400
+- scrollUntilVisible:
+    element:
+      id: fallwild-save-button
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: fallwild-save-button
+- extendedWaitUntil:
+    visible: Fallwild gespeichert
+    timeout: 30000
+- assertVisible: Bestand
+- assertNotVisible:
+    id: fallwild-save-button
+- takeScreenshot: fallwild-saved
+- scrollUntilVisible:
+    element:
+      text: ".*Simulator UX 2026-09-05.*"
+    direction: DOWN
+- takeScreenshot: fallwild-new-entry
+- tapOn:
+    id: tab-today
+- scrollUntilVisible:
+    element:
+      id: activity-show-all
+    direction: DOWN
+- assertVisible: ".*Simulator UX 2026-09-05.*"

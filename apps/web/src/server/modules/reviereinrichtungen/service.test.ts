@@ -94,6 +94,45 @@ describe("reviereinrichtungen service", () => {
     expect(repository.insertedPhotos).toHaveLength(1);
   });
 
+  it("ordnet ein direkt hochgeladenes Einrichtungsfoto erst nach der Speicherprüfung zu", async () => {
+    const repository = createMemoryRepository({
+      scope: { einrichtungId: "einrichtung-1", revierId: "revier-1", tenantKey: "gaenserndorf" }
+    });
+    const service = createReviereinrichtungenService({
+      repository,
+      headObject: vi.fn(async () => ({ contentLength: 5_000_000, contentType: "image/png" })),
+      getReadUrl: vi.fn(async () => "https://storage.example/signed-get"),
+      verifyUploadGrant: vi.fn(() => ({
+        version: 1 as const,
+        kind: "direct-photo-upload" as const,
+        entityType: "reviereinrichtung" as const,
+        entityId: "einrichtung-1",
+        photoId: "photo-direct",
+        objectKey: "gaenserndorf/reviereinrichtungen/einrichtung-1/photo-direct-kanzel.png",
+        fileName: "kanzel.png",
+        contentType: "image/png" as const,
+        sizeBytes: 5_000_000,
+        title: "Kanzel",
+        revierId: "revier-1",
+        membershipId: "member-1",
+        issuedAt: 1,
+        expiresAt: 9999999999
+      })),
+      useDemoStore: false
+    });
+
+    await expect(service.completePhotoUpload({
+      einrichtungId: "einrichtung-1",
+      uploadedByMembershipId: "member-1",
+      revierId: "revier-1",
+      uploadToken: "grant"
+    })).resolves.toMatchObject({
+      id: "photo-direct",
+      title: "Kanzel"
+    });
+    expect(repository.insertedPhotos).toHaveLength(1);
+  });
+
   it("begrenzt Fotos auf drei und behandelt einen Storage-Ausfall als 503", async () => {
     const scope = { einrichtungId: "einrichtung-1", revierId: "revier-1", tenantKey: "gaenserndorf" };
     const fullService = createReviereinrichtungenService({
@@ -153,6 +192,14 @@ function createMemoryRepository({
     },
     async findUploadScope(einrichtungId, revierId) {
       return scope?.einrichtungId === einrichtungId && scope.revierId === revierId ? scope : undefined;
+    },
+    async findPhotoById(photoId, einrichtungId, revierId) {
+      return insertedPhotos.find(
+        (photo) =>
+          photo.id === photoId &&
+          photo.entityId === einrichtungId &&
+          photo.revierId === revierId
+      );
     },
     async insertPhoto(entry: ReviereinrichtungPhotoInsert) {
       const row: ReviereinrichtungPhotoRecord = { ...entry, entityType: "reviereinrichtung" };

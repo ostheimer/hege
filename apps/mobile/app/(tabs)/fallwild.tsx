@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as Haptics from "expo-haptics";
-import { useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -141,6 +142,8 @@ type CaptureSection = "erfassen" | "bestand";
 const MAP_HEIGHT = 380;
 
 export default function FallwildScreen() {
+  const params = useLocalSearchParams<{ view?: string }>();
+  const scrollRef = useRef<ScrollView>(null);
   const queue = useOfflineQueueSnapshot();
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
@@ -161,6 +164,15 @@ export default function FallwildScreen() {
   const [mode, setMode] = useState<ViewMode>("karte");
   const [selectedPin, setSelectedPin] = useState<SelectedPin | null>(null);
   const [filter, setFilter] = useState<FallwildFilterState>(DEFAULT_FALLWILD_FILTER);
+  const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    if (params.view === "liste") {
+      setSection("bestand");
+      setMode("liste");
+      scrollRef.current?.scrollTo({ y: 0, animated: false });
+    }
+  }, [params.view]);
 
   // Gefilterte + sortierte Liste, sowohl fuer Liste als auch Karte
   // verwendet. So bleibt die Filter-Wirkung in beiden Ansichten gleich
@@ -291,9 +303,15 @@ export default function FallwildScreen() {
           copy:
             result.uploadedCount > 0
               ? `${formatPhotoCount(result.uploadedCount)} ${formatPhotoVerb(result.uploadedCount)} direkt mitgespeichert.`
-              : "Der Vorgang wurde direkt an die API gesendet."
+              : "Der neue Eintrag ist jetzt im Bestand sichtbar."
         });
       }
+
+      setFilter(DEFAULT_FALLWILD_FILTER);
+      setShowFilters(false);
+      setMode("liste");
+      setSection("bestand");
+      requestAnimationFrame(() => scrollRef.current?.scrollTo({ y: 0, animated: false }));
 
       if (result.createdId) {
         await refreshFallwildAfterSubmit(result.createdId);
@@ -610,16 +628,18 @@ export default function FallwildScreen() {
 
   return (
     <ScreenShell
+      scrollRef={scrollRef}
+      compactHero={section === "bestand"}
       eyebrow="Fallwild"
-      title="Fallwild mobil erfassen."
-      subtitle="Zeitpunkt, GPS, Wildart und bis zu drei Bibliotheksfotos werden direkt oder offline erfasst."
+      title={section === "bestand" ? "Fallwild im Revier" : "Fallwild mobil erfassen."}
+      subtitle={section === "bestand" ? "Deine erfassten Vorgänge, neueste zuerst." : "Zeitpunkt, GPS, Wildart und bis zu drei Bibliotheksfotos werden direkt oder offline erfasst."}
       aside={<QueueStatusPill count={queueSummary.totalCount} failedCount={queueSummary.failedCount} />}
       refresh={{ refreshing: isRefreshing, onRefresh: () => void handleRefresh() }}
     >
       <ViewToggle<CaptureSection>
         block
         value={section}
-        onChange={setSection}
+        onChange={(next) => { setSection(next); setFeedback(null); setError(null); }}
         accessibilityLabel="Zwischen Erfassen und Bestand umschalten"
         options={[
           { key: "erfassen", label: "Erfassen", icon: "add-circle-outline" },
@@ -628,6 +648,13 @@ export default function FallwildScreen() {
       />
 
       {queuePanel}
+
+      {section === "bestand" && feedback ? (
+        <FeedbackBanner tone={feedback.variant} title={feedback.title} description={feedback.copy} />
+      ) : null}
+      {section === "bestand" && error ? (
+        <FeedbackBanner tone="danger" title="Bestand konnte nicht geladen werden" description={error} />
+      ) : null}
 
       {section === "erfassen" ? (
       <View style={styles.formCard}>
@@ -661,6 +688,7 @@ export default function FallwildScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="47.9184"
+              testID="fallwild-lat-input"
               placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lat}
@@ -672,6 +700,7 @@ export default function FallwildScreen() {
             <TextInput
               keyboardType="decimal-pad"
               placeholder="13.5219"
+              testID="fallwild-lng-input"
               placeholderTextColor={theme.muted}
               style={styles.input}
               value={form.lng}
@@ -732,6 +761,7 @@ export default function FallwildScreen() {
           <TextInput
             autoCapitalize="words"
             placeholder="Gänserndorf"
+            testID="fallwild-gemeinde-input"
             placeholderTextColor={theme.muted}
             style={styles.input}
             value={form.gemeinde}
@@ -797,6 +827,7 @@ export default function FallwildScreen() {
           <TextInput
             multiline
             placeholder="Kurze Dokumentation für die Revierleitung"
+            testID="fallwild-note-input"
             placeholderTextColor={theme.muted}
             style={[styles.input, styles.textArea]}
             value={form.note}
@@ -896,6 +927,7 @@ export default function FallwildScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Fallwild speichern"
+          testID="fallwild-save-button"
           style={[styles.primaryButton, isSubmitting ? styles.buttonDisabled : null]}
           onPress={() => void handleSubmit()}
           disabled={isSubmitting}
@@ -911,6 +943,11 @@ export default function FallwildScreen() {
 
       {section === "bestand" ? (
       <View style={styles.bestandStack}>
+      <Pressable accessibilityRole="button" accessibilityState={{ expanded: showFilters }}
+        onPress={() => setShowFilters((current) => !current)} style={styles.filterReset}>
+        <Text style={styles.filterResetText}>{showFilters ? "Filter ausblenden" : filterActive ? "Filter und Sortierung · aktiv" : "Filter und Sortierung"}</Text>
+      </Pressable>
+      {showFilters ? (
       <View style={styles.filterSection}>
         <SearchInput
           value={filter.search}
@@ -974,7 +1011,7 @@ export default function FallwildScreen() {
           </Pressable>
         ) : null}
       </View>
-
+      ) : null}
       <ViewToggle<ViewMode>
         value={mode}
         onChange={setMode}

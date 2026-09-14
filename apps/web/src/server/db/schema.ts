@@ -16,6 +16,7 @@ import type {
   Role,
   Wildart
 } from "@hege/domain";
+import type { RevierMapData } from "@hege/domain";
 import {
   boolean,
   doublePrecision,
@@ -83,6 +84,12 @@ export const reviere = pgTable(
   (table) => [uniqueIndex("reviere_tenant_key_unique").on(table.tenantKey)]
 );
 
+export const revierMaps = pgTable("revier_maps", {
+  revierId: text("revier_id").primaryKey().references(() => reviere.id),
+  data: jsonb("data").$type<RevierMapData>().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull()
+});
+
 export const memberships = pgTable(
   "memberships",
   {
@@ -94,6 +101,7 @@ export const memberships = pgTable(
       .notNull()
       .references(() => reviere.id),
     role: text("role").$type<Role>().notNull(),
+    functionLabel: text("function_label").notNull().default(""),
     jagdzeichen: text("jagdzeichen").notNull(),
     pushEnabled: boolean("push_enabled").notNull().default(false)
   },
