@@ -19,7 +19,7 @@ setup("bootstrap local e2e database", async () => {
   const env = getE2eDbEnv();
 
   runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:migrate"], env);
-  runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:seed"], env);
+  runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:seed", "--confirm-demo-seed"], env);
   runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:check"], env);
 });
 
