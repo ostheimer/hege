@@ -16,9 +16,10 @@ Der Preview-Smoke prüft nun öffentliche Seiten und den anonymen Zugriffsschutz
 - Typprüfung: 9/9 erfolgreich. Web-Build lokal sowie ausdrücklich mit Preview-Einstellungen ohne Datenbank erfolgreich.
 - Vier Smoke-Vertragstests prüfen auch, dass kaputte Seiten oder ungeschützte APIs weiterhin fehlschlagen und der Release-Smoke weiterhin einen Login verlangt.
 - Lokaler Preview-Server: öffentlicher Smoke erfolgreich, Login ohne Datenbank kontrolliert HTTP 503.
-- Vercel-Preview `41445f7`: Build und öffentlicher Smoke erfolgreich.
+- Vercel-Preview `41445f7`: Build und öffentlicher Smoke erfolgreich. PR #217 wurde als `1bab8c9` zusammengeführt; Vercel-Production und GitHub-Release-Check für diesen Merge-Commit sind erfolgreich. Die Vercel-CLI bestätigt `hege.app` als Alias dieses Deployments.
 - Vollständiger Release-Smoke gegen `hege.app` am 27.09. erfolgreich; keine Fachdatensätze angelegt oder geändert.
 - Seed-Schutz: 311 Web-Tests sowie fünf Playwright-Auth-Prüfungen einschließlich isoliertem Datenbank-Setup, Login/Logout und Rollenabwehr erfolgreich.
+- Gesamter integrierter Stand: 27 Desktop-Playwright-Prüfungen erfolgreich (Auth, Ansitze, Fallwild, Karten, Plattformbenutzer, öffentliche Seiten, Sitzungen und Protokolle); keine neuen Screenshot-Baselines erzeugt.
 - KMZ-Konverter mit synthetischen Daten geprüft: innerer Ring bleibt erhalten, DTD-Eingabe wird abgelehnt. Private Originaldateien wurden nicht veröffentlicht oder neu importiert.
 
 ## Offene Abnahmen und Entscheidungen
@@ -30,3 +31,13 @@ Der Preview-Smoke prüft nun öffentliche Seiten und den anonymen Zugriffsschutz
 - #214: Aktuelle Neon-Aufbewahrung, Schutzregeln und Cloud-Restore bleiben ohne entsprechenden Kontozugriff unbestätigt.
 
 Keine neuen EAS-Builds oder kostenpflichtigen Ressourcen wurden für diese Integration ausgelöst. Historische Smoke-Dateien beschreiben ihren damaligen Stand und sind keine neue Geräteabnahme.
+
+## Kurze iPhone-Abnahme für Andreas
+
+1. Hege öffnen und unter „Über hege“ den sichtbaren App-/Update-Stand notieren.
+2. Unter „Mehr → Reviereinrichtungen → Erfassen“ eine klar bezeichnete Testeinrichtung anlegen.
+3. Im Freien echten GPS-Standort und Kompassrichtung übernehmen; ein neues Kamerafoto hinzufügen.
+4. Speichern: Erfolgsanzeige, Wechsel in den Bestand, Kartenposition, Richtung und Foto im Detail prüfen. Bei einer Ansitzeinrichtung zusätzlich Wind und Sonnenzeiten kontrollieren.
+5. Testergebnis und App-Stand zurückmelden. Den konkreten Testdatensatz samt Foto anschließend gezielt bereinigen und die Entfernung prüfen; keine anderen Einrichtungen löschen.
+
+Die Geräteübersicht vom 27.09. erkennt Andreas' iPhone 16 Pro. Das ist kein Nachweis, dass die Sensorprüfung durchgeführt wurde. Keine Entsperr-/Sicherheitseinstellungen werden für die Prüfung automatisch geändert.
