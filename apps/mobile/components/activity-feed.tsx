@@ -15,6 +15,8 @@ import { radius } from "@hege/tokens";
 
 interface ActivityFeedProps {
   items: ReadonlyArray<ActivityItem>;
+  onShowAll?: () => void;
+  complete?: boolean;
   /**
    * Tap auf eine Activity-Karte. Aufrufer entscheidet, wohin
    * navigiert wird — typischerweise auf den passenden Listen-Tab
@@ -32,14 +34,18 @@ interface ActivityFeedProps {
  * das macht `buildActivityFeed` im Helper. Hier nur Darstellung,
  * was den Code testbar haelt und Render-Logik klar trennt.
  */
-export function ActivityFeed({ items, onItemPress }: ActivityFeedProps) {
+export function ActivityFeed({ items, onItemPress, onShowAll, complete = false }: ActivityFeedProps) {
   const styles = useThemedStyles(createStyles);
 
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
         <Text style={styles.eyebrow}>Aktivität</Text>
-        <Text style={styles.headerHint}>letzte Eintraege</Text>
+        {onShowAll ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Alle Aktivitäten anzeigen" testID="activity-show-all" onPress={onShowAll} hitSlop={12}>
+            <Text style={styles.headerHint}>Alle anzeigen</Text>
+          </Pressable>
+        ) : <Text style={styles.headerHint}>{complete ? "Alle Einträge" : "Letzte 3 Einträge"}</Text>}
       </View>
 
       {items.length === 0 ? (
@@ -58,7 +64,7 @@ export function ActivityFeed({ items, onItemPress }: ActivityFeedProps) {
             const wrapperProps = interactive
               ? {
                   accessibilityRole: "button" as const,
-                  accessibilityLabel: `${item.title}, ${item.subtitle}`,
+                  accessibilityLabel: `${item.title}, ${item.subtitle}, ${formatRelativeTime(item.timestamp)}`,
                   onPress: () => {
                     void Haptics.selectionAsync();
                     onItemPress?.(item);
@@ -71,7 +77,7 @@ export function ActivityFeed({ items, onItemPress }: ActivityFeedProps) {
               : { style: styles.item };
 
             return (
-              <Wrapper key={item.id} {...wrapperProps}>
+              <Wrapper key={item.id} testID={`activity-item-${index}`} {...wrapperProps}>
                 <ActivityIcon kind={item.kind} styles={styles} />
                 <View style={styles.itemBody}>
                   <View style={styles.itemHeader}>

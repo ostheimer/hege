@@ -22,6 +22,7 @@ const FIELD_EDITOR_ROLES = [
 ] as const satisfies readonly Role[];
 
 export const ROLE_FEATURES = {
+  "revier-map-manage": ["revier-admin", "platform-admin"],
   "contacts-read": ALL_REVIER_ROLES,
   "contacts-manage": MANAGEMENT_ROLES,
   "fallwild-read": ALL_REVIER_ROLES,

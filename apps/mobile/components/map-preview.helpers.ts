@@ -55,10 +55,9 @@ export function buildInitialRegion(
 ): MapRegion {
   const points: Array<{ lat: number; lng: number }> = [];
 
-  const resolvedCenter = center
-    ? { lat: center.lat, lng: center.lng }
-    : AUSTRIA_DEFAULT_CENTER;
-  points.push(resolvedCenter);
+  if (center) {
+    points.push({ lat: center.lat, lng: center.lng });
+  }
 
   for (const entry of ansitze) {
     if (
@@ -70,13 +69,24 @@ export function buildInitialRegion(
     }
   }
 
-  // Nur Center vorhanden -> Standard-Delta um Center
-  if (points.length === 1) {
+  if (points.length === 0) {
     return {
-      latitude: resolvedCenter.lat,
-      longitude: resolvedCenter.lng,
+      latitude: AUSTRIA_DEFAULT_CENTER.lat,
+      longitude: AUSTRIA_DEFAULT_CENTER.lng,
       latitudeDelta: DEFAULT_REGION_DELTA,
       longitudeDelta: DEFAULT_REGION_DELTA
+    };
+  }
+
+  if (points.length === 1) {
+    const [point] = points;
+    const delta = center ? DEFAULT_REGION_DELTA : MIN_REGION_DELTA;
+
+    return {
+      latitude: point!.lat,
+      longitude: point!.lng,
+      latitudeDelta: delta,
+      longitudeDelta: delta
     };
   }
 

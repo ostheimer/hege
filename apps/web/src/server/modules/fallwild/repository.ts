@@ -10,6 +10,7 @@ export interface FallwildRepository {
   insert(entry: FallwildVorgang): Promise<FallwildVorgang>;
   countPhotos(fallwildId: string): Promise<number>;
   findUploadScope(fallwildId: string, revierId: string): Promise<FallwildUploadScope | undefined>;
+  findPhotoById(photoId: string, fallwildId: string, revierId: string): Promise<FallwildPhotoRecord | undefined>;
   findDeleteScope(fallwildId: string, revierId: string): Promise<FallwildDeleteScope | undefined>;
   insertPhoto(entry: FallwildPhotoInsert): Promise<FallwildPhotoRecord>;
   deleteById(fallwildId: string, revierId: string, deleteMediaAssets: boolean): Promise<boolean>;
@@ -42,11 +43,12 @@ export interface FallwildPhotoInsert {
 export type FallwildPhotoRecord = typeof mediaAssets.$inferSelect;
 
 export function createDbFallwildRepository(): FallwildRepository {
-  const db = getDb();
+  // Verbindung erst beim Zugriff öffnen; Preview-Builds benötigen keine Datenbank.
+
 
   return {
     async insert(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(fallwildVorgaenge)
         .values({
           id: entry.id,
@@ -82,7 +84,7 @@ export function createDbFallwildRepository(): FallwildRepository {
     },
 
     async countPhotos(fallwildId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select({
           value: sql<number>`count(*)::int`
         })
@@ -93,7 +95,7 @@ export function createDbFallwildRepository(): FallwildRepository {
     },
 
     async findUploadScope(fallwildId, revierId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select({
           fallwildId: fallwildVorgaenge.id,
           revierId: fallwildVorgaenge.revierId,
@@ -113,8 +115,25 @@ export function createDbFallwildRepository(): FallwildRepository {
         : undefined;
     },
 
+    async findPhotoById(photoId, fallwildId, revierId) {
+      const [row] = await getDb()
+        .select()
+        .from(mediaAssets)
+        .where(
+          and(
+            eq(mediaAssets.id, photoId),
+            eq(mediaAssets.revierId, revierId),
+            eq(mediaAssets.entityType, "fallwild"),
+            eq(mediaAssets.entityId, fallwildId)
+          )
+        )
+        .limit(1);
+
+      return row;
+    },
+
     async findDeleteScope(fallwildId, revierId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select({ fallwildId: fallwildVorgaenge.id })
         .from(fallwildVorgaenge)
         .where(and(eq(fallwildVorgaenge.id, fallwildId), eq(fallwildVorgaenge.revierId, revierId)))
@@ -125,7 +144,7 @@ export function createDbFallwildRepository(): FallwildRepository {
       }
 
       try {
-        const photos = await db
+        const photos = await getDb()
           .select({ objectKey: mediaAssets.objectKey })
           .from(mediaAssets)
           .where(
@@ -155,7 +174,7 @@ export function createDbFallwildRepository(): FallwildRepository {
     },
 
     async insertPhoto(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(mediaAssets)
         .values({
           id: entry.id,
@@ -179,7 +198,7 @@ export function createDbFallwildRepository(): FallwildRepository {
     },
 
     async deleteById(fallwildId, revierId, deleteMediaAssets) {
-      return db.transaction(async (tx) => {
+      return getDb().transaction(async (tx) => {
         if (deleteMediaAssets) {
           await tx
             .delete(mediaAssets)

@@ -34,6 +34,7 @@ const MAX_RECENT_ITEMS = 5;
 export interface DashboardQueryOptions {
   context?: AuthContextResponse;
   now?: Date;
+  activityHistory?: boolean;
 }
 
 export async function getDashboardSnapshot(
@@ -43,11 +44,13 @@ export async function getDashboardSnapshot(
   const now = options.now ?? new Date();
 
   if (getServerEnv().useDemoStore) {
-    return buildDashboardFromDemoStore(context, now);
+    return buildDashboardFromDemoStore(context, now, options.activityHistory);
   }
 
   const db = getDb();
   const revierId = context.activeRevierId;
+  const notificationQuery = db.select().from(notifications)
+    .where(eq(notifications.revierId, revierId)).orderBy(desc(notifications.createdAt)).$dynamic();
 
   const [
     activeAnsitzRows,
@@ -67,12 +70,7 @@ export async function getDashboardSnapshot(
       .from(fallwildVorgaenge)
       .where(eq(fallwildVorgaenge.revierId, revierId))
       .orderBy(desc(fallwildVorgaenge.recordedAt)),
-    db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.revierId, revierId))
-      .orderBy(desc(notifications.createdAt))
-      .limit(MAX_RECENT_ITEMS),
+    options.activityHistory ? notificationQuery : notificationQuery.limit(MAX_RECENT_ITEMS),
     db
       .select()
       .from(sitzungen)
@@ -89,9 +87,9 @@ export async function getDashboardSnapshot(
   ]);
 
   const activeAnsitze = activeAnsitzRows
-    .filter((row) => row.status === "active")
+    .filter((row) => options.activityHistory || row.status === "active")
     .map(mapAnsitzRowToDomain);
-  const recentFallwild = fallwildRows.map(mapFallwildRowToDomain).slice(0, MAX_RECENT_ITEMS);
+  const recentFallwild = fallwildRows.map(mapFallwildRowToDomain).slice(0, options.activityHistory ? undefined : MAX_RECENT_ITEMS);
   const notificationsList = notificationRows.map(mapNotificationRowToDomain);
   const overview = buildOverview({
     now,
@@ -103,6 +101,7 @@ export async function getDashboardSnapshot(
     openMaintenanceCount: wartungsRows.filter((row) => row.status === "offen").length,
     tasks: aufgabenRows.map(mapAufgabeRowToDomain)
   });
+  if (options.activityHistory) overview.letzteBenachrichtigungen = notificationsList;
 
   return {
     ...context,
@@ -163,12 +162,13 @@ function readErrorCause(error: Error) {
 
 function buildDashboardFromDemoStore(
   context: AuthContextResponse,
-  now: Date
+  now: Date,
+  activityHistory = false
 ): DashboardResponse {
   const store = createDemoStore();
   const revierId = context.activeRevierId;
   const activeAnsitze = store.ansitze
-    .filter((entry) => entry.revierId === revierId && entry.status === "active")
+    .filter((entry) => entry.revierId === revierId && (activityHistory || entry.status === "active"))
     .sort((left, right) => right.startedAt.localeCompare(left.startedAt));
   const fallwild = store.fallwild
     .filter((entry) => entry.revierId === revierId)
@@ -176,11 +176,11 @@ function buildDashboardFromDemoStore(
   const notificationsList = store.notifications
     .filter((entry) => entry.revierId === revierId)
     .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-    .slice(0, MAX_RECENT_ITEMS);
+    .slice(0, activityHistory ? undefined : MAX_RECENT_ITEMS);
 
   return {
     ...context,
-    overview: buildOverview({
+    overview: { ...buildOverview({
       now,
       revier: context.revier,
       activeAnsitze,
@@ -192,9 +192,9 @@ function buildDashboardFromDemoStore(
         .flatMap((entry) => entry.wartung)
         .filter((entry) => entry.status === "offen").length,
       tasks: store.aufgaben.filter((entry) => entry.revierId === revierId)
-    }),
+    }), ...(activityHistory ? { letzteBenachrichtigungen: notificationsList } : {}) },
     activeAnsitze,
-    recentFallwild: fallwild.slice(0, MAX_RECENT_ITEMS)
+    recentFallwild: fallwild.slice(0, activityHistory ? undefined : MAX_RECENT_ITEMS)
   };
 }
 

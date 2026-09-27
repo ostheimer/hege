@@ -102,6 +102,79 @@ describe("fallwild service", () => {
     });
   });
 
+  it("bereitet große Fotos für den Direkt-Upload vor und prüft sie vor der Zuordnung", async () => {
+    const sizeBytes = 6 * 1024 * 1024;
+    const repository = createMemoryRepository({
+      scope: {
+        fallwildId: "fallwild-1",
+        revierId: "revier-attersee",
+        tenantKey: "attersee"
+      }
+    });
+    const createUploadUrl = vi.fn(async () => "https://storage.example/signed-put");
+    const headObject = vi.fn(async () => ({ contentLength: sizeBytes, contentType: "image/jpeg" }));
+    const service = createFallwildService({
+      repository,
+      generatePhotoId: () => "photo-direct",
+      getNow: () => "2026-04-04T06:10:00.000Z",
+      createUploadUrl,
+      headObject,
+      getReadUrl: vi.fn(async () => "https://storage.example/signed-get"),
+      issueUploadGrant: vi.fn(() => ({
+        token: "grant",
+        expiresAt: "2026-04-04T06:15:00.000Z"
+      })),
+      verifyUploadGrant: vi.fn(() => ({
+        version: 1 as const,
+        kind: "direct-photo-upload" as const,
+        entityType: "fallwild" as const,
+        entityId: "fallwild-1",
+        photoId: "photo-direct",
+        objectKey: "attersee/fallwild/fallwild-1/photo-direct-bild.jpg",
+        fileName: "bild.jpg",
+        contentType: "image/jpeg" as const,
+        sizeBytes,
+        title: "Unfallstelle",
+        revierId: "revier-attersee",
+        membershipId: "member-jaeger",
+        issuedAt: 1,
+        expiresAt: 9999999999
+      })),
+      useDemoStore: false
+    });
+
+    await expect(service.preparePhotoUpload({
+      contentType: "image/jpeg",
+      fallwildId: "fallwild-1",
+      fileName: "bild.jpg",
+      reportedByMembershipId: "member-jaeger",
+      revierId: "revier-attersee",
+      sizeBytes,
+      title: "Unfallstelle"
+    })).resolves.toMatchObject({
+      uploadUrl: "https://storage.example/signed-put",
+      uploadToken: "grant"
+    });
+    expect(createUploadUrl).toHaveBeenCalledWith({
+      key: "attersee/fallwild/fallwild-1/photo-direct-bild.jpg",
+      contentType: "image/jpeg"
+    });
+
+    await expect(service.completePhotoUpload({
+      fallwildId: "fallwild-1",
+      reportedByMembershipId: "member-jaeger",
+      revierId: "revier-attersee",
+      uploadToken: "grant"
+    })).resolves.toMatchObject({
+      id: "photo-direct",
+      url: "https://storage.example/signed-get"
+    });
+    expect(headObject).toHaveBeenCalledWith(
+      "attersee/fallwild/fallwild-1/photo-direct-bild.jpg"
+    );
+    expect(repository.insertedPhotos).toHaveLength(1);
+  });
+
   it("rejects uploads after three stored photos", async () => {
     const service = createFallwildService({
       repository: createMemoryRepository({
@@ -545,6 +618,12 @@ function createMemoryRepository({
       }
 
       return scope;
+    },
+    async findPhotoById(photoId: string, fallwildId: string, revierId: string) {
+      return insertedPhotos.find(
+        (entry) =>
+          entry.id === photoId && entry.entityId === fallwildId && entry.revierId === revierId
+      );
     },
     async findDeleteScope(fallwildId: string, revierId: string) {
       if (!currentDeleteScope || currentDeleteScope.fallwildId !== fallwildId || revierId !== "revier-attersee") {

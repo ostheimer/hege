@@ -1,0 +1,17 @@
+appId: app.hege.revier
+name: Startseite gegen Live-API
+---
+- tapOn:
+    id: login-identifier-input
+- inputText: ${LOGIN_IDENTIFIER}
+- tapOn:
+    id: login-pin-input
+- inputText: ${LOGIN_PIN}
+- tapOn:
+    id: login-submit-button
+- extendedWaitUntil:
+    visible: Weidmannsheil.*
+    timeout: 30000
+- assertNotVisible: API nicht erreichbar
+- assertNotVisible: Aktivitäten eingeschränkt
+- takeScreenshot: dashboard-live-api

@@ -7,7 +7,7 @@ vi.mock("../../auth/context", () => ({
 }));
 
 vi.mock("../../storage/s3", () => ({
-  buildStoragePublicUrl: vi.fn((objectKey: string) => `https://storage.example/${objectKey}`)
+  getStorageReadUrl: vi.fn(async (objectKey: string) => `https://storage.example/${objectKey}`)
 }));
 
 import { exportFallwildCsv, mapFallwildRowToDomain, mapMediaAssetRowToPhotoAsset } from "./queries";
@@ -60,8 +60,8 @@ describe("fallwild queries", () => {
     });
   });
 
-  it("maps media asset rows to photo assets", () => {
-    expect(
+  it("maps media asset rows to photo assets", async () => {
+    await expect(
       mapMediaAssetRowToPhotoAsset({
         id: "photo-1",
         revierId: "revier-attersee",
@@ -74,7 +74,7 @@ describe("fallwild queries", () => {
         contentType: "image/jpeg",
         createdAt: "2026-04-03T06:56:00.000Z"
       })
-    ).toEqual({
+    ).resolves.toEqual({
       id: "photo-1",
       title: "Unfallstelle",
       url: "https://storage.example/attersee/fallwild/fallwild-1/photo-1-bild.jpg",

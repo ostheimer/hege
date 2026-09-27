@@ -73,11 +73,13 @@ Reviermeldungen, Aufgaben und Kontaktlisten sind implementiert. Das Rollenmodell
 
 Environment-Matrix:
 
-- `Vercel Development` -> `Neon development`
-- `Vercel Preview` -> `Neon development`
-- `Vercel Production` -> `Neon main`
+- `Local` → lokales Docker-Postgres/PostGIS und MinIO
+- `Vercel Preview` → keine dauerhafte Cloud-Datenbank und kein Zugriff auf Production
+- `Vercel Production` → geschützter Neon-Branch `main`
 
-Preview-Deployments bekommen dabei bewusst keinen eigenen Neon-Branch pro Deployment. `Development` und `Preview` teilen sich denselben Neon-Zweig `development`.
+Das bestehende Neon-Projekt wird über die Vercel-Marketplace-Integration ausschließlich mit der Produktionsumgebung verbunden. Damit gibt es genau einen dauerhaften Neon-Branch; die Integration verwaltet `DATABASE_URL` für die App und `DATABASE_URL_UNPOOLED` für Migrationen. Ein zusätzlicher Preview-Branch wird nur bei tatsächlichem Bedarf bewusst eingerichtet und darf niemals die Produktionsdatenbank ersetzen.
+
+Der Neon-Branch `main` muss als geschützt markiert bleiben. Vor Änderungen oder Löschungen an Datenbank-Branches ist zusätzlich zu prüfen, welche Endpunkte tatsächlich in den Vercel-Produktionsvariablen hinterlegt sind.
 
 Kartenfunktionen werden im ganzen Produkt auf Google Maps ausgerichtet. Karten-UI, Marker, Standortsuche und spätere Geocoding-Schritte sollen deshalb direkt auf Google-Maps-kompatible Integrationen zielen. Für Fallwild ist der erste Standort-Slice aktiv: Der Endpunkt ist produktiv erreichbar, Google ergänzt Adresse und Straße serverseitig, während GIP die fachliche Zielquelle für österreichische Straßenkilometer bleibt.
 
@@ -98,6 +100,8 @@ pnpm --filter @hege/web db:seed
 pnpm --filter @hege/web dev
 pnpm --filter @hege/mobile dev
 ```
+
+Das lokale Hege-PostgreSQL läuft bewusst unter `127.0.0.1:15432`. Dadurch bleibt ein bereits vorhandener PostgreSQL-Server auf dem Standardport `5432` unberührt.
 
 Für den bisherigen NestJS-Übergangspfad:
 
@@ -146,8 +150,8 @@ Wichtige Testwege:
 - `pnpm test` führt die bestehenden Unit- und Integrationstests für `@hege/domain` und `@hege/web` aus.
 - `pnpm test:e2e` startet Playwright gegen eine isolierte lokale E2E-Datenbank und prüft Kernflüsse in der Web-App browserbasiert.
 - `pnpm test:e2e:update` aktualisiert die Screenshot-Baselines für die visuellen Regressionstests in `apps/web/e2e/*-snapshots`.
-- `pnpm --filter @hege/web smoke:preview -- <preview-url>` prüft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
-- `pnpm --filter @hege/web smoke:release -- <production-url>` prüft denselben Read-Contract gegen einen produktiven Deploy.
+- `pnpm --filter @hege/web smoke:preview <preview-url>` prüft Public Web, Auth-Login, Session-Grundvertrag, Dashboard, Reviereinrichtungen, Protokolle, Sitzungen und den PDF-Download gegen einen Preview-Deploy.
+- `pnpm --filter @hege/web smoke:release <production-url>` prüft denselben Read-Contract gegen einen produktiven Deploy.
 - `pnpm mobile:e2e:ios:core` prüft Build-Tag, Login, Dashboard, Navigation und Feldrollen-Kontaktrechte auf einem iOS-Simulator; `pnpm mobile:e2e:ios:roles` prüft die Pflegefläche für Schriftführung und Revier-Admin; `pnpm mobile:e2e:ios:platform-users` prüft Benutzerverwaltung, Impersonation und Rückkehr zur Admin-Sitzung; `pnpm mobile:e2e:ios:queue` prüft die Fallwild-Warteschlange.
 - `pnpm mobile:e2e:ios:reviereinrichtungen` prüft GPS-Erfassung, Speichern, Karten-Pin, Bestandsuche und Wetterdetails; `pnpm mobile:e2e:ios:reviereinrichtungen:queue` injiziert eine sichere Reviereinrichtungs-Fixture und entfernt sie nach dem Lauf wieder.
 - `HEGE_IOS_DEVICE_ID=<uuid> pnpm mobile:smoke:ios:session` startet eine gespeicherte Sitzung auf einem gekoppelten, entsperrten Test-iPhone ohne manuelle App-Face-ID-Interaktion und stellt die ursprüngliche Sperre danach wieder her.

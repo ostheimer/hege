@@ -11,6 +11,7 @@ describe("buildReviereinrichtungPayload", () => {
       buildReviereinrichtungPayload({
         ...DEFAULT_REVIEREINRICHTUNG_FORM,
         type: "kanzel",
+        status: "gut",
         name: "Nordkanzel",
         lat: "48,33597",
         lng: "16.732315",
@@ -43,6 +44,7 @@ describe("buildReviereinrichtungPayload", () => {
     const payload = buildReviereinrichtungPayload({
       ...DEFAULT_REVIEREINRICHTUNG_FORM,
       type: "fuetterung",
+      status: "gut",
       name: "Winterfütterung",
       lat: "48.3",
       lng: "16.7",
@@ -66,10 +68,20 @@ describe("buildReviereinrichtungPayload", () => {
       buildReviereinrichtungPayload({
         ...DEFAULT_REVIEREINRICHTUNG_FORM,
         name: "Teststand",
+        status: "gut",
         lat: "48.3",
         lng: "16.7",
         orientationDegrees: "360"
       })
     ).toThrow("Ausrichtung");
+  });
+
+  it("verlangt eine bewusste Zustandsauswahl", () => {
+    expect(() => buildReviereinrichtungPayload({
+      ...DEFAULT_REVIEREINRICHTUNG_FORM,
+      name: "Teststand",
+      lat: "48.3",
+      lng: "16.7"
+    })).toThrow("Zustand ist erforderlich");
   });
 });

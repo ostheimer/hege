@@ -1,4 +1,5 @@
 import type { DashboardResponse, EinrichtungZustand } from "@hege/domain";
+import { parseApiTimestamp } from "./api-timestamp";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("de-AT", {
   day: "2-digit",
@@ -26,9 +27,7 @@ export function formatTime(value: string) {
 }
 
 function parseDate(value: string) {
-  const date = new Date(value);
-
-  return Number.isNaN(date.getTime()) ? null : date;
+  return parseApiTimestamp(value);
 }
 
 /**
@@ -80,7 +79,7 @@ export function formatRoleLabel(role: DashboardResponse["membership"]["role"]): 
     case "ausgeher":
       return "Ausgeher";
     case "platform-admin":
-      return "Plattform";
+      return "Plattform-Admin";
     default:
       return role;
   }

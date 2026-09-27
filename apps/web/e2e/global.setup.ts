@@ -4,7 +4,7 @@ import { test as setup } from "@playwright/test";
 import { e2eDatabaseName, getE2eDbEnv } from "./support/e2e-env";
 import { getPnpmCommand, runCommand } from "./support/run-command";
 
-const LOCAL_ADMIN_DATABASE_URL = "postgresql://hege:hege@127.0.0.1:5432/postgres";
+const LOCAL_ADMIN_DATABASE_URL = "postgresql://hege:hege@127.0.0.1:15432/postgres";
 
 setup("bootstrap local e2e database", async () => {
   if (!(await isPostgresReachable())) {

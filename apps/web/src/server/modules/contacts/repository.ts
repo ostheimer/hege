@@ -73,12 +73,13 @@ export interface ContactsRepository {
 }
 
 export function createDbContactsRepository(): ContactsRepository {
-  const db = getDb();
+  // Verbindung erst beim Zugriff öffnen; Preview-Builds benötigen keine Datenbank.
+
 
   async function listDirectory(revierId: string) {
     const [registeredMembers, listRows, entryRows] = await Promise.all([
       listRegisteredMembers(revierId),
-      db
+      getDb()
         .select()
         .from(contactLists)
         .where(eq(contactLists.revierId, revierId))
@@ -96,7 +97,7 @@ export function createDbContactsRepository(): ContactsRepository {
     listDirectory,
 
     async findList(revierId, listId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(contactLists)
         .where(and(eq(contactLists.revierId, revierId), eq(contactLists.id, listId)))
@@ -111,7 +112,7 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async findEntry(revierId, listId, entryId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(contactEntries)
         .where(
@@ -133,7 +134,7 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async findEntryByMembership(revierId, listId, membershipId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(contactEntries)
         .where(
@@ -154,11 +155,11 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async insertList(input) {
-      await db.insert(contactLists).values(input);
+      await getDb().insert(contactLists).values(input);
     },
 
     async updateList(revierId, listId, patch) {
-      const rows = await db
+      const rows = await getDb()
         .update(contactLists)
         .set(patch)
         .where(and(eq(contactLists.revierId, revierId), eq(contactLists.id, listId)))
@@ -168,7 +169,7 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async deleteList(revierId, listId) {
-      const rows = await db
+      const rows = await getDb()
         .delete(contactLists)
         .where(and(eq(contactLists.revierId, revierId), eq(contactLists.id, listId)))
         .returning({ id: contactLists.id });
@@ -177,7 +178,7 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async insertEntry(input) {
-      await db.insert(contactEntries).values({
+      await getDb().insert(contactEntries).values({
         ...input,
         membershipId: input.membershipId ?? null,
         name: input.name ?? null,
@@ -189,7 +190,7 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async updateEntry(revierId, listId, entryId, patch) {
-      const rows = await db
+      const rows = await getDb()
         .update(contactEntries)
         .set(patch)
         .where(
@@ -205,7 +206,7 @@ export function createDbContactsRepository(): ContactsRepository {
     },
 
     async deleteEntry(revierId, listId, entryId) {
-      const rows = await db
+      const rows = await getDb()
         .delete(contactEntries)
         .where(
           and(
@@ -221,7 +222,7 @@ export function createDbContactsRepository(): ContactsRepository {
   };
 
   async function listRegisteredMembers(revierId: string): Promise<RegisteredContact[]> {
-    const rows = await db
+    const rows = await getDb()
       .select({
         membershipId: memberships.id,
         userId: users.id,
@@ -239,7 +240,7 @@ export function createDbContactsRepository(): ContactsRepository {
   }
 
   async function readEntryRows(revierId: string): Promise<ContactEntryRow[]> {
-    return db
+    return getDb()
       .select({
         id: contactEntries.id,
         listId: contactEntries.listId,

@@ -1,9 +1,31 @@
 import { demoData, type AuthContextResponse } from "@hege/domain";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import * as demoStore from "../../demo-store";
 
 import { getDashboardSnapshot } from "./queries";
 
 describe("dashboard queries", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("liefert die vollständige Historie einschließlich beendeter Ansitze nur aus dem aktiven Revier", async () => {
+    const store = demoStore.createDemoStore();
+    store.fallwild = Array.from({ length: 9 }, (_, i) => ({ ...store.fallwild[0]!, id: `history-${i}`, revierId: "revier-attersee" }));
+    store.notifications = Array.from({ length: 8 }, (_, i) => ({ ...store.notifications[0]!, id: `notification-${i}`, revierId: "revier-attersee" }));
+    store.ansitze.push({ ...store.ansitze[0]!, id: "ended-history", status: "completed", revierId: "revier-attersee" });
+    store.fallwild.push({ ...store.fallwild[0]!, id: "foreign-fallwild", revierId: "not-authorized" });
+    store.notifications.push({ ...store.notifications[0]!, id: "foreign-notification", revierId: "not-authorized" });
+    store.ansitze.push({ ...store.ansitze[0]!, id: "foreign-ansitz", revierId: "not-authorized" });
+    vi.spyOn(demoStore, "createDemoStore").mockReturnValue(store);
+    const history = await getDashboardSnapshot({ context: createDemoAuthContext(), activityHistory: true });
+    expect(history.recentFallwild).toHaveLength(9);
+    expect(history.overview.letzteBenachrichtigungen).toHaveLength(8);
+    expect(history.activeAnsitze.some((item) => item.id === "ended-history")).toBe(true);
+    expect([...history.recentFallwild, ...history.activeAnsitze, ...history.overview.letzteBenachrichtigungen].every((item) => item.revierId === "revier-attersee")).toBe(true);
+    const dashboard = await getDashboardSnapshot({ context: createDemoAuthContext() });
+    expect(dashboard.recentFallwild).toHaveLength(5);
+    expect(dashboard.overview.letzteBenachrichtigungen).toHaveLength(5);
+    expect(dashboard.activeAnsitze.every((item) => item.status === "active")).toBe(true);
+  });
   it("builds the dashboard snapshot from the shared demo store", async () => {
     const context = createDemoAuthContext();
     const snapshot = await getDashboardSnapshot({

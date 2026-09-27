@@ -41,6 +41,7 @@ import type {
   Wildart
 } from "@hege/domain";
 import { buildDashboardOverview, canRoleAccess, demoData } from "@hege/domain";
+import * as FileSystem from "expo-file-system";
 
 import type { LocalPendingPhoto } from "./fallwild-photos";
 import { clearSession, getAccessToken, getRefreshToken, saveSession } from "./session";
@@ -182,6 +183,13 @@ export interface ReviereinrichtungPhotoUploadResponse {
   photo: PhotoAsset;
 }
 
+interface DirectPhotoUploadPreparation {
+  uploadUrl: string;
+  uploadToken: string;
+  expiresAt: string;
+  headers: Record<string, string>;
+}
+
 export interface MutationResponse {
   id: string;
 }
@@ -245,6 +253,17 @@ export async function refreshStoredSession() {
 
 export async function logout() {
   await clearSession();
+}
+
+export async function switchMembership(membershipId: string) {
+  const refreshToken = getRefreshToken();
+  if (!refreshToken) throw new Error("Bitte erneut anmelden.");
+  const session = await requestJson<AuthSessionResponse>("/v1/auth/refresh", {
+    method: "POST", auth: false, retryOnUnauthorized: false,
+    body: { refreshToken, membershipId }
+  });
+  await saveSession(session);
+  return session;
 }
 
 export async function fetchPlatformUsers(): Promise<PlatformUserListResponse> {
@@ -313,6 +332,12 @@ export async function fetchDashboardSnapshot(): Promise<DashboardResponse> {
   return requestJson<DashboardResponse>("/v1/dashboard", {
     fallback: fallbackDashboardSnapshot
   });
+}
+
+export async function fetchActivityHistory() {
+  return requestJson<Pick<DashboardResponse, "activeAnsitze" | "recentFallwild"> & {
+    overview: Pick<DashboardResponse["overview"], "letzteBenachrichtigungen">;
+  }>("/v1/activities");
 }
 
 export async function fetchLiveAnsitze(): Promise<AnsitzSession[]> {
@@ -502,51 +527,85 @@ export async function uploadFallwildPhoto(
   fallwildId: string,
   attachment: LocalPendingPhoto
 ): Promise<FallwildPhotoUploadResponse> {
-  const formData = new FormData();
-  formData.append(
-    "file",
-    {
-      uri: attachment.uri,
-      name: attachment.fileName,
-      type: attachment.mimeType
-    } as never
+  return uploadPhotoDirectly(
+    `/v1/fallwild/${encodeURIComponent(fallwildId)}/fotos/upload`,
+    attachment
   );
-
-  if (attachment.title) {
-    formData.append("title", attachment.title);
-  }
-
-  return requestJson<FallwildPhotoUploadResponse>(`/v1/fallwild/${encodeURIComponent(fallwildId)}/fotos`, {
-    method: "POST",
-    body: formData
-  });
 }
 
 export async function uploadReviereinrichtungPhoto(
   einrichtungId: string,
   attachment: LocalPendingPhoto
 ): Promise<ReviereinrichtungPhotoUploadResponse> {
-  const formData = new FormData();
-  formData.append(
-    "file",
-    {
-      uri: attachment.uri,
-      name: attachment.fileName,
-      type: attachment.mimeType
-    } as never
+  return uploadPhotoDirectly(
+    `/v1/reviereinrichtungen/${encodeURIComponent(einrichtungId)}/fotos/upload`,
+    attachment
   );
+}
 
-  if (attachment.title) {
-    formData.append("title", attachment.title);
+async function uploadPhotoDirectly<T extends FallwildPhotoUploadResponse>(
+  path: string,
+  attachment: LocalPendingPhoto
+): Promise<T> {
+  const fileInfo = await FileSystem.getInfoAsync(attachment.uri, { size: true });
+
+  if (!fileInfo.exists || fileInfo.isDirectory || !Number.isSafeInteger(fileInfo.size) || fileInfo.size <= 0) {
+    throw new MobileApiError("Die ausgewählte Fotodatei ist nicht mehr verfügbar.", 422, "validation-error");
   }
 
-  return requestJson<ReviereinrichtungPhotoUploadResponse>(
-    `/v1/reviereinrichtungen/${encodeURIComponent(einrichtungId)}/fotos`,
-    {
-      method: "POST",
-      body: formData
+  return performDirectPhotoUpload<T>(path, attachment, fileInfo.size, true);
+}
+
+async function performDirectPhotoUpload<T extends FallwildPhotoUploadResponse>(
+  path: string,
+  attachment: LocalPendingPhoto,
+  sizeBytes: number,
+  retryExpiredUrl: boolean
+): Promise<T> {
+  const preparation = await requestJson<DirectPhotoUploadPreparation>(path, {
+    method: "POST",
+    body: {
+      fileName: attachment.fileName,
+      contentType: attachment.mimeType,
+      sizeBytes,
+      ...(attachment.title ? { title: attachment.title } : {})
     }
-  );
+  });
+
+  let uploadResult: FileSystem.FileSystemUploadResult;
+
+  try {
+    uploadResult = await FileSystem.uploadAsync(preparation.uploadUrl, attachment.uri, {
+      httpMethod: "PUT",
+      uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
+      headers: preparation.headers
+    });
+  } catch {
+    throw new MobileApiError(
+      "Das Foto konnte nicht in den Bildspeicher übertragen werden.",
+      503,
+      "service-unavailable"
+    );
+  }
+
+  if (uploadResult.status === 403 && retryExpiredUrl) {
+    return performDirectPhotoUpload<T>(path, attachment, sizeBytes, false);
+  }
+
+  if (uploadResult.status < 200 || uploadResult.status >= 300) {
+    throw new MobileApiError(
+      `Der Bildspeicher hat den Upload abgelehnt (HTTP ${uploadResult.status}).`,
+      503,
+      "service-unavailable"
+    );
+  }
+
+  return requestJson<T>(path, {
+    method: "PUT",
+    body: {
+      uploadToken: preparation.uploadToken
+    }
+  });
 }
 
 export async function fetchReviereinrichtungenList(): Promise<ReviereinrichtungListItem[]> {
@@ -861,4 +920,10 @@ function mapPublishedDocument(document: NonNullable<(typeof demoData.sitzungen)[
     ...document,
     downloadUrl: document.url
   };
+}
+export async function fetchRevierMap(): Promise<{ map: import("@hege/domain").RevierMapData | null }> {
+  return requestJson("/v1/revier-map");
+}
+export async function saveGpsBoundary(samples: import("@hege/domain").BoundarySample[]) {
+  return requestJson("/v1/revier-map", { method: "POST", body: { samples } });
 }

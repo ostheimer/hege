@@ -13,11 +13,12 @@ export interface AnsitzeRepository {
 }
 
 export function createDbAnsitzeRepository(): AnsitzeRepository {
-  const db = getDb();
+  // Verbindung erst beim Zugriff öffnen; Preview-Builds benötigen keine Datenbank.
+
 
   return {
     async findById(revierId, ansitzId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(ansitzSessions)
         .where(and(eq(ansitzSessions.revierId, revierId), eq(ansitzSessions.id, ansitzId)))
@@ -27,7 +28,7 @@ export function createDbAnsitzeRepository(): AnsitzeRepository {
     },
 
     async insert(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(ansitzSessions)
         .values({
           id: entry.id,
@@ -55,7 +56,7 @@ export function createDbAnsitzeRepository(): AnsitzeRepository {
     },
 
     async listActiveByRevier(revierId) {
-      const rows = await db
+      const rows = await getDb()
         .select()
         .from(ansitzSessions)
         .where(and(eq(ansitzSessions.revierId, revierId), eq(ansitzSessions.status, "active")))
@@ -65,7 +66,7 @@ export function createDbAnsitzeRepository(): AnsitzeRepository {
     },
 
     async markCompleted(revierId, ansitzId, endedAt) {
-      const [row] = await db
+      const [row] = await getDb()
         .update(ansitzSessions)
         .set({
           endedAt,

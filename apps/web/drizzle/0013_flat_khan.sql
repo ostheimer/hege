@@ -1,0 +1,1 @@
+ALTER TABLE "memberships" ADD COLUMN "function_label" text DEFAULT '' NOT NULL;

@@ -7,7 +7,7 @@ import { isAnsitzeinrichtung, isFuetterungseinrichtung, supportsOrientation } fr
 export interface ReviereinrichtungFormState {
   type: EinrichtungTyp;
   name: string;
-  status: EinrichtungZustand;
+  status: EinrichtungZustand | "";
   lat: string;
   lng: string;
   locationLabel: string;
@@ -30,7 +30,7 @@ export interface ReviereinrichtungFormState {
 export const DEFAULT_REVIEREINRICHTUNG_FORM: ReviereinrichtungFormState = {
   type: "hochstand",
   name: "",
-  status: "gut",
+  status: "",
   lat: "",
   lng: "",
   locationLabel: "",
@@ -57,6 +57,10 @@ export function buildReviereinrichtungPayload(
 
   if (!name) {
     throw new Error("Name ist erforderlich.");
+  }
+
+  if (!form.status) {
+    throw new Error("Zustand ist erforderlich.");
   }
 
   const location = buildGeoPoint(form.lat, form.lng, form.locationLabel, name);

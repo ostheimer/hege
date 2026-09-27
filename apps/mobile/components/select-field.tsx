@@ -18,6 +18,7 @@ interface SelectFieldProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   helperText?: string;
+  testID?: string;
 }
 
 export function SelectField<T extends string>({
@@ -25,7 +26,8 @@ export function SelectField<T extends string>({
   options,
   value,
   onChange,
-  helperText
+  helperText,
+  testID
 }: SelectFieldProps<T>) {
   const [isModalOpen, setModalOpen] = useState(false);
   const selected = options.find((entry) => entry.value === value);
@@ -76,6 +78,7 @@ export function SelectField<T extends string>({
         accessibilityLabel={`${label}: ${selected?.label ?? value}`}
         onPress={open}
         style={({ pressed }) => [styles.trigger, pressed ? styles.triggerPressed : null]}
+        testID={testID}
       >
         <Text style={styles.triggerValue}>{selected?.label ?? value}</Text>
         <Ionicons color={theme.muted} name="chevron-down" size={18} />
