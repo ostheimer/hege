@@ -50,11 +50,12 @@ export interface AufgabeRepositoryPatch {
 }
 
 export function createDbRevierarbeitRepository(): RevierarbeitRepository {
-  const db = getDb();
+  // Verbindung erst beim Zugriff öffnen; Preview-Builds benötigen keine Datenbank.
+
 
   return {
     async findAufgabe(revierId, aufgabeId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(aufgaben)
         .where(and(eq(aufgaben.revierId, revierId), eq(aufgaben.id, aufgabeId)))
@@ -69,7 +70,7 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
     },
 
     async findReviermeldung(revierId, reviermeldungId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(reviermeldungen)
         .where(and(eq(reviermeldungen.revierId, revierId), eq(reviermeldungen.id, reviermeldungId)))
@@ -79,7 +80,7 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
     },
 
     async insertAufgabe(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(aufgaben)
         .values({
           id: entry.id,
@@ -108,7 +109,7 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
     },
 
     async insertReviermeldung(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(reviermeldungen)
         .values({
           id: entry.id,
@@ -137,7 +138,7 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
     },
 
     async listAufgaben(revierId) {
-      const rows = await db
+      const rows = await getDb()
         .select()
         .from(aufgaben)
         .where(eq(aufgaben.revierId, revierId))
@@ -148,7 +149,7 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
     },
 
     async listReviermeldungen(revierId) {
-      const rows = await db
+      const rows = await getDb()
         .select()
         .from(reviermeldungen)
         .where(eq(reviermeldungen.revierId, revierId))
@@ -162,13 +163,13 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
       let row: AufgabeRecord | undefined;
 
       if (Object.keys(updateValues).length > 0) {
-        [row] = await db
+        [row] = await getDb()
           .update(aufgaben)
           .set(updateValues)
           .where(and(eq(aufgaben.revierId, revierId), eq(aufgaben.id, aufgabeId)))
           .returning();
       } else {
-        [row] = await db
+        [row] = await getDb()
           .select()
           .from(aufgaben)
           .where(and(eq(aufgaben.revierId, revierId), eq(aufgaben.id, aufgabeId)))
@@ -187,7 +188,7 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
     },
 
     async updateReviermeldung(revierId, reviermeldungId, patch) {
-      const [row] = await db
+      const [row] = await getDb()
         .update(reviermeldungen)
         .set(toReviermeldungUpdateValues(patch))
         .where(and(eq(reviermeldungen.revierId, revierId), eq(reviermeldungen.id, reviermeldungId)))
@@ -202,20 +203,20 @@ export function createDbRevierarbeitRepository(): RevierarbeitRepository {
       return [];
     }
 
-    return db
+    return getDb()
       .select()
       .from(aufgabeAssignees)
       .where(inArray(aufgabeAssignees.aufgabeId, aufgabeIds));
   }
 
   async function replaceAssignees(aufgabeId: string, membershipIds: string[], createdAt: string) {
-    await db.delete(aufgabeAssignees).where(eq(aufgabeAssignees.aufgabeId, aufgabeId));
+    await getDb().delete(aufgabeAssignees).where(eq(aufgabeAssignees.aufgabeId, aufgabeId));
 
     if (membershipIds.length === 0) {
       return;
     }
 
-    await db.insert(aufgabeAssignees).values(
+    await getDb().insert(aufgabeAssignees).values(
       membershipIds.map((membershipId) => ({
         id: `${aufgabeId}-${membershipId}`,
         aufgabeId,

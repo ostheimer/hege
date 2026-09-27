@@ -51,11 +51,12 @@ export interface ReviereinrichtungPhotoInsert {
 export type ReviereinrichtungPhotoRecord = typeof mediaAssets.$inferSelect;
 
 export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepository {
-  const db = getDb();
+  // Verbindung erst beim Zugriff öffnen; Preview-Builds benötigen keine Datenbank.
+
 
   return {
     async listByRevier(revierId) {
-      const entries = await listReviereinrichtungRows(db, revierId);
+      const entries = await listReviereinrichtungRows(getDb(), revierId);
 
       if (entries.length === 0) {
         return [];
@@ -63,18 +64,18 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
 
       const einrichtungIds = entries.map((entry) => entry.id);
       const [kontrollen, wartungen, photoRows] = await Promise.all([
-        db
+        getDb()
           .select()
           .from(reviereinrichtungKontrollen)
           .where(inArray(reviereinrichtungKontrollen.einrichtungId, einrichtungIds))
           .orderBy(desc(reviereinrichtungKontrollen.createdAt)),
-        db
+        getDb()
           .select()
           .from(reviereinrichtungWartungen)
           .where(inArray(reviereinrichtungWartungen.einrichtungId, einrichtungIds))
           .orderBy(reviereinrichtungWartungen.dueAt),
         isStorageConfigured()
-          ? db
+          ? getDb()
               .select()
               .from(mediaAssets)
               .where(
@@ -104,7 +105,7 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
     },
 
     async insert(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(reviereinrichtungen)
         .values({
           id: entry.id,
@@ -132,7 +133,7 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
     },
 
     async countPhotos(einrichtungId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select({ value: sql<number>`count(*)::int` })
         .from(mediaAssets)
         .where(
@@ -146,7 +147,7 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
     },
 
     async findUploadScope(einrichtungId, revierId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select({
           einrichtungId: reviereinrichtungen.id,
           revierId: reviereinrichtungen.revierId,
@@ -163,7 +164,7 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
     },
 
     async findPhotoById(photoId, einrichtungId, revierId) {
-      const [row] = await db
+      const [row] = await getDb()
         .select()
         .from(mediaAssets)
         .where(
@@ -180,7 +181,7 @@ export function createDbReviereinrichtungenRepository(): ReviereinrichtungenRepo
     },
 
     async insertPhoto(entry) {
-      const [row] = await db
+      const [row] = await getDb()
         .insert(mediaAssets)
         .values({
           id: entry.id,
