@@ -18,5 +18,5 @@ export async function resetE2eDatabase() {
     await client.end();
   }
 
-  runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:seed"], getE2eDbEnv());
+  runCommand(getPnpmCommand(), ["--filter", "@hege/web", "db:seed", "--confirm-demo-seed"], getE2eDbEnv());
 }
