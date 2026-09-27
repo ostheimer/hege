@@ -142,6 +142,9 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Test smoke contract
+        run: node --test ./apps/web/scripts/smoke-web-core.test.mjs
+
       - name: Run preview smoke
         env:
           PREVIEW_URL: ${{ needs.resolve-target.outputs.preview_url }}

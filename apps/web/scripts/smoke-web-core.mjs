@@ -5,7 +5,7 @@ const DEMO_PIN = "9526";
 const ACCESS_TOKEN_COOKIE = "hege_access_token";
 const REFRESH_TOKEN_COOKIE = "hege_refresh_token";
 
-export async function runSmokeCli({ targetUrl, label, usage }) {
+export async function runSmokeCli({ targetUrl, label, usage, publicOnly = false }) {
   const normalizedTargetUrl = normalizeUrl(targetUrl);
 
   if (!normalizedTargetUrl) {
@@ -13,12 +13,12 @@ export async function runSmokeCli({ targetUrl, label, usage }) {
   }
 
   await runSmoke(normalizedTargetUrl, {
-    label
+    label, publicOnly
   });
 }
 
 export async function runSmoke(baseUrl, options = {}) {
-  const { label = "Web smoke" } = options;
+  const { label = "Web smoke", publicOnly = false } = options;
 
   console.log(`${label} against ${baseUrl}`);
 
@@ -35,6 +35,17 @@ export async function runSmoke(baseUrl, options = {}) {
   await checkHtmlPage(baseUrl, "/registrieren?plan=starter", {
     label: "/registrieren?plan=starter"
   });
+
+  if (publicOnly) {
+    await checkRedirect(baseUrl, "/app", {}, "/login?next=%2Fapp");
+    for (const path of ["/api/v1/me", "/api/v1/dashboard", "/api/v1/activities", "/api/v1/revier-map"]) {
+      const response = await fetchJson(baseUrl, path);
+      assert.equal(response.status, 401, `Expected anonymous ${path} to return 401, got ${response.status}.`);
+      assert.equal(response.json?.error?.code, "unauthenticated");
+    }
+    console.log(`${label} passed (public pages and anonymous access protection; authenticated database flows are checked separately).`);
+    return;
+  }
 
   const login = await postJson(baseUrl, "/api/v1/auth/login", {
     identifier: DEMO_IDENTIFIER,

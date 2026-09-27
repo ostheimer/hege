@@ -207,6 +207,8 @@ Damit gibt es genau eine dauerhafte Neon-Datenbankumgebung:
 
 Die bestehende Neon-Marketplace-Ressource wird ausschließlich mit `Vercel Production` verbunden. Sie verwaltet die Produktions-Verbindungsvariablen automatisch und hält Preview sowie Development von Produktionsdaten getrennt. Eine automatische `branch-per-preview`-Strategie ist deaktiviert; ein separater Preview-Branch wird nur bei konkretem späterem Bedarf eingerichtet.
 
+Der Preview-Smoke prüft öffentliche Seiten und den anonymen Zugriffsschutz ohne Datenbank. Authentifizierte Abläufe werden separat gegen die lokale, isolierte E2E-Datenbank und durch den bestehenden Production-Release-Smoke geprüft. Ohne `DATABASE_URL` melden Cloud-Datenbankzugriffe ausdrücklich HTTP 503; ein Rückfall auf die lokale Docker-Adresse findet nicht statt. Ein grüner Preview-Smoke belegt keine Login-/Datenbank-Abnahme.
+
 Vor Änderungen oder Löschungen an Neon-Branches muss der tatsächlich verwendete Produktionsendpunkt in Vercel geprüft werden. Der Branch-Name allein ist kein Nachweis dafür, dass eine Umgebung unkritisch ist.
 
 ### Verbindliche Variablen
