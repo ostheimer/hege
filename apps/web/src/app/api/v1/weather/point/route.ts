@@ -16,9 +16,10 @@ export async function GET(request: Request) {
     const lat = latParam === null ? Number.NaN : Number(latParam);
     const lng = lngParam === null ? Number.NaN : Number(lngParam);
 
-    return jsonOk(await getLocationWeather({ lat, lng }), {
+    const weather = await getLocationWeather({ lat, lng });
+    return jsonOk(weather, {
       headers: {
-        "cache-control": "private, max-age=300"
+        "cache-control": weather.weatherAvailable ? "private, max-age=300" : "private, no-store"
       }
     });
   } catch (error) {

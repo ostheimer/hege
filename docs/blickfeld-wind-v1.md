@@ -22,3 +22,7 @@ Unter 1 km/h wird kein Richtungspfeil dargestellt. Fehlende Richtung/Stärke, fe
 ## Zusammenhang mit der Hardware-Abnahme
 
 Vor dieser Änderung wurde auf dem physischen iPhone ein Kamerafoto aufgenommen, GPS mit angezeigter Genauigkeit von ca. 4 m übernommen und der Kompass von 91° auf 334° geändert. Der Speichervorgang wechselte sichtbar in den Bestand. In der anschließend geöffneten Detailansicht waren Foto, Zustand und 334° erhalten. Das belegt den bisherigen Hardwarepfad, noch nicht die neuen Overlays. Testdatensatz und Foto sind noch gezielt zu bereinigen; #208 bleibt bis zur vollständigen Abnahme offen. Private Standortkoordinaten und Fotos werden nicht in dieser Dokumentation veröffentlicht.
+
+## Korrektur nach der Geräteprüfung
+
+Das Blickfeld wurde auf dem iPhone sichtbar bestätigt. Bei der Windprüfung lieferte die API für den Teststandort noch einen fünf Minuten gespeicherten Fehlschlag, während GeoSphere direkt bereits wieder gültige Werte zurückgab. Fehlgeschlagene Abrufe werden jetzt einmal wiederholt und weder im Wettercache noch im HTTP-Cache gespeichert. Erfolgreiche Ergebnisse bleiben fünf Minuten gecacht. Ein dauerhafter Ausfall bleibt als solcher sichtbar; es werden keine Werte erfunden. Drei Regressionstests prüfen Wiederholung, erneuten Abruf nach Ausfall und den HTTP-Cache-Header.

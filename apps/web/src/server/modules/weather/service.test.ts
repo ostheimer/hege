@@ -83,4 +83,34 @@ describe("getLocationWeather", () => {
 
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
+  it("wiederholt einen kurzzeitig fehlgeschlagenen Abruf", async () => {
+    const fetcher = vi.fn()
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        timestamps: ["2026-07-13T10:15:00Z"],
+        features: [{ properties: { parameters: {
+          t2m: { data: [20] }, ff: { data: [3] }, dd: { data: [102] }, fx: { data: [4] }
+        } } }]
+      })));
+    const result = await getLocationWeather(LOCATION, { fetcher, now: () => NOW });
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({ weatherAvailable: true, windDirectionDegrees: 102, windSpeedKmh: 10.8 });
+  });
+
+  it("speichert einen Ausfall nicht als Wetterergebnis", async () => {
+    const fetcher = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({
+        timestamps: ["2026-07-13T10:15:00Z"],
+        features: [{ properties: { parameters: {
+          t2m: { data: [20] }, ff: { data: [3] }, dd: { data: [102] }, fx: { data: [4] }
+        } } }]
+      })));
+    const options = { fetcher, now: () => NOW };
+    expect((await getLocationWeather(LOCATION, options)).weatherAvailable).toBe(false);
+    expect((await getLocationWeather(LOCATION, options)).weatherAvailable).toBe(true);
+    expect(fetcher).toHaveBeenCalledTimes(3);
+  });
+
 });

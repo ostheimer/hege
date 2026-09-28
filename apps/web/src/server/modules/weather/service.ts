@@ -35,10 +35,18 @@ export async function getLocationWeather(
   const sunTimes = getSunTimes(currentTime, location);
   let conditions: GeoSphereConditions | undefined;
 
-  try {
-    conditions = await fetchGeoSphereConditions(location, currentTime, fetcher);
-  } catch {
-    conditions = undefined;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      conditions = await fetchGeoSphereConditions(location, currentTime, fetcher);
+      break;
+    } catch (error) {
+      if (attempt === 1) {
+        // Keine Koordinaten oder vollständigen Request-URLs protokollieren.
+        console.warn("[weather] GeoSphere-Abruf fehlgeschlagen", {
+          errorType: error instanceof Error ? error.name : "UnknownError"
+        });
+      }
+    }
   }
 
   const value: LocationWeather = {
@@ -55,10 +63,15 @@ export async function getLocationWeather(
     ...sunTimes
   };
 
-  cache.set(cacheKey, {
-    expiresAt: currentTime.valueOf() + CACHE_TTL_MS,
-    value
-  });
+  // Ein Ausfall darf den nächsten Pull-to-Refresh nicht fünf Minuten blockieren.
+  if (conditions) {
+    cache.set(cacheKey, {
+      expiresAt: currentTime.valueOf() + CACHE_TTL_MS,
+      value
+    });
+  } else {
+    cache.delete(cacheKey);
+  }
 
   return value;
 }
