@@ -48,4 +48,11 @@ describe("GET /api/v1/weather/point", () => {
     expect(response.status).toBe(400);
     expect(mockGetLocationWeather).toHaveBeenCalledWith({ lat: Number.NaN, lng: Number.NaN });
   });
+  it("verhindert HTTP-Caching von fehlgeschlagenen Wetterabrufen", async () => {
+    mockGetLocationWeather.mockResolvedValue({ weatherAvailable: false });
+    const response = await GET(new Request("http://localhost/api/v1/weather/point?lat=48.3&lng=16.7"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("private, no-store");
+  });
+
 });
