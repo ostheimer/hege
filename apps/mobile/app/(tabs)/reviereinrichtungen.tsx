@@ -131,6 +131,7 @@ export default function ReviereinrichtungenScreen() {
         kind: "einrichtung",
         location: entry.location,
         title: entry.name,
+        orientationDegrees: entry.orientationDegrees,
         subtitle: `${formatEinrichtungTyp(entry.type)} · ${formatEinrichtungZustand(entry.status)}`,
         color: entry.id.startsWith("offline-") ? theme.warning : theme.ink
       })),
@@ -146,10 +147,11 @@ export default function ReviereinrichtungenScreen() {
           kind: "einrichtung",
           location: { lat, lng, label: form.locationLabel || form.name || "Neuer Standort" },
           title: form.name || "Neue Reviereinrichtung",
+          orientationDegrees: supportsOrientation(form.type) && form.orientationDegrees.trim() && Number.isFinite(Number(form.orientationDegrees)) ? Number(form.orientationDegrees) : undefined,
           color: theme.accent
         }
       : null;
-  }, [form.lat, form.lng, form.locationLabel, form.name, theme.accent]);
+  }, [form.lat, form.lng, form.locationLabel, form.name, form.type, form.orientationDegrees, theme.accent]);
   const photosDisabled = attachments.length >= MAX_PHOTOS || isPickingPhotos || isSubmitting;
 
   useEffect(() => {

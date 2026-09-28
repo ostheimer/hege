@@ -2,8 +2,10 @@ import * as Haptics from "expo-haptics";
 import { useMemo, useRef, useState } from "react";
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MapView, { Marker, PROVIDER_GOOGLE, type MapPressEvent } from "react-native-maps";
+import MapView, { Marker, Polygon, Polyline, PROVIDER_GOOGLE, type MapPressEvent } from "react-native-maps";
 import type { GeoPoint } from "@hege/domain";
+
+import { viewCone, windArrow } from "../lib/facility-map-overlays";
 
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
@@ -27,6 +29,8 @@ export interface EntityPin {
   title: string;
   subtitle?: string;
   color?: string;
+  orientationDegrees?: number;
+  windFromDegrees?: number;
   kind?: "ansitz" | "fallwild" | "einrichtung" | "reviermeldung";
 }
 
@@ -90,7 +94,10 @@ export function EntityMap({
   );
 
   const initialRegion = useMemo(() => {
-    return buildInitialRegion(revierCenter, pins);
+    const region = buildInitialRegion(revierCenter, pins);
+    return pins.length === 1 && Number.isFinite(pins[0]?.orientationDegrees)
+      ? { ...region, latitudeDelta: 0.006, longitudeDelta: 0.006 }
+      : region;
   }, [pins, revierCenter]);
 
   const containerStyle =
@@ -135,6 +142,14 @@ export function EntityMap({
             : undefined
         }
       >
+        {pins.map((pin) => {
+          const coordinates = viewCone(pin.location, pin.orientationDegrees);
+          return coordinates.length ? <Polygon key={`view-${pin.id}`} coordinates={coordinates} fillColor="rgba(202, 174, 66, 0.28)" strokeColor="#CAAE42" strokeWidth={2} /> : null;
+        })}
+        {pins.filter(pin => pin.windFromDegrees !== undefined && Number.isFinite(pin.windFromDegrees)).map(pin => {
+          const arrow = windArrow(pin.location, pin.windFromDegrees!);
+          return <Polyline key={`wind-${pin.id}`} coordinates={[...arrow.shaft, ...arrow.head]} strokeColor="#38BDF8" strokeWidth={4} />;
+        })}
         {pins.map((pin) => (
           <Marker
             key={pin.id}
@@ -156,6 +171,14 @@ export function EntityMap({
           />
         ))}
       </MapView>
+      {pins.some(pin => Number.isFinite(pin.orientationDegrees) || Number.isFinite(pin.windFromDegrees)) ? (
+        <View pointerEvents="none" style={{ position: "absolute", bottom: 12, left: 12, right: 12, padding: 10, borderRadius: 10, backgroundColor: theme.card }}>
+          <Text style={{ color: theme.ink, fontSize: 12, fontWeight: "600" }}>
+            {pins.some(pin => Number.isFinite(pin.orientationDegrees)) ? "Gold: Blickfeld" : ""}
+            {pins.some(pin => Number.isFinite(pin.windFromDegrees)) ? " · Blau: Wind weht in Pfeilrichtung" : ""}
+          </Text>
+        </View>
+      ) : null}
       <View style={{ position: "absolute", top: 12, right: 12, gap: 8 }}>
         <Pressable accessibilityRole="button" accessibilityLabel={expanded ? "Karte schließen" : "Karte bildschirmfüllend öffnen"} onPress={() => setExpanded(!expanded)} style={{ backgroundColor: theme.card, padding: 14, borderRadius: 12 }}><Text style={{ color: theme.ink, fontWeight: "700" }}>{expanded ? "Schließen" : "Vollbild"}</Text></Pressable>
         {[{ label: "Vergrößern", text: "+", factor: 0.5 }, { label: "Verkleinern", text: "−", factor: 2 }].map(action => <Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label} onPress={() => {
