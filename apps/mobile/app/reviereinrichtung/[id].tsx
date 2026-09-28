@@ -7,7 +7,8 @@ import type { ReviereinrichtungListItem } from "@hege/domain";
 import { spacing } from "@hege/tokens";
 
 import { Badge } from "../../components/badge";
-import { EntityMap, type EntityPin } from "../../components/entity-map";
+import { type EntityPin } from "../../components/entity-map";
+import { FacilityOutlookMap } from "../../components/facility-outlook-map";
 import { FacilityPhotoHero } from "../../components/facility-photo-hero";
 import { FeedbackBanner } from "../../components/feedback-banner";
 import { StateView } from "../../components/state-view";
@@ -22,6 +23,7 @@ export default function ReviereinrichtungDetailScreen() {
   const { id: rawId } = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const [entry, setEntry] = useState<ReviereinrichtungListItem | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +44,7 @@ export default function ReviereinrichtungDetailScreen() {
       const found = (await fetchReviereinrichtungenList()).find((item) => item.id === id);
       if (!found) throw new Error("Einrichtung wurde nicht gefunden oder gehört nicht zum aktiven Revier.");
       setEntry(found);
+      setRefreshKey(value => value + 1);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Einrichtung konnte nicht geladen werden.");
     } finally {
@@ -62,6 +65,7 @@ export default function ReviereinrichtungDetailScreen() {
     location: entry.location,
     title: entry.name,
     subtitle: formatEinrichtungTyp(entry.type),
+    orientationDegrees: entry.orientationDegrees,
     color: theme.ink
   };
   const badgeTone = entry.status === "gut" ? "success" : entry.status === "gesperrt" ? "danger" : "warning";
@@ -106,8 +110,8 @@ export default function ReviereinrichtungDetailScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Standort</Text>
-          <EntityMap pins={[pin]} height={230} testID="reviereinrichtung-detail-map" />
+          <Text style={styles.sectionTitle}>Blickfeld & Wind</Text>
+          <FacilityOutlookMap pin={pin} refreshKey={refreshKey} />
           <Text style={styles.locationCopy}>{entry.location.label ?? `${entry.location.lat.toFixed(5)}, ${entry.location.lng.toFixed(5)}`}</Text>
           <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(mapsUrl)} style={({ pressed }) => [styles.mapAction, pressed ? styles.pressed : null]} testID="reviereinrichtung-google-maps-link">
             <Ionicons color={theme.ink} name="map-outline" size={22} />
