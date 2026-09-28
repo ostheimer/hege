@@ -113,4 +113,26 @@ describe("getLocationWeather", () => {
     expect(fetcher).toHaveBeenCalledTimes(3);
   });
 
+  it("fragt das aktuelle 15-Minuten-Raster statt minütlich neuer Prognosefenster ab", async () => {
+    const fetcher = vi.fn(async () => new Response(JSON.stringify({
+      timestamps: ["2026-07-13T10:00:00Z", "2026-07-13T10:15:00Z"],
+      features: [{ properties: { parameters: {
+        t2m: { data: [20, 21] }, ff: { data: [3, 4] }, dd: { data: [102, 110] }, fx: { data: [4, 5] }
+      } } }]
+    })));
+    const urls: string[] = [];
+    const capturingFetcher: typeof fetch = async (input) => {
+      urls.push(String(input));
+      return fetcher();
+    };
+    const first = await getLocationWeather(LOCATION, { fetcher: capturingFetcher, now: () => new Date("2026-07-13T10:07:00Z") });
+    clearWeatherCacheForTests();
+    await getLocationWeather(LOCATION, { fetcher: capturingFetcher, now: () => new Date("2026-07-13T10:12:00Z") });
+    expect(urls[0]).toBe(urls[1]);
+    const url = new URL(urls[0]!);
+    expect(url.searchParams.get("start")).toBe("2026-07-13T10:00");
+    expect(url.searchParams.get("end")).toBe("2026-07-13T10:15");
+    expect(first).toMatchObject({ validAt: "2026-07-13T10:00:00.000Z", windSpeedKmh: 10.8 });
+  });
+
 });
