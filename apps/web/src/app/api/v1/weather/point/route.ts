@@ -5,6 +5,8 @@ import { REVIEREINRICHTUNG_READ_ROLES } from "../../../../../server/modules/revi
 import { getLocationWeather } from "../../../../../server/modules/weather/service";
 
 export const dynamic = "force-dynamic";
+// Zwei begrenzte GeoSphere-Versuche plus Authentifizierung.
+export const maxDuration = 70;
 
 export async function GET(request: Request) {
   try {

@@ -4,7 +4,9 @@ import * as SunCalc from "suncalc";
 const GEOSPHERE_ENDPOINT =
   "https://dataset.api.hub.geosphere.at/v1/timeseries/forecast/nowcast-v1-15min-1km";
 const WEATHER_PARAMETERS = "t2m,ff,dd,fx,rr";
-const REQUEST_TIMEOUT_MS = 5_000;
+// GeoSphere benötigt bei noch nicht gecachten Rasterabfragen gelegentlich > 20 s.
+const REQUEST_TIMEOUT_MS = 30_000;
+const FORECAST_STEP_MS = 15 * 60 * 1_000;
 const CACHE_TTL_MS = 5 * 60 * 1_000;
 
 interface WeatherServiceOptions {
@@ -91,10 +93,11 @@ async function fetchGeoSphereConditions(
   fetcher: typeof fetch
 ): Promise<GeoSphereConditions> {
   const url = new URL(GEOSPHERE_ENDPOINT);
-  const end = new Date(now.valueOf() + 60 * 60 * 1_000);
+  const start = new Date(Math.floor(now.valueOf() / FORECAST_STEP_MS) * FORECAST_STEP_MS);
+  const end = new Date(start.valueOf() + FORECAST_STEP_MS);
   url.searchParams.set("lat_lon", `${location.lat},${location.lng}`);
   url.searchParams.set("parameters", WEATHER_PARAMETERS);
-  url.searchParams.set("start", formatGeoSphereDate(now));
+  url.searchParams.set("start", formatGeoSphereDate(start));
   url.searchParams.set("end", formatGeoSphereDate(end));
   url.searchParams.set("output_format", "geojson");
 
