@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -11,7 +12,7 @@ import {
 } from "react-native";
 import type { Dispatch, SetStateAction } from "react";
 
-import type { AnsitzSession } from "@hege/domain";
+import type { AnsitzSession, ReviereinrichtungListItem } from "@hege/domain";
 
 import { Badge } from "../../components/badge";
 import { FeedbackBanner } from "../../components/feedback-banner";
@@ -35,7 +36,7 @@ import {
 import { computeAnsitzSmartDefaults } from "../../lib/ansitz-smart-defaults.helpers";
 import { formatDateTime } from "../../lib/format";
 import { buildGeoPoint, trimToUndefined } from "../../lib/form-utils";
-import { fetchLiveAnsitze, type CreateAnsitzRequest } from "../../lib/api";
+import { fetchReviereinrichtungenList, fetchLiveAnsitze, type CreateAnsitzRequest } from "../../lib/api";
 import {
   syncOfflineQueue,
   submitAnsitzWithOfflineFallback,
@@ -72,6 +73,7 @@ export default function AnsitzeScreen() {
   const queue = useOfflineQueueSnapshot();
   const styles = useThemedStyles(createStyles);
   const theme = useThemeColors();
+  const [facilities, setFacilities] = useState<ReviereinrichtungListItem[]>([]);
   const [ansitze, setAnsitze] = useState<AnsitzSession[]>([]);
   const [form, setForm] = useState<AnsitzFormState>(DEFAULT_FORM);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,14 +97,19 @@ export default function AnsitzeScreen() {
   // gefilterte Liste, damit Filter-Wirkung in beiden Modi gleich ist.
   const pins: ReadonlyArray<EntityPin> = useMemo(
     () =>
-      visibleAnsitze.map((entry) => ({
+      visibleAnsitze.map((entry) => {
+        const facility = facilities.find(item => item.id === entry.standortId);
+        return ({
         id: entry.id,
         kind: "ansitz",
         location: entry.location,
         title: entry.standortName,
-        subtitle: entry.location.label ?? "Aktiver Ansitz"
-      })),
-    [visibleAnsitze]
+        subtitle: entry.location.label ?? "Aktiver Ansitz",
+        orientationDegrees: facility?.orientationDegrees,
+        additionalViewDirections: facility?.details?.additionalViewDirections,
+        facilityType: facility?.type
+      }); }),
+    [visibleAnsitze, facilities]
   );
 
   async function loadAnsitze(options?: { refreshing?: boolean }) {
@@ -117,7 +124,8 @@ export default function AnsitzeScreen() {
     setError(null);
 
     try {
-      const entries = await fetchLiveAnsitze();
+      const [entries, nextFacilities] = await Promise.all([fetchLiveAnsitze(), fetchReviereinrichtungenList().catch(() => [] as ReviereinrichtungListItem[])]);
+      setFacilities(nextFacilities);
       setAnsitze(entries);
       // Smart-Defaults aus der Historie ableiten, sobald wir Daten haben.
       // Nur das Pristine-Form wird gefuettert — wenn der User schon
@@ -476,9 +484,12 @@ export default function AnsitzeScreen() {
       <PinDetailSheet
         pin={selectedPin}
         onClose={() => setSelectedPin(null)}
-        // Detail-Tap aus dem Pin-Sheet: zurueck zur Liste, das Sheet zu.
-        onOpenDetails={() => {
+        onOpenDetails={(pin) => {
           setSelectedPin(null);
+          if (pin.type === "ansitz" && pin.data.standortId) {
+            router.push(`/reviereinrichtung/${pin.data.standortId}`);
+            return;
+          }
           setSection("bestand");
           setMode("liste");
         }}

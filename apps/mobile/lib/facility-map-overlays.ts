@@ -42,3 +42,12 @@ export function currentWind(weather: LocationWeather | null, now = Date.now()) {
   if (weather.windDirectionDegrees === undefined || !Number.isFinite(weather.windDirectionDegrees)) return { state: "unavailable" as const };
   return { state: "current" as const, fromDegrees: ((weather.windDirectionDegrees % 360) + 360) % 360 };
 }
+
+/** Breiter, gefüllter Windpfeil mit weißer Kontur auf der Karte. */
+export function windArrowPolygon(location: GeoPoint, fromDegrees: number): Coordinate[] {
+  const toward = (fromDegrees + 180) % 360;
+  const origin = destination(location, fromDegrees, 150);
+  const neck = destination(location, toward, 80);
+  const offset = (point: Coordinate, bearing: number, meters: number) => destination({ lat: point.latitude, lng: point.longitude }, bearing, meters);
+  return [offset(origin, toward - 90, 9), offset(neck, toward - 90, 9), offset(neck, toward - 90, 32), destination(location, toward, 145), offset(neck, toward + 90, 32), offset(neck, toward + 90, 9), offset(origin, toward + 90, 9), offset(origin, toward - 90, 9)];
+}

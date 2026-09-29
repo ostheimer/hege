@@ -1,11 +1,14 @@
 import * as Haptics from "expo-haptics";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import MapView, { Marker, Polygon, Polyline, PROVIDER_GOOGLE, type MapPressEvent } from "react-native-maps";
-import type { GeoPoint } from "@hege/domain";
+import MapView, { Marker, Polygon, PROVIDER_GOOGLE, type MapPressEvent } from "react-native-maps";
+import type { GeoPoint, EinrichtungTyp } from "@hege/domain";
 
-import { viewCone, windArrow } from "../lib/facility-map-overlays";
+import { FacilityIcon } from "./facility-icon";
+import { formatCardinalDirection } from "../lib/reviereinrichtung";
+
+import { viewCone, windArrowPolygon } from "../lib/facility-map-overlays";
 
 import type { ThemeColors } from "../lib/theme";
 import { useThemeColors } from "../lib/theme";
@@ -31,10 +34,14 @@ export interface EntityPin {
   color?: string;
   orientationDegrees?: number;
   windFromDegrees?: number;
+  additionalViewDirections?: number[];
+  facilityType?: EinrichtungTyp;
   kind?: "ansitz" | "fallwild" | "einrichtung" | "reviermeldung";
 }
 
 interface EntityMapProps {
+  overlay?: ReactNode;
+  northUp?: boolean;
   pins: ReadonlyArray<EntityPin>;
   testID?: string;
   revierCenter?: RevierCenter;
@@ -74,6 +81,8 @@ interface EntityMapProps {
  */
 export function EntityMap({
   pins,
+  overlay,
+  northUp = false,
   testID,
   revierCenter,
   pinColor,
@@ -125,6 +134,8 @@ export function EntityMap({
         zoomEnabled
         scrollEnabled
         onRegionChangeComplete={(region) => { regionRef.current = region; }}
+        rotateEnabled={!northUp}
+        pitchEnabled={!northUp}
         showsUserLocation
         showsMyLocationButton={false}
         showsCompass
@@ -146,14 +157,15 @@ export function EntityMap({
           const coordinates = viewCone(pin.location, pin.orientationDegrees);
           return coordinates.length ? <Polygon key={`view-${pin.id}`} coordinates={coordinates} fillColor="rgba(202, 174, 66, 0.28)" strokeColor="#CAAE42" strokeWidth={2} /> : null;
         })}
-        {pins.filter(pin => pin.windFromDegrees !== undefined && Number.isFinite(pin.windFromDegrees)).map(pin => {
-          const arrow = windArrow(pin.location, pin.windFromDegrees!);
-          return <Polyline key={`wind-${pin.id}`} coordinates={[...arrow.shaft, ...arrow.head]} strokeColor="#38BDF8" strokeWidth={4} />;
-        })}
+        {pins.flatMap(pin => (pin.additionalViewDirections ?? []).map((bearing, index) => <Polygon key={`window-${pin.id}-${index}`} coordinates={viewCone(pin.location, bearing)} fillColor="rgba(202, 174, 66, 0.10)" strokeColor="#A38B32" strokeWidth={1} />))}
+        {pins.filter(pin => pin.windFromDegrees !== undefined && Number.isFinite(pin.windFromDegrees)).map(pin => (
+          <Polygon key={`wind-${pin.id}-${pin.windFromDegrees}`} coordinates={windArrowPolygon(pin.location, pin.windFromDegrees!)} fillColor="#0284C7" strokeColor="#FFFFFF" strokeWidth={2} zIndex={10} />
+        ))}
         {pins.map((pin) => (
           <Marker
             key={pin.id}
             coordinate={{ latitude: pin.location.lat, longitude: pin.location.lng }}
+            anchor={pin.facilityType ? { x: 0.5, y: 0.5 } : undefined}
             pinColor={pin.color ?? pinColor ?? theme.accent}
             onPress={() => {
               if (!onPinPress) {
@@ -168,17 +180,15 @@ export function EntityMap({
             // sonst koennen wir vom Aufrufer aus ein eigenes Sheet rendern.
             title={onPinPress ? undefined : pin.title}
             description={onPinPress ? undefined : pin.subtitle}
-          />
+          >
+            {pin.facilityType ? <View style={{ padding: 7, borderRadius: 24, backgroundColor: theme.card, borderWidth: 2, borderColor: theme.ink }}><FacilityIcon type={pin.facilityType} color={theme.ink} size={26} /></View> : null}
+          </Marker>
         ))}
       </MapView>
-      {pins.some(pin => Number.isFinite(pin.orientationDegrees) || Number.isFinite(pin.windFromDegrees)) ? (
-        <View pointerEvents="none" style={{ position: "absolute", bottom: 12, left: 12, right: 12, padding: 10, borderRadius: 10, backgroundColor: theme.card }}>
-          <Text style={{ color: theme.ink, fontSize: 12, fontWeight: "600" }}>
-            {pins.some(pin => Number.isFinite(pin.orientationDegrees)) ? "Gold: Blickfeld" : ""}
-            {pins.some(pin => Number.isFinite(pin.windFromDegrees)) ? " · Blau: Wind weht in Pfeilrichtung" : ""}
-          </Text>
-        </View>
-      ) : null}
+      {overlay ? <View pointerEvents="none" style={{ position: "absolute", top: 12, left: 12, maxWidth: "65%" }}>{overlay}</View> : null}
+      {pins.some(pin => Number.isFinite(pin.orientationDegrees)) ? <View pointerEvents="none" style={{ position: "absolute", bottom: 32, left: 12, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, backgroundColor: theme.card, borderLeftWidth: 4, borderLeftColor: "#CAAE42" }}>
+        <Text style={{ color: theme.ink, fontSize: 13, fontWeight: "700" }}>{pins.length === 1 ? `Hauptblick ${formatCardinalDirection(pins[0]!.orientationDegrees!)}` : "Gold: Hauptblickrichtung"}</Text>
+      </View> : null}
       <View style={{ position: "absolute", top: 12, right: 12, gap: 8 }}>
         <Pressable accessibilityRole="button" accessibilityLabel={expanded ? "Karte schließen" : "Karte bildschirmfüllend öffnen"} onPress={() => setExpanded(!expanded)} style={{ backgroundColor: theme.card, padding: 14, borderRadius: 12 }}><Text style={{ color: theme.ink, fontWeight: "700" }}>{expanded ? "Schließen" : "Vollbild"}</Text></Pressable>
         {[{ label: "Vergrößern", text: "+", factor: 0.5 }, { label: "Verkleinern", text: "−", factor: 2 }].map(action => <Pressable key={action.label} accessibilityRole="button" accessibilityLabel={action.label} onPress={() => {

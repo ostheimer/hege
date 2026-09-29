@@ -132,6 +132,8 @@ export default function ReviereinrichtungenScreen() {
         location: entry.location,
         title: entry.name,
         orientationDegrees: entry.orientationDegrees,
+        additionalViewDirections: entry.details?.additionalViewDirections,
+        facilityType: entry.type,
         subtitle: `${formatEinrichtungTyp(entry.type)} · ${formatEinrichtungZustand(entry.status)}`,
         color: entry.id.startsWith("offline-") ? theme.warning : theme.ink
       })),
@@ -147,6 +149,7 @@ export default function ReviereinrichtungenScreen() {
           kind: "einrichtung",
           location: { lat, lng, label: form.locationLabel || form.name || "Neuer Standort" },
           title: form.name || "Neue Reviereinrichtung",
+          facilityType: form.type,
           orientationDegrees: supportsOrientation(form.type) && form.orientationDegrees.trim() && Number.isFinite(Number(form.orientationDegrees)) ? Number(form.orientationDegrees) : undefined,
           color: theme.accent
         }

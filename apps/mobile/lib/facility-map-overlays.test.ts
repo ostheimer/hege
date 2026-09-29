@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { LocationWeather } from "@hege/domain";
-import { currentWind, destination, viewCone, windArrow } from "./facility-map-overlays";
+import { currentWind, destination, viewCone, windArrow, windArrowPolygon } from "./facility-map-overlays";
 const origin = { lat: 48, lng: 16 };
 const now = Date.parse("2026-09-28T12:00:00Z");
 const weather: LocationWeather = {
@@ -58,5 +58,19 @@ describe("Aktualität der Windangabe", () => {
     expect(currentWind({ ...weather, validAt: "2026-09-28T09:00:00Z" }, now).state).toBe("stale");
     expect(currentWind({ ...weather, validAt: "invalid" }, now).state).toBe("stale");
     expect(currentWind({ ...weather, validAt: "2026-09-28T14:00:00Z" }, now).state).toBe("stale");
+  });
+});
+
+describe("sichtbarer Windpfeil", () => {
+  it("hat bei Nordwind eine südliche Spitze und eine geschlossene Fläche", () => {
+    const polygon = windArrowPolygon(origin, 0);
+    expect(polygon[0]).toEqual(polygon.at(-1));
+    expect(polygon[3]!.latitude).toBeLessThan(origin.lat);
+    expect(polygon[2]!.longitude).not.toBe(polygon[4]!.longitude);
+  });
+  it("dreht den gesamten Pfeil bei Ostwind nach Westen", () => {
+    const polygon = windArrowPolygon(origin, 90);
+    expect(polygon[3]!.longitude).toBeLessThan(origin.lng);
+    expect(polygon[0]!.longitude).toBeGreaterThan(origin.lng);
   });
 });

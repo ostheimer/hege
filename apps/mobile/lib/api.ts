@@ -927,3 +927,7 @@ export async function fetchRevierMap(): Promise<{ map: import("@hege/domain").Re
 export async function saveGpsBoundary(samples: import("@hege/domain").BoundarySample[]) {
   return requestJson("/v1/revier-map", { method: "POST", body: { samples } });
 }
+
+export async function updateFacilityOutlook(id: string, payload: { orientationDegrees: number; additionalViewDirections: number[] }): Promise<{ id: string }> {
+  return requestJson(`/v1/reviereinrichtungen/${encodeURIComponent(id)}/outlook`, { method: "PATCH", body: payload });
+}
