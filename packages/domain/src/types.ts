@@ -228,6 +228,8 @@ export interface Reviereinrichtung {
 }
 
 export interface ReviereinrichtungDetails {
+  /** Weitere Fenster; die Hauptblickrichtung bleibt orientationDegrees. */
+  additionalViewDirections?: number[];
   capacityPersons?: number;
   constructionYear?: number;
   accessNote?: string;

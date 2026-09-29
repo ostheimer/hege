@@ -3,9 +3,13 @@ import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import { useCallback, useState } from "react";
 import { Linking, Pressable, RefreshControl, ScrollView, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import type { ReviereinrichtungListItem } from "@hege/domain";
+import { canRoleAccess, type ReviereinrichtungListItem } from "@hege/domain";
 import { spacing } from "@hege/tokens";
 
+import { FacilityIcon } from "../../components/facility-icon";
+import { FacilityDirectionsEditor } from "../../components/facility-directions-editor";
+import { FacilityWork } from "../../components/facility-work";
+import { Disclosure } from "../../components/disclosure";
 import { Badge } from "../../components/badge";
 import { type EntityPin } from "../../components/entity-map";
 import { FacilityOutlookMap } from "../../components/facility-outlook-map";
@@ -14,7 +18,7 @@ import { FeedbackBanner } from "../../components/feedback-banner";
 import { StateView } from "../../components/state-view";
 import { fetchReviereinrichtungenList } from "../../lib/api";
 import { formatDateTime, formatEinrichtungZustand } from "../../lib/format";
-import { formatDirection, formatEinrichtungTyp } from "../../lib/reviereinrichtung";
+import { formatCardinalDirection, formatEinrichtungTyp, supportsOrientation } from "../../lib/reviereinrichtung";
 import { useSessionSnapshot } from "../../lib/session";
 import { useThemeColors, type ThemeColors } from "../../lib/theme";
 import { useThemedStyles } from "../../lib/use-themed-styles";
@@ -23,6 +27,7 @@ export default function ReviereinrichtungDetailScreen() {
   const { id: rawId } = useLocalSearchParams<{ id?: string | string[] }>();
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const [entry, setEntry] = useState<ReviereinrichtungListItem | null>(null);
+  const [editingDirections, setEditingDirections] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -66,6 +71,8 @@ export default function ReviereinrichtungDetailScreen() {
     title: entry.name,
     subtitle: formatEinrichtungTyp(entry.type),
     orientationDegrees: entry.orientationDegrees,
+    additionalViewDirections: entry.details?.additionalViewDirections,
+    facilityType: entry.type,
     color: theme.ink
   };
   const badgeTone = entry.status === "gut" ? "success" : entry.status === "gesperrt" ? "danger" : "warning";
@@ -78,47 +85,51 @@ export default function ReviereinrichtungDetailScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={theme.accent} />}
         showsVerticalScrollIndicator={false}
       >
-        <FacilityPhotoHero
-          mode="detail"
-          photos={entry.photos.map((photo) => ({ id: photo.id, title: photo.title, uri: photo.url }))}
-          title={entry.name}
-        />
-
         <View style={styles.titleBlock}>
           <Text style={styles.society}>{session?.revier.name ?? "Aktives Revier"}</Text>
           <View style={styles.titleRow}>
+            <View style={[styles.detailIcon, { width: 52, height: 52, borderRadius: 16 }]}><FacilityIcon type={entry.type} color={theme.onAccent} size={36} /></View>
             <View style={styles.grow}>
-              <Text style={styles.eyebrow}>Einrichtungsdetails</Text>
+              <Text style={styles.eyebrow}>{formatEinrichtungTyp(entry.type)}</Text>
               <Text style={styles.title}>{entry.name}</Text>
+              {entry.orientationDegrees !== undefined ? <Text style={styles.detailLabel}>Hauptblick {formatCardinalDirection(entry.orientationDegrees)}</Text> : null}
             </View>
-            <Badge tone={badgeTone}>{formatEinrichtungZustand(entry.status)}</Badge>
           </View>
+          {entry.status !== "gut" ? <Badge tone={badgeTone}>{formatEinrichtungZustand(entry.status)}</Badge> : null}
         </View>
 
         {error ? <FeedbackBanner tone="warning" title="Aktualisierung fehlgeschlagen" description={error} /> : null}
 
-        <View style={styles.details}>
-          <DetailRow icon="business-outline" label="Typ" value={formatEinrichtungTyp(entry.type)} styles={styles} theme={theme} />
-          <DetailRow icon="shield-checkmark-outline" label="Zustand" value={formatEinrichtungZustand(entry.status)} styles={styles} theme={theme} />
-          {entry.orientationDegrees !== undefined ? <DetailRow icon="compass-outline" label="Ausrichtung" value={formatDirection(entry.orientationDegrees)} styles={styles} theme={theme} /> : null}
-          {entry.offeneWartungen > 0 ? <DetailRow icon="construct-outline" label="Offene Wartungen" value={`${entry.offeneWartungen}`} styles={styles} theme={theme} /> : null}
-          {entry.letzteKontrolleAt ? <DetailRow icon="checkmark-circle-outline" label="Letzte Kontrolle" value={formatDateTime(entry.letzteKontrolleAt)} styles={styles} theme={theme} /> : null}
-          {entry.beschreibung ? <DetailRow icon="document-text-outline" label="Beschreibung" value={entry.beschreibung} styles={styles} theme={theme} /> : null}
-          {entry.details?.accessNote ? <DetailRow icon="walk-outline" label="Zugang" value={entry.details.accessNote} styles={styles} theme={theme} /> : null}
-          {entry.details?.capacityPersons !== undefined ? <DetailRow icon="people-outline" label="Personen" value={`${entry.details.capacityPersons}`} styles={styles} theme={theme} /> : null}
-          {entry.details?.constructionYear !== undefined ? <DetailRow icon="calendar-outline" label="Baujahr" value={`${entry.details.constructionYear}`} styles={styles} theme={theme} /> : null}
+        <View style={styles.section}>
+          <View style={styles.titleRow}>
+            <Text style={[styles.sectionTitle, styles.grow]}>Blickfeld & Wind</Text>
+            {session && canRoleAccess(session.membership.role, "reviereinrichtungen-manage") && supportsOrientation(entry.type) ? <Pressable accessibilityRole="button" accessibilityLabel="Blickrichtungen bearbeiten" onPress={() => setEditingDirections(value => !value)} style={{ minHeight: 44, justifyContent: "center" }}><Text style={{ color: theme.accent, fontWeight: "700" }}>Fenster einstellen</Text></Pressable> : null}
+          </View>
+          {editingDirections ? <FacilityDirectionsEditor key={entry.id} entry={entry} onCancel={() => setEditingDirections(false)} onSaved={() => { setEditingDirections(false); void load(true); }} /> : null}
+          <FacilityOutlookMap pin={pin} refreshKey={refreshKey} />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Blickfeld & Wind</Text>
-          <FacilityOutlookMap pin={pin} refreshKey={refreshKey} />
-          <Text style={styles.locationCopy}>{entry.location.label ?? `${entry.location.lat.toFixed(5)}, ${entry.location.lng.toFixed(5)}`}</Text>
+        <FacilityWork key={entry.id} entry={entry} refreshKey={refreshKey} />
+
+        <Disclosure title="Zustand & Einrichtungsdetails" testID="facility-details">
+          <View style={styles.details}>
+            <DetailRow icon="shield-checkmark-outline" label="Gemeldeter Zustand" value={formatEinrichtungZustand(entry.status)} styles={styles} theme={theme} />
+            <Text style={styles.locationCopy}>Der Zustand ist die zuletzt hinterlegte Einschätzung. Konkrete Mängel und nächste Schritte stehen unter „Notizen & Arbeiten“.</Text>
+            {entry.letzteKontrolleAt ? <DetailRow icon="checkmark-circle-outline" label="Letzte Kontrolle" value={formatDateTime(entry.letzteKontrolleAt)} styles={styles} theme={theme} /> : <Text style={styles.locationCopy}>Noch keine Kontrolle dokumentiert.</Text>}
+            {entry.kontrollen[0]?.note ? <DetailRow icon="document-text-outline" label="Kontrollnotiz" value={entry.kontrollen[0].note} styles={styles} theme={theme} /> : null}
+            {entry.beschreibung ? <DetailRow icon="document-text-outline" label="Beschreibung" value={entry.beschreibung} styles={styles} theme={theme} /> : null}
+            {entry.details?.accessNote ? <DetailRow icon="walk-outline" label="Zugang" value={entry.details.accessNote} styles={styles} theme={theme} /> : null}
+            {entry.details?.capacityPersons !== undefined ? <DetailRow icon="people-outline" label="Personen" value={`${entry.details.capacityPersons}`} styles={styles} theme={theme} /> : null}
+            {entry.details?.constructionYear !== undefined ? <DetailRow icon="calendar-outline" label="Baujahr" value={`${entry.details.constructionYear}`} styles={styles} theme={theme} /> : null}
+          </View>
+          <Text style={styles.locationCopy}>{entry.location.label ?? "Gespeicherter Standort"}</Text>
           <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(mapsUrl)} style={({ pressed }) => [styles.mapAction, pressed ? styles.pressed : null]} testID="reviereinrichtung-google-maps-link">
-            <Ionicons color={theme.ink} name="map-outline" size={22} />
-            <Text style={styles.mapActionText}>In Google Maps öffnen</Text>
-            <Ionicons color={theme.muted} name="chevron-forward" size={20} />
+            <Ionicons color={theme.ink} name="map-outline" size={22} /><Text style={styles.mapActionText}>In Google Maps öffnen</Text><Ionicons color={theme.muted} name="chevron-forward" size={20} />
           </Pressable>
-        </View>
+        </Disclosure>
+        <Disclosure title={`Fotos (${entry.photos.length})`}>
+          <FacilityPhotoHero mode="detail" photos={entry.photos.map(photo => ({ id: photo.id, title: photo.title, uri: photo.url }))} title={entry.name} />
+        </Disclosure>
       </ScrollView>
     </SafeAreaView>
   );
@@ -146,7 +157,7 @@ const createStyles = (theme: ThemeColors) => ({
   titleRow: { flexDirection: "row" as const, alignItems: "flex-start" as const, gap: 12 },
   grow: { flex: 1, minWidth: 0 },
   eyebrow: { color: theme.muted, fontSize: 12, letterSpacing: 1.2, textTransform: "uppercase" as const },
-  title: { color: theme.ink, fontSize: 28, lineHeight: 34, fontWeight: "700" as const, marginTop: 3 },
+  title: { color: theme.ink, fontSize: 23, lineHeight: 28, fontWeight: "700" as const, marginTop: 3 },
   details: { borderTopWidth: 1, borderTopColor: theme.inputBorder },
   detailRow: { flexDirection: "row" as const, alignItems: "flex-start" as const, gap: 12, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: theme.inputBorder },
   detailIcon: { width: 38, height: 38, borderRadius: 19, alignItems: "center" as const, justifyContent: "center" as const, backgroundColor: theme.accent },
