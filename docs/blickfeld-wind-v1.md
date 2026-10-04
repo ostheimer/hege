@@ -1,6 +1,6 @@
 # Blickfeld und Wind bei Reviereinrichtungen
 
-Stand: 28.09.2026.
+Stand: 04.10.2026.
 
 ## Darstellung
 
@@ -42,3 +42,11 @@ Wetter wird beim Zurückkehren in die App und alle fünf Minuten im Vordergrund 
 Prüfung: 220 Mobile-Tests und 327 Web-Tests erfolgreich, einschließlich Windpfeil-Geometrie, Richtungsvalidierung, Rollenprüfung und Revierbegrenzung. Native Sichtprüfung der überarbeiteten Ansicht erfolgt separat auf dem iPhone. Die vorherige Sichtbestätigung galt nur dem goldenen Blickfeld.
 
 Aktive Ansitze mit `standortId` übernehmen die gespeicherten Blickfelder und das Einrichtungssymbol. „Details öffnen“ führt zur verknüpften Einrichtung mit aktueller Windkarte. Für freie Ansitzstandorte ohne Verknüpfung wird keine Ausrichtung angenommen.
+
+## Speicherabnahme vom 04.10.2026
+
+Die überarbeitete grafische Ansicht wurde nach dem Update im Gespräch auf dem iPhone sichtbar bestätigt. Die ergänzende lokale Abnahme prüft Fenster, Notizen und Arbeiten mit angenommenen Testeinrichtungen; die echten Einrichtungen legt Andreas später selbst vor Ort mit der App an.
+
+Die API-Integration bestätigt zusätzliche Ost-/Südfenster bei unverändertem Hauptblick von 334°, den Erhalt anderer Einrichtungsdetails, Notizen und Aufgaben nach einer neuen Anmeldung sowie den dauerhaft gespeicherten Erledigt-Status. Ein zusätzlicher Fall prüft die bestehenden Jäger-/Verwalterrechte.
+
+Die native Prüfung führte zu einer Korrektur der Tastaturbedienung: Der erste Tap auf „Speichern“ wurde bisher bei offener Tastatur zum Schließen der Tastatur verwendet. Die Detailansicht übernimmt nun wie `ScreenShell` `keyboardShouldPersistTaps="handled"` und `keyboardDismissMode="on-drag"`. Der Speichern-Button reagiert damit bereits beim ersten Tap. Der neue Maestro-Flow prüft dies mit einer Notiz bei offener Tastatur und öffnet alle Einträge erneut. Details stehen im [Abnahmeprotokoll](./mobile-smoke-results/2026-10-04-hochstand-speichern.md).

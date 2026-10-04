@@ -66,6 +66,7 @@ export function FacilityDirectionsEditor({
         return (
           <Pressable
             key={label}
+            testID={`facility-${secondary ? "window" : "main"}-direction-${value}`}
             accessibilityRole={secondary ? "checkbox" : "radio"}
             accessibilityState={{
               checked: selected,
@@ -124,6 +125,7 @@ export function FacilityDirectionsEditor({
       ) : null}
       <Pressable
         accessibilityRole="button"
+        testID="facility-directions-save"
         disabled={busy || main === undefined}
         onPress={() => void save()}
         style={{

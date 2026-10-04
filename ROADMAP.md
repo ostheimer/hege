@@ -13,10 +13,12 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 
 ## Aktueller Fokus
 
-1. Reviereinrichtungen v2 ist gegen die Production-API im iOS-Simulator abgenommen; auf dem physischen iPhone bleiben Foto, Kompass und echter GPS-Sensor als abschließender Hardware-Smoke offen
+1. Reviereinrichtungen: Kamera, echter GPS-Sensor, Kompass und erneutes Öffnen wurden am 28.09.2026 auf dem iPhone geprüft; die überarbeitete Hochstanddarstellung mit Blickfeld und Wind wurde anschließend sichtbar bestätigt. Die [Speicherabnahme für Fenster, Notizen und Arbeiten](./docs/mobile-smoke-results/2026-10-04-hochstand-speichern.md) ist seit 04.10.2026 lokal gegen PostgreSQL und im iOS-Simulator erfolgreich. Testdatensatz und Foto des früheren Hardwaretests sowie das Abschlussprotokoll für #208 bleiben zu bereinigen beziehungsweise fertigzustellen.
 2. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten; der Reviereinrichtungs-Flow deckt seit 2026-07-25 auch den kalten Expo-Development-Client-Start ohne manuellen Eingriff ab
 3. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
 4. Mobile Design-System §10: **abgeschlossen** (PRs #134–#172) — Token-Konsolidierung, `<Badge>`, semantische Farbtoken, `<FeedbackBanner>`, `cardSurface()`, Eyebrow/Spacing/Radius, `rnShadow.card`, Dark Mode end-to-end (Aktivierung #159, Adaption + In-App-Umschalter #165/#166, Logo-Chip #169) sowie Labels/Mikrocopy/Haptik/Pull-to-Refresh (#172). Verbleibende §10-Folge-Items (Button-Primitiv `<PrimaryButton>/<SecondaryButton>`, `<FilterSection>` mit Reset, Badge-Restkonsolidierung) sind kleine Refactors — siehe [Mobile-UI-Audit](./docs/mobile-ui-audit.md).
+
+Echte Hochstände erfasst Andreas später direkt vor Ort mit der App. Für die Entwicklung und Kartenabnahme werden klar bezeichnete lokale Testeinrichtungen verwendet; eine zusätzliche Standortliste ist keine Voraussetzung.
 
 ## Detaildokumente
 

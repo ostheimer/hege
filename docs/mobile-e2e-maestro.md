@@ -13,7 +13,8 @@ Maestro ergänzt den manuellen Geräte-Smoke um reproduzierbare iOS-Simulator-Fl
 - sichtbare Offline-Vormerkungen und `Jetzt senden` im Fallwild-Erfassungsmodus,
 - Reviereinrichtung per simuliertem GPS erfassen, speichern, als Karten-Pin und in der Suche finden,
 - Winddaten und Sonnenzeiten einer Ansitzeinrichtung anzeigen,
-- persistierte Offline-Reviereinrichtungen über eine sichere Simulator-Fixture prüfen.
+- persistierte Offline-Reviereinrichtungen über eine sichere Simulator-Fixture prüfen,
+- zusätzliche Hochstand-Fenster, eine Notiz und eine Arbeit speichern, erneut öffnen und die erledigte Arbeit wiederfinden.
 
 Kamera, echtes GPS, Face ID und der echte Offline-Netzwechsel bleiben im physischen [iOS-Smoke-Runbook](./mobile-smoke-ios.md). Die Queue-Oberfläche und der App-Lebenszyklus werden vorher kontrolliert im Simulator geprüft. Maestro unterstützt lokale iOS-Läufe offiziell auf Simulatoren, nicht auf physischen iPhones.
 
@@ -74,6 +75,22 @@ Optionale Variablen:
 - `HEGE_EXPECTED_BUILD_TAG`, standardmäßig aus `apps/mobile/lib/build-tag.ts`
 
 Die Flows liegen unter `.maestro/`. Test-IDs sind nur stabile Automatisierungsanker und ändern keine sichtbare Produktsprache.
+
+## Hochstand-Speicherabnahme
+
+`ios-facility-outlook-work.yaml` prüft den Ablauf über die native App. Voraussetzung sind ein angemeldeter lokaler Revierverwalter und eine eindeutig bezeichnete Testeinrichtung mit Hauptblickrichtung 334°, ohne weitere Fenster, Notizen oder Arbeiten. Die App muss mit der lokalen API und einer isolierten Testdatenbank verbunden sein. Echte Einrichtungen erfasst der Nutzer später vor Ort mit der App.
+
+```sh
+JAVA_HOME="$(brew --prefix openjdk@17)/libexec/openjdk.jdk/Contents/Home" \
+maestro --device <QA-Simulator-ID> test \
+  -e APP_ID=app.hege.revier \
+  -e HEGE_FACILITY_ID=<lokale-Testeinrichtung-ID> \
+  .maestro/ios-facility-outlook-work.yaml
+```
+
+Der Flow ergänzt Ost- und Südfenster, bewahrt die präzise Hauptblickrichtung, speichert eine Notiz bei offener Tastatur und erstellt eine Arbeit. Nach erneutem Öffnen wird die Arbeit erledigt und anschließend zusammen mit der Notiz wiedergefunden. Wischgesten am Seitenrand scrollen die Seite, ohne die interaktive Karte zu verschieben. Die Testeinrichtung und ihre zugeordneten Einträge sind nach der Datenbank-Gegenprüfung gezielt zu entfernen.
+
+`apps/web/e2e/facility-outlook-work.spec.ts` ergänzt die API-Integration gegen eine echte lokale PostgreSQL-Datenbank. Sie prüft neue Anmeldesitzungen, unveränderte Einrichtungsdetails, entfernte Zusatzfenster, zugeordnete Notizen/Arbeiten und die Jäger-/Verwalterrechte. Das ist ein API-Persistenznachweis und ersetzt den nativen Oberflächentest nicht.
 
 ## Verifizierter Lauf
 

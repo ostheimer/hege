@@ -178,6 +178,7 @@ export function FacilityWork({
           ).map((action) => (
             <Pressable
               key={action.value}
+              testID={`facility-add-${action.value}`}
               accessibilityRole="button"
               disabled={busy}
               onPress={() => {
@@ -216,6 +217,7 @@ export function FacilityWork({
           </Text>
           {mode === "task" ? (
             <TextInput
+              testID="facility-task-title"
               accessibilityLabel="Arbeit"
               placeholder="z. B. Leitersprosse ersetzen"
               placeholderTextColor={theme.muted}
@@ -227,6 +229,7 @@ export function FacilityWork({
             />
           ) : null}
           <TextInput
+            testID={mode === "note" ? "facility-note-input" : "facility-task-description"}
             accessibilityLabel={
               mode === "note" ? "Notiz" : "Details zur Arbeit"
             }
@@ -244,6 +247,7 @@ export function FacilityWork({
             editable={!busy}
           />
           <Pressable
+            testID="facility-work-save"
             accessibilityRole="button"
             disabled={busy || !(mode === "task" ? title.trim() : text.trim())}
             onPress={() => void save()}
@@ -312,6 +316,7 @@ export function FacilityWork({
             task.createdByMembershipId === session.membership.id ||
             task.assigneeMembershipIds.includes(session.membership.id)) ? (
             <Pressable
+              testID={`facility-task-complete-${task.id}`}
               accessibilityRole="button"
               disabled={busy}
               onPress={() => void complete(task)}
@@ -332,7 +337,7 @@ export function FacilityWork({
           ) : null}
         </View>
       ))}
-      <Disclosure title={`Notizen (${notes.length})`}>
+      <Disclosure title={`Notizen (${notes.length})`} testID="facility-notes">
         {notes.length === 0 ? (
           <Text style={{ color: theme.muted }}>Noch keine Notizen.</Text>
         ) : (
@@ -347,7 +352,7 @@ export function FacilityWork({
         )}
       </Disclosure>
       {completedTasks.length ? (
-        <Disclosure title={`Erledigte Arbeiten (${completedTasks.length})`}>
+        <Disclosure title={`Erledigte Arbeiten (${completedTasks.length})`} testID="facility-completed-tasks">
           {completedTasks.map((task) => (
             <Text key={task.id} style={copy}>
               ✓ {task.title}

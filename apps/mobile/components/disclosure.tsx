@@ -17,6 +17,7 @@ export function Disclosure({
   return (
     <View style={{ gap: open ? 12 : 0 }} testID={testID}>
       <Pressable
+        testID={testID ? `${testID}-toggle` : undefined}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
         onPress={() => setOpen((value) => !value)}

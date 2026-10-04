@@ -81,6 +81,8 @@ export default function ReviereinrichtungDetailScreen() {
   return (
     <SafeAreaView edges={["left", "right"]} style={styles.safe} testID="reviereinrichtung-detail-screen">
       <ScrollView
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 18) + 18 }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => void load(true)} tintColor={theme.accent} />}
         showsVerticalScrollIndicator={false}
