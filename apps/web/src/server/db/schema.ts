@@ -90,6 +90,14 @@ export const revierMaps = pgTable("revier_maps", {
   updatedAt: timestamp("updated_at", { withTimezone: true, mode: "string" }).notNull()
 });
 
+export const revierMapVersions = pgTable("revier_map_versions", {
+  id: text("id").primaryKey(),
+  revierId: text("revier_id").notNull().references(() => reviere.id),
+  data: jsonb("data").$type<RevierMapData>().notNull(),
+  savedAt: timestamp("saved_at", { withTimezone: true, mode: "string" }).notNull(),
+  changedByMembershipId: text("changed_by_membership_id").notNull()
+});
+
 export const memberships = pgTable(
   "memberships",
   {

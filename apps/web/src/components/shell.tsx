@@ -46,6 +46,7 @@ interface NavigationItem {
 
 const navigation: ReadonlyArray<NavigationItem> = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/app/revierkarte", label: "Revierkarte", icon: Reviereinrichtung },
   {
     href: "/app/sitzungen",
     label: "Sitzungen",

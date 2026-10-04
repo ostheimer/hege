@@ -13,10 +13,11 @@ Diese Datei ist der schlanke Einstiegspunkt im Repo-Root. Die vollstaendige Road
 
 ## Aktueller Fokus
 
-1. Reviereinrichtungen v2 ist gegen die Production-API im iOS-Simulator abgenommen; auf dem physischen iPhone bleiben Foto, Kompass und echter GPS-Sensor als abschließender Hardware-Smoke offen
-2. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten; der Reviereinrichtungs-Flow deckt seit 2026-07-25 auch den kalten Expo-Development-Client-Start ohne manuellen Eingriff ab
-3. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
-4. Mobile Design-System §10: **abgeschlossen** (PRs #134–#172) — Token-Konsolidierung, `<Badge>`, semantische Farbtoken, `<FeedbackBanner>`, `cardSurface()`, Eyebrow/Spacing/Radius, `rnShadow.card`, Dark Mode end-to-end (Aktivierung #159, Adaption + In-App-Umschalter #165/#166, Logo-Chip #169) sowie Labels/Mikrocopy/Haptik/Pull-to-Refresh (#172). Verbleibende §10-Folge-Items (Button-Primitiv `<PrimaryButton>/<SecondaryButton>`, `<FilterSection>` mit Reset, Badge-Restkonsolidierung) sind kleine Refactors — siehe [Mobile-UI-Audit](./docs/mobile-ui-audit.md).
+1. Reviereinrichtungen: Kamera, GPS, Kompass und Wiederöffnen wurden am 28.09.2026 auf dem iPhone geprüft; die Blickfeld-/Winddarstellung anschließend sichtbar bestätigt. Die lokale Speicherabnahme für Fenster, Notizen und Arbeiten ist in PR #225 dokumentiert. Bereinigung des früheren Hardware-Testdatensatzes und Abschlussprotokoll für #208 bleiben offen.
+2. Revierkarte und Grenzentwurf: lokale Umsetzung vom 04.10.2026 mit Einrichtungspins, getrennten ungeprüften Orten, gezieltem GPS-Punktsetzen sowie Web-Editor mit Versions- und Konfliktschutz. Abnahme und externe Grenzen stehen in [Revierkarte und Grenzeditor](./docs/revierkarte-grenzeditor-v1.md). Veröffentlichung, reale Geh-/Fahrt-Abnahme und native Google-Umstellung sind getrennte Schritte.
+3. Maestro-Vorlauf für Login, Rollen und Offline-Warteschlangen beibehalten; der Reviereinrichtungs-Flow deckt seit 2026-07-25 auch den kalten Expo-Development-Client-Start ohne manuellen Eingriff ab
+4. Android-Emulator-Smoke als optionalen Zweitpfad bei Bedarf praktisch durchlaufen
+5. Mobile Design-System §10: **abgeschlossen** (PRs #134–#172) — Token-Konsolidierung, `<Badge>`, semantische Farbtoken, `<FeedbackBanner>`, `cardSurface()`, Eyebrow/Spacing/Radius, `rnShadow.card`, Dark Mode end-to-end (Aktivierung #159, Adaption + In-App-Umschalter #165/#166, Logo-Chip #169) sowie Labels/Mikrocopy/Haptik/Pull-to-Refresh (#172). Verbleibende §10-Folge-Items (Button-Primitiv `<PrimaryButton>/<SecondaryButton>`, `<FilterSection>` mit Reset, Badge-Restkonsolidierung) sind kleine Refactors — siehe [Mobile-UI-Audit](./docs/mobile-ui-audit.md).
 
 ## Detaildokumente
 

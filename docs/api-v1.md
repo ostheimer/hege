@@ -84,6 +84,15 @@ Liefert:
 - `POST /api/v1/ansitze`
 - `PATCH /api/v1/ansitze/:id/beenden`
 
+### Revierkarte
+
+- `GET /api/v1/revier-map` liefert `map` und `revision` des aktiven Reviers; ohne Karte sind beide `null`.
+- `POST /api/v1/revier-map` übernimmt einen mobilen GPS-Entwurf mit `samples`. Eine bestehende Karte wird mit `409` geschützt.
+- `PUT /api/v1/revier-map` übernimmt `map`, die zuletzt gelesene `revision` und bei bestehender Karte `confirmReplace: true`. Ein abweichender Kartenstand liefert `409`; ungültige Geometrie liefert `400`.
+- `GET /api/v1/revier-map/versions` liefert maximal 20 frühere Kartenstände, neueste zuerst.
+
+Schreibrechte verwenden zentral `revier-map-manage`. Der Revierkontext kommt ausschließlich aus der authentifizierten Sitzung. Der PUT-Pfad erhält bestehende ungeprüfte Kartenorte und archiviert die vorige Karte atomar. Eine Wiederherstellung erfolgt als bestätigter PUT, nicht als ungeschütztes Überschreiben. Voraussetzung vor Veröffentlichung ist Migration `0014` einschließlich PostGIS. Lokale Umsetzung und Abnahme: [Grenzeditor](./revierkarte-grenzeditor-v1.md).
+
 ### Reviereinrichtungen
 
 - `GET /api/v1/reviereinrichtungen`
