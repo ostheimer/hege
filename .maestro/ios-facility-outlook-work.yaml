@@ -1,0 +1,175 @@
+appId: ${APP_ID}
+name: Hochstand - Fenster, Notiz und Arbeit speichern und erneut öffnen
+tags:
+  - ios
+  - reviereinrichtungen
+# Voraussetzung: lokale Testeinrichtung ohne Notizen/Arbeiten und angemeldeter
+# Revierverwalter. HEGE_FACILITY_ID ist die ID dieser Testeinrichtung.
+---
+- tapOn:
+    text: Öffnen
+    optional: true
+- openLink: hege://reviereinrichtung/${HEGE_FACILITY_ID}
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtung-detail-screen
+    timeout: 15000
+- tapOn: Blickrichtungen bearbeiten
+- scrollUntilVisible:
+    element:
+      id: facility-window-direction-90
+    direction: DOWN
+- tapOn:
+    id: facility-window-direction-90
+- tapOn:
+    id: facility-window-direction-180
+- scrollUntilVisible:
+    element:
+      id: facility-directions-save
+    direction: DOWN
+- tapOn:
+    id: facility-directions-save
+- extendedWaitUntil:
+    notVisible:
+      id: facility-directions-save
+    timeout: 15000
+- openLink: hege://reviereinrichtungen
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtungen-screen
+    timeout: 15000
+- openLink: hege://reviereinrichtung/${HEGE_FACILITY_ID}
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtung-detail-screen
+    timeout: 15000
+- assertVisible: Hauptblick NW
+- takeScreenshot: facility-directions-reopened
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-add-note
+- tapOn:
+    id: facility-add-note
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-note-input
+- tapOn:
+    id: facility-note-input
+- inputText: Testnotiz zur Kontrolle
+- assertVisible:
+    id: facility-work-save
+- tapOn:
+    id: facility-work-save
+- extendedWaitUntil:
+    visible: Notiz gespeichert.
+    timeout: 15000
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-add-task
+- tapOn:
+    id: facility-add-task
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-task-title
+- tapOn:
+    id: facility-task-title
+- inputText: Testarbeit Leitersprosse ersetzen
+- tapOn: Was ist zu tun?
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-work-save
+- tapOn:
+    id: facility-work-save
+- extendedWaitUntil:
+    visible: Arbeit bei der Einrichtung gespeichert.
+    timeout: 15000
+- openLink: hege://reviereinrichtungen
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtungen-screen
+    timeout: 15000
+- openLink: hege://reviereinrichtung/${HEGE_FACILITY_ID}
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtung-detail-screen
+    timeout: 15000
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    text: Testarbeit Leitersprosse ersetzen
+- assertVisible: 1 offen
+- assertVisible:
+    id: facility-task-complete-.*
+- tapOn:
+    id: facility-task-complete-.*
+- extendedWaitUntil:
+    visible: Arbeit als erledigt markiert.
+    timeout: 15000
+- openLink: hege://reviereinrichtungen
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtungen-screen
+    timeout: 15000
+- openLink: hege://reviereinrichtung/${HEGE_FACILITY_ID}
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible:
+      id: reviereinrichtung-detail-screen
+    timeout: 15000
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-notes-toggle
+- assertVisible: 0 offen
+- tapOn:
+    id: facility-notes-toggle
+- assertVisible: Testnotiz zur Kontrolle
+- swipe:
+    start: 2%, 85%
+    end: 2%, 20%
+    duration: 600
+- assertVisible:
+    id: facility-completed-tasks-toggle
+- tapOn:
+    id: facility-completed-tasks-toggle
+- assertVisible: .*Testarbeit Leitersprosse ersetzen
+- takeScreenshot: facility-work-reopened
