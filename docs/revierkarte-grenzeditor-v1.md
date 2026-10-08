@@ -2,7 +2,7 @@
 
 ## Web-Release-Prüfung vom 08.10.2026
 
-Der Web-Release einschließlich Merge, Migration und Deployment ist ausdrücklich beauftragt. PR #225 bleibt separat; für den Grenzeditor besteht keine Abhängigkeit. Die nachstehenden älteren lokalen Prüfungen vom 04.10.2026 sind historische Evidenz.
+PR #226 ist unter `fb183c5e6bc51a00a40b0329eb8306fbec73d143` gemergt und auf [hege.app](https://hege.app/app/revierkarte) veröffentlicht. Das Deployment `dpl_3kbDaEdqvopPZARhE5bP1Vhd35Uz` ist auf `main` bereit und der Domain-Alias geprüft. Der [Release Check des Merge-Commits](https://github.com/ostheimer/hege/actions/runs/37774471196) besteht. Für den bei Vercel erforderlichen Check wurde der bestehende, zuvor manuell deaktivierte Release-Workflow wieder aktiviert und ausgeführt; die Prüfanforderung wurde nicht entfernt. Preview-Smoke wurde direkt ausgeführt; der separate Preview-Workflow bleibt deaktiviert. PR #225 bleibt separat; für den Grenzeditor besteht keine Abhängigkeit. Die nachstehenden älteren lokalen Prüfungen vom 04.10.2026 sind historische Evidenz.
 
 Frisch bestanden: 17 Domain-, 220 Mobile- und 327 Web-Tests, TypeScript in allen drei Bereichen sowie fünf Playwright-Prüfungen für den Grenzeditor auf Desktop und Mobile einschließlich Produktionsbuild. Die E2E-Prüfungen verwenden ausschließlich eigene lokale `hege_e2e_*`-Datenbanken.
 
@@ -15,6 +15,18 @@ Migration: Direkte Produktionsverbindung und DDL-Rechte geprüft, Journal bis `0
 Rückfall: Bei einem Webfehler die vorherige Produktionsversion bei Vercel wiederherstellen. `0014` ergänzt ausschließlich PostGIS und eine neue Historientabelle; vorhandene Tabellen/Daten werden nicht verändert und bleiben mit dem vorherigen Web kompatibel. Die neue Historie bei einem Web-Rollback erhalten. Ein Datenbank-Restore ist nur der gesondert geprüfte Notfallweg in eine isolierte Zieldatenbank; laufende Produktionsdaten nicht durch den alten Dump überschreiben.
 
 Live-QA verwendet ausschließlich ein eigenes synthetisches Testrevier samt eigenen Testidentitäten. Vorhandene Reviergrenzen bleiben unangetastet. Testdaten anschließend nur anhand ihrer exakten QA-IDs transaktional entfernen. Mobile OTA, native Google-Umstellung und Geh-/Fahrt-/Hintergrundabnahme bleiben außerhalb dieses Web-Releases.
+
+### Authentifizierte Live-Abnahme
+
+Desktop: eigener QA-Verwalter über die Login-Oberfläche angemeldet, vier Punkte auf der schematischen Karte gezeichnet, einen entfernt und rückgängig gemacht, Browserentwurf neu geöffnet, erstmals gespeichert und nach Neuladen exakt wiedergefunden. Anschließend einen Stützpunkt gezogen und bestätigt gespeichert; die vorherige Version über die Oberfläche geladen und übernommen. Die vollständige Karte stimmt danach exakt mit dem zuerst gespeicherten Stand überein.
+
+Live-API: zwei getrennte QA-Reviere mit eigenen Verwaltern und einem Jäger. Mehrteilige Grenze, Innenring und Ausschluss exakt gespeichert und gelesen. Fremde Revier-ID im Body bewirkt ausschließlich einen Schreibzugriff auf das jeweils authentifizierte QA-Revier; der zweite Verwalter sieht keine fremde Historie. Ungültiger Innenring: HTTP 400 und gespeicherter Stand unverändert. Fehlende Bestätigung: 409. Zwei gleichzeitige Änderungen derselben Revision: genau einmal 200 und einmal 409. Jäger-Schreiben: 403; anonyme Historie: 401.
+
+Mobile Browserdarstellung (390 × 844): beide Teilflächen, Innenring und Ausschluss sichtbar. Einen weiteren Punkt in der zweiten Teilfläche über die Karte gesetzt und gespeichert; die erste Teilfläche einschließlich Innenring und der Ausschluss bleiben exakt unverändert. Neu geladen und die vorherige Multipart-Version über die Oberfläche wiederhergestellt; vollständige Karte exakt gleich dem vorherigen Stand. Desktop- und Mobile-Screenshots wurden visuell geprüft und bleiben in der geschützten lokalen QA-Ablage.
+
+Bereinigung: ausschließlich sechs QA-Versionen, zwei QA-Karten, drei QA-Mitgliedschaften, zwei QA-Reviere und drei QA-Benutzer anhand ihrer exakten IDs transaktional entfernt. Danach stimmen alle 23 ursprünglichen Produktionstabellen wieder in Anzahl und Datenhash mit der Sicherung überein. Die entfernte QA-Sitzung wird serverseitig mit 401 abgewiesen; Browser abgemeldet.
+
+**Offenes Abnahmekriterium:** echte Google-Karte und Satellit wurden nicht abgenommen. Der dafür erforderliche sichere Browser-Schlüssel fehlt weiterhin; die präzise Freigabe für einen separaten, eingeschränkten Schlüssel im vorhandenen Google-Projekt ist angefragt. Der Web-Editor ist veröffentlicht und live auf der deutlich bezeichneten schematischen Unterlage geprüft. Vollständige Google-Abnahme erst nach Konfiguration und erneutem Produktionsbuild, wiederum ausschließlich mit eigenen synthetischen QA-Daten.
 
 ## Bedienung
 

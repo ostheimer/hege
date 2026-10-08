@@ -15,6 +15,7 @@ Diese Dokumentation beschreibt den aktuellen Stand des Repositories und den gepl
 - [Mobile-E2E mit Maestro](./mobile-e2e-maestro.md)
 - [Android-Smoke-Runbook](./mobile-smoke-android.md)
 - [Google-Maps-Ausrichtung](./maps-google-v1.md)
+- [Revierkarte und Grenzeditor: Web-Release und Abnahme](./revierkarte-grenzeditor-v1.md)
 - [GIP-Straßenkilometer v1](./gip-strassenkilometer-v1.md)
 - [Passkeys und Face ID v1](./passkeys-faceid-v1.md)
 - [Rollen, Aufgaben und Nachrichten v1](./rollen-aufgaben-nachrichten-v1.md)
