@@ -75,6 +75,17 @@ Optionale Variablen:
 
 Die Flows liegen unter `.maestro/`. Test-IDs sind nur stabile Automatisierungsanker und ändern keine sichtbare Produktsprache.
 
+### Grenzentwurf
+
+`.maestro/ios-boundary-editor.yaml` prüft vier gezielt gesetzte GPS-Punkte, Entfernen/Rückgängig und den erhaltenen Entwurf nach erneutem Öffnen. Nur im eigenen, bereits angemeldeten Simulator mit Revierverwaltungsrecht und leerem lokalen Grenzentwurf ausführen. Vorhandene Nutzerentwürfe nicht verwerfen. Die Koordinaten sind angenommene Testpunkte; der Flow speichert keine Reviergrenze auf dem Server.
+
+```sh
+maestro --device <eigene-simulator-uuid> test \
+  -e APP_ID=app.hege.revier .maestro/ios-boundary-editor.yaml
+```
+
+Die lokale Abnahme vom 04.10.2026 ist im [Grenzeditor-Protokoll](./revierkarte-grenzeditor-v1.md) dokumentiert. Ein tatsächlicher Geh-/Fahrt-Test bleibt getrennt.
+
 ## Verifizierter Lauf
 
 Am 2026-07-25 lief der kombinierte Reviereinrichtungs-Flow mit leerem Metro-Cache auf einem iPhone-17-Pro-Simulator mit iOS 26.4 gegen die Production-API grün. Login, simuliertes GPS, Speichern, Erfolgsmeldung ohne verbliebenes Formular, Karten-Pin, Suche, Wind und Sonnenzeiten waren sichtbar; der eindeutig zugeordnete Smoke-Datensatz wurde anschließend transaktional entfernt und die Abwesenheit erneut geprüft. Build-Tag `0.1.0 · 2026-07-21.23`.

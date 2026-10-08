@@ -1,0 +1,79 @@
+appId: ${APP_ID}
+name: Grenzentwurf - vier GPS-Punkte, Korrektur und Wiederöffnen
+tags:
+  - ios
+  - revierkarte
+# Voraussetzung: angemeldeter Revierverwalter und leerer lokaler Grenzentwurf.
+# Nur im eigenen Simulator ausführen; alle Koordinaten sind angenommene Testpunkte.
+---
+- openLink: hege://revierkarte-erfassen
+- tapOn:
+    text: Öffnen
+    optional: true
+- assertVisible: '0 / 2000 Punkte.*'
+- setLocation:
+    latitude: 48.34
+    longitude: 16.72
+- tapOn:
+    id: boundary-start-pause
+- tapOn:
+    text: Beim Verwenden der App erlauben
+    optional: true
+- extendedWaitUntil:
+    visible: '.*GPS ±.*'
+    timeout: 15000
+- tapOn:
+    id: boundary-set-point
+- extendedWaitUntil:
+    visible: '1 / 2000 Punkte.*'
+    timeout: 20000
+- setLocation:
+    latitude: 48.34
+    longitude: 16.721
+- tapOn:
+    id: boundary-set-point
+- extendedWaitUntil:
+    visible: '2 / 2000 Punkte.*'
+    timeout: 20000
+- setLocation:
+    latitude: 48.3405
+    longitude: 16.721
+- tapOn:
+    id: boundary-set-point
+- extendedWaitUntil:
+    visible: '3 / 2000 Punkte.*'
+    timeout: 20000
+- setLocation:
+    latitude: 48.3405
+    longitude: 16.72
+- tapOn:
+    id: boundary-set-point
+- extendedWaitUntil:
+    visible: '4 / 2000 Punkte.*'
+    timeout: 20000
+- tapOn:
+    id: boundary-start-pause
+- repeat:
+    times: 3
+    commands:
+      - swipe:
+          start: 2%, 85%
+          end: 2%, 20%
+          duration: 600
+- tapOn:
+    id: boundary-point-1
+- tapOn:
+    id: boundary-remove-point
+- tapOn:
+    id: boundary-undo
+- openLink: hege://revierkarte
+- tapOn:
+    text: Öffnen
+    optional: true
+- openLink: hege://revierkarte-erfassen
+- tapOn:
+    text: Öffnen
+    optional: true
+- extendedWaitUntil:
+    visible: '4 / 2000 Punkte.*Pausiert.*'
+    timeout: 15000

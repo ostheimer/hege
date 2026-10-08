@@ -4537,3 +4537,6 @@ td span {
     display: none !important;
   }
 }
+
+.boundary-editor button:disabled { opacity: .45; cursor: default; transform: none; box-shadow: none; }
+.boundary-editor button[aria-pressed="true"] { outline: 3px solid #caae42; outline-offset: 2px; }
