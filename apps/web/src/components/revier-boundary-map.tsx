@@ -26,21 +26,52 @@ interface Props {
   onMove: (index: number, point: MapCoordinate) => void;
 }
 export function RevierBoundaryMap(props: Props) {
+  const [mapType, setMapType] = useState<"roadmap" | "satellite">("roadmap");
+  const [loadError, setLoadError] = useState(false);
   const key =
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ??
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY;
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_API_KEY?.trim();
   const initialBounds = useMemo(() => mapBounds(props.map.areas), []);
   const initialCenter = initialBounds
     ? { lat: initialBounds.latitude, lng: initialBounds.longitude }
     : props.center;
   return key ? (
-    <APIProvider apiKey={key}>
+    <APIProvider
+      apiKey={key}
+      language="de"
+      region="AT"
+      onError={() => setLoadError(true)}
+    >
+      {loadError ? (
+        <p role="alert">
+          Die Google-Karte konnte nicht geladen werden. Dein Grenzentwurf bleibt erhalten.
+        </p>
+      ) : null}
+      <div className="section-actions" aria-label="Kartenunterlage">
+        <button
+          className="button-link"
+          aria-pressed={mapType === "roadmap"}
+          onClick={() => setMapType("roadmap")}
+        >
+          Karte
+        </button>
+        <button
+          className="button-link"
+          aria-pressed={mapType === "satellite"}
+          onClick={() => setMapType("satellite")}
+        >
+          Satellit
+        </button>
+      </div>
       <Map
         defaultCenter={initialCenter}
         defaultZoom={13}
-        mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID ?? "hege-revier-map"}
+        // Google verlangt für AdvancedMarker eine gültige Karten-ID.
+        // Produktion verwendet eine eigene ID; DEMO_MAP_ID dient der lokalen Prüfung.
+        mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID?.trim() || "DEMO_MAP_ID"}
+        mapTypeId={mapType}
         style={{ height: 480, borderRadius: 16 }}
-        mapTypeControl
+        mapTypeControl={false}
         gestureHandling="greedy"
         onClick={(event) => {
           if (props.editable && props.adding && event.detail.latLng)
@@ -113,6 +144,7 @@ function GoogleBoundaryLayer(props: Props) {
       }}
     >
       <span
+        data-testid={`map-point-${index}`}
         style={{
           display: "grid",
           placeItems: "center",

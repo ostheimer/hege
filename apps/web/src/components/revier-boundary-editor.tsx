@@ -241,20 +241,22 @@ export function RevierBoundaryEditor({ owner, canEdit, center }: Props) {
       </header>
       {error ? <p role="alert">{error}</p> : null}
       {message ? <p role="status">{message}</p> : null}
-      <RevierBoundaryMap
-        key={mapViewKey}
-        map={map}
-        address={address}
-        center={center}
-        editable={canEdit && ready && !busy}
-        adding={adding}
-        selected={selected}
-        onSelect={setSelected}
-        onAdd={(point) =>
-          edit(replaceMapRing(map, address, [...points, point]))
-        }
-        onMove={changePoint}
-      />
+      {ready ? (
+        <RevierBoundaryMap
+          key={mapViewKey}
+          map={map}
+          address={address}
+          center={center}
+          editable={canEdit && !busy}
+          adding={adding}
+          selected={selected}
+          onSelect={setSelected}
+          onAdd={(point) =>
+            edit(replaceMapRing(map, address, [...points, point]))
+          }
+          onMove={changePoint}
+        />
+      ) : <p>Karte wird geladen.</p>}
       <label className="field">
         Teilfläche oder Ring
         <select

@@ -1,4 +1,20 @@
-# Revierkarte und Grenzentwurf – lokale Umsetzung vom 04.10.2026
+# Revierkarte und Grenzentwurf
+
+## Web-Release-Prüfung vom 08.10.2026
+
+Der Web-Release einschließlich Merge, Migration und Deployment ist ausdrücklich beauftragt. PR #225 bleibt separat; für den Grenzeditor besteht keine Abhängigkeit. Die nachstehenden älteren lokalen Prüfungen vom 04.10.2026 sind historische Evidenz.
+
+Frisch bestanden: 17 Domain-, 220 Mobile- und 327 Web-Tests, TypeScript in allen drei Bereichen sowie fünf Playwright-Prüfungen für den Grenzeditor auf Desktop und Mobile einschließlich Produktionsbuild. Die E2E-Prüfungen verwenden ausschließlich eigene lokale `hege_e2e_*`-Datenbanken.
+
+Google-Korrektur: Die vorherige Ersatz-Karten-ID `hege-revier-map` ist keine gültige Google-Karten-ID. Der Editor verwendet die konfigurierte `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`; für lokale Google-Prüfungen ist `DEMO_MAP_ID` der dokumentierte Testwert. Produktion benötigt eine eigene Google-Karten-ID. Die Auswahl „Karte“/„Satellit“ bleibt auch auf schmalen Displays erreichbar. Die Bibliothek lädt Sprache `de` und Region `AT`; Ladefehler erhalten den Entwurf. Die Karte wird erst nach dem Laden des gespeicherten Standes geöffnet, wodurch ein unnötiger erster Google-Kartenaufruf entfällt.
+
+Konfigurationsprüfung: Bei Vercel ist bisher ausschließlich ein Server-Schlüssel hinterlegt. Im bestehenden Google-Projekt gibt es außerdem einen Maps-Schlüssel ohne Anwendungseinschränkung und mit 33 freigegebenen APIs. Dieser wird nicht als öffentlicher Browser-Schlüssel ausgeliefert. Für die reale Google-Abnahme ist ein separat freigegebener, auf die Produktions-Websites und Maps JavaScript API beschränkter Browser-Schlüssel erforderlich. Keine bestehende Schlüsselrestriktion, Rotation, Abrechnung oder Quote wurde verändert.
+
+Migrationsvorbereitung: Direkte Produktionsverbindung und DDL-Rechte geprüft, Journal bis `0013` bestätigt. Ein vollständiger PostgreSQL-Custom-Dump ist lokal in geschützter Ablage gesichert. Restore und `0014` werden gegen eine separate lokale E2E-Datenbank geprüft, ohne Seed. Für die lokale PostgreSQL-16-Restore-Probe wird ausschließlich die vom PostgreSQL-17-Dump gesetzte Sessionoption `transaction_timeout` entfernt; Schema und Daten bleiben unverändert.
+
+Rückfall: Bei einem Webfehler die vorherige Produktionsversion bei Vercel wiederherstellen. `0014` ergänzt ausschließlich PostGIS und eine neue Historientabelle; vorhandene Tabellen/Daten werden nicht verändert und bleiben mit dem vorherigen Web kompatibel. Die neue Historie bei einem Web-Rollback erhalten. Ein Datenbank-Restore ist nur der gesondert geprüfte Notfallweg in eine isolierte Zieldatenbank; laufende Produktionsdaten nicht durch den alten Dump überschreiben.
+
+Live-QA verwendet ausschließlich ein eigenes synthetisches Testrevier samt eigenen Testidentitäten. Vorhandene Reviergrenzen bleiben unangetastet. Testdaten anschließend nur anhand ihrer exakten QA-IDs transaktional entfernen. Mobile OTA, native Google-Umstellung und Geh-/Fahrt-/Hintergrundabnahme bleiben außerhalb dieses Web-Releases.
 
 ## Bedienung
 
