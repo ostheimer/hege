@@ -83,7 +83,7 @@ Der Neon-Branch `main` muss als geschützt markiert bleiben. Vor Änderungen ode
 
 Kartenfunktionen werden im ganzen Produkt auf Google Maps ausgerichtet. Karten-UI, Marker, Standortsuche und spätere Geocoding-Schritte sollen deshalb direkt auf Google-Maps-kompatible Integrationen zielen. Für Fallwild ist der erste Standort-Slice aktiv: Der Endpunkt ist produktiv erreichbar, Google ergänzt Adresse und Straße serverseitig, während GIP die fachliche Zielquelle für österreichische Straßenkilometer bleibt.
 
-Der [Web-Grenzeditor](./docs/revierkarte-grenzeditor-v1.md) ist seit 08.10.2026 veröffentlicht: Punkte, Teilflächen, Innenringe und Ausschlüsse bearbeiten, konfliktgeschützt speichern und frühere Versionen wiederherstellen. Die authentifizierte Desktop-/Mobile-Abnahme verwendet aktuell die gekennzeichnete schematische Ansicht. Echte Google-Karte und Satellit benötigen noch den separat freigegebenen Browser-Schlüssel.
+Der [Web-Grenzeditor](./docs/revierkarte-grenzeditor-v1.md) ist seit 08.10.2026 veröffentlicht: Punkte, Teilflächen, Innenringe und Ausschlüsse bearbeiten, konfliktgeschützt speichern und frühere Versionen wiederherstellen. Seit 24.10.2026 sind echte Google-Karte und Satellitenansicht mit eingeschränktem Web-Schlüssel und eigener Karten-ID produktiv konfiguriert und auf Desktop sowie im mobilen Browser live geprüft.
 
 `apps/api` bleibt vorerst als Referenz und Übergangspfad im Repository, ist aber nicht die langfristige Zielarchitektur.
 
