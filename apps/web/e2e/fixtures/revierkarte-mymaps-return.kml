@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Synthetischer My-Maps-Rückexport</name>
+    <description/>
+    <Style id="poly-228B22-3000-68-normal">
+      <LineStyle>
+        <color>ff228b22</color>
+        <width>3</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>44228b22</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-228B22-3000-68-highlight">
+      <LineStyle>
+        <color>ff228b22</color>
+        <width>4.5</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>44228b22</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-228B22-3000-68">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-228B22-3000-68-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-228B22-3000-68-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Style id="poly-CC2222-3000-68-normal">
+      <LineStyle>
+        <color>ff2222cc</color>
+        <width>3</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>442222cc</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-CC2222-3000-68-highlight">
+      <LineStyle>
+        <color>ff2222cc</color>
+        <width>4.5</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>442222cc</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-CC2222-3000-68">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-CC2222-3000-68-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-CC2222-3000-68-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Folder>
+      <name>hege Revierkarte</name>
+      <Placemark>
+        <name>QA Testgrenze</name>
+        <description><![CDATA[description: <br>hege_kind: boundary]]></description>
+        <styleUrl>#poly-228B22-3000-68</styleUrl>
+        <ExtendedData>
+          <Data name="description">
+            <value/>
+          </Data>
+          <Data name="hege_kind">
+            <value>boundary</value>
+          </Data>
+        </ExtendedData>
+        <MultiGeometry>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <tessellate>1</tessellate>
+                <coordinates>
+                  14,47,0
+                  14.01,47,0
+                  14.01,47.01,0
+                  14,47.01,0
+                  14,47,0
+                </coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+            <innerBoundaryIs>
+              <LinearRing>
+                <tessellate>1</tessellate>
+                <coordinates>
+                  14.002,47.002,0
+                  14.004,47.002,0
+                  14.004,47.004,0
+                  14.002,47.004,0
+                  14.002,47.002,0
+                </coordinates>
+              </LinearRing>
+            </innerBoundaryIs>
+          </Polygon>
+          <Polygon>
+            <outerBoundaryIs>
+              <LinearRing>
+                <tessellate>1</tessellate>
+                <coordinates>
+                  14.02,47,0
+                  14.03,47,0
+                  14.03,47.01,0
+                  14.02,47.01,0
+                  14.02,47,0
+                </coordinates>
+              </LinearRing>
+            </outerBoundaryIs>
+          </Polygon>
+        </MultiGeometry>
+      </Placemark>
+      <Placemark>
+        <name>[Ausschluss] QA Ausschluss</name>
+        <description><![CDATA[description: <br>hege_kind: exclusion]]></description>
+        <styleUrl>#poly-CC2222-3000-68</styleUrl>
+        <ExtendedData>
+          <Data name="description">
+            <value/>
+          </Data>
+          <Data name="hege_kind">
+            <value>exclusion</value>
+          </Data>
+        </ExtendedData>
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <tessellate>1</tessellate>
+              <coordinates>
+                14.023,47.003,0
+                14.025,47.003,0
+                14.025,47.005,0
+                14.023,47.005,0
+                14.023,47.003,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>
