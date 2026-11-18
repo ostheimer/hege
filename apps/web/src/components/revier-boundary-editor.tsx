@@ -9,6 +9,7 @@ import {
   type RingAddress,
 } from "@hege/domain";
 import { RevierBoundaryMap } from "./revier-boundary-map";
+import { RevierMapExchange } from "./revier-map-exchange";
 interface Props {
   owner: string;
   canEdit: boolean;
@@ -239,6 +240,16 @@ export function RevierBoundaryEditor({ owner, canEdit, center }: Props) {
           </p>
         </div>
       </header>
+      <RevierMapExchange current={map} saved={base} canEdit={canEdit} disabled={!ready || busy}
+        onImport={(next) => {
+          edit(next);
+          setAddress({ area: 0, polygon: 0, ring: 0 });
+          setSelected(null);
+          setAdding(false);
+          setMapViewKey((value) => value + 1);
+          setMessage("Import als Entwurf übernommen. Alle Flächen prüfen und anschließend speichern.");
+        }}
+      />
       {error ? <p role="alert">{error}</p> : null}
       {message ? <p role="status">{message}</p> : null}
       {ready ? (
